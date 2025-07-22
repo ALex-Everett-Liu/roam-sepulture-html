@@ -1,0 +1,9 @@
+# Private HTML pages - these won't be deployed to Vercel
+# Add any pages you want to keep private here
+# Example:
+# private-page.html
+# secret-folder/
+# drafts/
+node_modules/
+llm-talk-archives-01/
+

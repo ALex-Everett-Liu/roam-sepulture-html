@@ -1,0 +1,12 @@
+{
+  "name": "roam-sepulture-html",
+  "version": "1.0.0",
+  "description": "Personal wiki with full-text search",
+  "scripts": {
+    "build-index": "node generate-search-index.js",
+    "serve": "python -m http.server 8000"
+  },
+  "devDependencies": {
+    "jsdom": "^22.1.0"
+  }
+}

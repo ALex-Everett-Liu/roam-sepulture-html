@@ -12,6 +12,37 @@
         .section-title { font-weight: bold; margin-top: 25px; color: #31698a; }
         a { text-decoration: none; color: #3875d7; }
         a:hover { text-decoration: underline; }
+        
+        /* Search styles */
+        .search-container { margin-bottom: 30px; }
+        #search-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .search-results {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 2px;
+        }
+        .search-result {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .search-result:last-child { border-bottom: none; }
+        .result-title { font-weight: bold; color: #2a4b8d; }
+        .result-snippet { color: #666; font-size: 14px; margin-top: 3px; }
+        .no-results { padding: 15px; color: #666; font-style: italic; }
+        mark { background-color: #ffeb3b; }
     </style>
 </head>
 <body>
@@ -36,5 +67,6 @@
             <li><a href="culture.html">Culture</a></li>
         </ul>
     </div>
+    <script src="search.js"></script>
 </body>
 </html>
