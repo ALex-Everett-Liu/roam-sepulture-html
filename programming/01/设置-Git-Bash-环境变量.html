@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 Git Bash 环境变量 - 编程指南</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2d3748;
+            --secondary-color: #4a5568;
+            --accent-color: #3182ce;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --error-color: #e53e3e;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: var(--card-bg);
+            padding: 15px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: var(--primary-color);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .section h3 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            margin: 30px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .method-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .method-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .method-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+        }
+
+        .step-item {
+            counter-increment: step-counter;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .step-item::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 30px;
+            height: 30px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .warning-box {
+            background: #fff5e6;
+            border: 1px solid #ffd4a3;
+            border-left: 4px solid var(--warning-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .warning-icon {
+            color: var(--warning-color);
+            font-size: 24px;
+            margin-top: 2px;
+        }
+
+        .tip-box {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .tip-icon {
+            color: var(--accent-color);
+            font-size: 24px;
+            margin-top: 2px;
+        }
+
+        .path-highlight {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #0369a1;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+        .variable-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .variable-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-family: monospace;
+        }
+
+        .variable-value {
+            color: var(--success-color);
+            font-family: monospace;
+            background: #f0fdf4;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .icon-svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .file-explorer {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+        }
+
+        .file-icon {
+            width: 16px;
+            height: 16px;
+            fill: #64748b;
+        }
+
+        .executable {
+            color: #059669;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .step-item {
+                padding-left: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-terminal"></i>
+                设置 Git Bash 环境变量
+            </h1>
+            <div class="subtitle">Claude Code 配置指南</div>
+        </div>
+
+        <div class="nav">
+            <a href="../../index.html"><i class="fas fa-home"></i> 首页</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="../../programming.html"><i class="fas fa-code"></i> 编程</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>设置 Git Bash 环境变量</span>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2><i class="fas fa-exclamation-triangle"></i> 问题描述</h2>
+                <p>启动 Claude Code 时遇到以下错误提示：</p>
+                <div class="code-block" data-lang="error">
+Launching Claude Code...
+
+Claude Code on Windows requires git-bash (https://git-scm.com/downloads/win). 
+If installed but not in PATH, set environment variable pointing to your bash.exe, 
+similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\Program Files\Git\bin\bash.exe</div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-folder-open"></i> Git Bash 路径确认</h2>
+                <p>首先确认你的 Git Bash 安装位置：</p>
+                
+                <div class="file-explorer">
+                    <div class="file-item">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        </svg>
+                        <span>E:\</span>
+                    </div>
+                    <div class="file-item" style="margin-left: 20px;">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        </svg>
+                        <span>scoop\</span>
+                    </div>
+                    <div class="file-item" style="margin-left: 40px;">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        </svg>
+                        <span>apps\</span>
+                    </div>
+                    <div class="file-item" style="margin-left: 60px;">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        </svg>
+                        <span>git\</span>
+                    </div>
+                    <div class="file-item" style="margin-left: 80px;">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        </svg>
+                        <span>2.50.0\</span>
+                    </div>
+                    <div class="file-item" style="margin-left: 100px;">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        </svg>
+                        <span>bin\</span>
+                    </div>
+                    <div class="file-item" style="margin-left: 120px;">
+                        <svg class="file-icon executable" viewBox="0 0 24 24">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M11,15H13V17H11V15M9,11H15V13H9V11Z"/>
+                        </svg>
+                        <span class="executable">bash.exe</span>
+                    </div>
+                </div>
+                
+                <div class="variable-box">
+                    <strong>目标路径：</strong>
+                    <div class="path-highlight">E:\scoop\apps\git\2.50.0\bin\bash.exe</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-cog"></i> 解决方案</h2>
+                <p>设置环境变量 <code>CLAUDE_CODE_GIT_BASH_PATH</code> 指向你的 Git Bash 路径。</p>
+
+                <div class="variable-box">
+                    <div class="variable-name">变量名：</div>
+                    <div class="variable-value">CLAUDE_CODE_GIT_BASH_PATH</div>
+                    <br>
+                    <div class="variable-name">变量值：</div>
+                    <div class="variable-value">E:\scoop\apps\git\2.50.0\bin\bash.exe</div>
+                </div>
+
+                <h3><i class="fas fa-terminal"></i> 方法 1：通过 PowerShell 设置（推荐）</h3>
+                <div class="method-card">
+                    <div class="method-header">
+                        <div class="method-icon">1</div>
+                        PowerShell 管理员运行
+                    </div>
+                    <div class="step-list">
+                        <div class="step-item">
+                            <strong>以管理员身份打开 PowerShell</strong>
+                            <p>按 <kbd>Win + X</kbd> → 选择 "Windows PowerShell（管理员）"</p>
+                        </div>
+                        <div class="step-item">
+                            <strong>执行设置命令</strong>
+                            <div class="code-block" data-lang="powershell">
+[Environment]::SetEnvironmentVariable("CLAUDE_CODE_GIT_BASH_PATH", "E:\scoop\apps\git\2.50.0\bin\bash.exe", "Machine")</div>
+                            <div class="tip-box">
+                                <i class="fas fa-lightbulb tip-icon"></i>
+                                <div>
+                                    <strong>提示：</strong> 使用 <code>"Machine"</code> 表示系统级环境变量（需要管理员权限）<br>
+                                    若仅当前用户使用可替换为 <code>"User"</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3><i class="fas fa-desktop"></i> 方法 2：手动设置环境变量</h3>
+                <div class="method-card">
+                    <div class="method-header">
+                        <div class="method-icon">2</div>
+                        图形界面设置
+                    </div>
+                    <div class="step-list">
+                        <div class="step-item">
+                            <strong>打开系统设置</strong>
+                            <ul style="margin-top: 10px;">
+                                <li>按 <kbd>Win + R</kbd> → 输入 <code>sysdm.cpl</code> → 回车</li>
+                                <li>或：控制面板 → 系统和安全 → 系统 → 高级系统设置</li>
+                            </ul>
+                        </div>
+                        <div class="step-item">
+                            <strong>设置环境变量</strong>
+                            <ul style="margin-top: 10px;">
+                                <li>点击"环境变量" → 在"系统变量"下点击"新建"</li>
+                                <li>变量名：<code>CLAUDE_CODE_GIT_BASH_PATH</code></li>
+                                <li>变量值：<code>E:\scoop\apps\git\2.50.0\bin\bash.exe</code></li>
+                                <li>点击所有"确定"保存</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-check-circle"></i> 验证是否生效</h2>
+                <div class="step-list">
+                    <div class="step-item">
+                        <strong>打开新的 PowerShell 或 CMD</strong>
+                        <p><em>重要！必须新开窗口，否则不会识别新设置的环境变量</em></p>
+                    </div>
+                    <div class="step-item">
+                        <strong>执行验证命令</strong>
+                        <div class="code-block" data-lang="powershell">
+# PowerShell 中执行
+$env:CLAUDE_CODE_GIT_BASH_PATH
+
+# CMD 中执行
+echo %CLAUDE_CODE_GIT_BASH_PATH%</div>
+                    </div>
+                    <div class="step-item">
+                        <strong>预期输出</strong>
+                        <p>应显示你的路径：</p>
+                        <div class="path-highlight">E:\scoop\apps\git\2.50.0\bin\bash.exe</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-exclamation-triangle"></i> 注意事项</h2>
+                
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle warning-icon"></i>
+                    <div>
+                        <strong>路径有效性：</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>确认文件真实存在：在文件资源管理器地址栏输入路径验证</li>
+                            <li>若 Scoop 更新 Git 导致路径变化（如版本号改变），需同步更新此变量</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <i class="fas fa-user-shield warning-icon"></i>
+                    <div>
+                        <strong>权限问题：</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>方法1需要管理员权限，方法2普通用户可操作（选"用户变量"）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <i class="fas fa-redo warning-icon"></i>
+                    <div>
+                        <strong>重启应用：</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>设置后需重启 Claude Code 应用才能识别新变量</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb tip-icon"></i>
+                    <div>
+                        <strong>💡 专业提示：</strong> 由于你通过 Scoop 安装 Git，路径中的版本号 <code>2.50.0</code> 可能在更新后变化，建议定期检查路径有效性。如需永久解决方案，可考虑在 Scoop 中创建 Git 的<a href="https://scoop.sh/#/persist" target="_blank">持久符号链接</a>。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加代码块复制功能
+        document.querySelectorAll('.code-block').forEach(block => {
+            const copyBtn = document.createElement('button');
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+            copyBtn.style.cssText = `
+                position: absolute;
+                top: 5px;
+                right: 40px;
+                background: rgba(255,255,255,0.1);
+                border: none;
+                color: #ccc;
+                cursor: pointer;
+                padding: 5px 8px;
+                border-radius: 3px;
+                font-size: 12px;
+            `;
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(block.textContent);
+                copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i>', 2000);
+            };
+            block.style.position = 'relative';
+            block.appendChild(copyBtn);
+        });
+    </script>
+</body>
+</html>
