@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template - Modern Documentation</title>
+    
+    <!-- TailwindCSS 3.0+ via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome 6.4.0+ -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'linear-gray': {
+                            50: '#fafafa',
+                            100: '#f5f5f5', 
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717'
+                        },
+                        'linear-blue': {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts (Inter for body, JetBrains Mono for code) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Design Principles Documentation (Hidden from view but in source) */
+        /* 
+        DESIGN PRINCIPLES FOR DOCUMENTATION TEMPLATES
+        
+        1. CONTENT PRESERVATION & ENHANCEMENT
+           - Preserve original text content from source .txt/.md files
+           - Transform into visually appealing format without altering meaning
+           - Use progressive enhancement - start with semantic HTML, then add visual layers
+           
+        2. LINEAR APP DESIGN SYSTEM
+           - Minimal, focused interface with generous whitespace
+           - Subtle shadows and borders for depth without distraction
+           - Monochromatic color scheme with strategic accent colors
+           - Smooth transitions and micro-interactions
+           - Consistent 8px spacing grid system
+           
+        3. TECHNICAL IMPLEMENTATION
+           - HTML5 semantic elements (article, section, nav, aside, etc.)
+           - TailwindCSS utility classes for rapid styling
+           - Progressive enhancement - works without JavaScript
+           - Responsive design mobile-first approach
+           - Accessibility-first (WCAG 2.1 AA compliance)
+           
+        4. VISUAL COMMUNICATION
+           - Custom SVG icons that match content context
+           - Data visualization through simple charts/diagrams
+           - Iconography from Font Awesome + Material Icons
+           - Consistent icon sizing (20px, 24px, 32px scales)
+           - Color-coded sections for quick scanning
+           
+        5. PERFORMANCE & BEST PRACTICES
+           - Async loading for non-critical resources
+           - Optimized images and SVG compression
+           - Minimal JavaScript for core functionality
+           - CDN resources with fallback handling
+           - Semantic markup for SEO and accessibility
+        */
+        
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Focus styles */
+        *:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        
+        /* Code syntax highlighting theme */
+        .code-theme {
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        
+        /* Animation utilities */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-linear-gray-50 font-sans">
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md">
+        Skip to main content
+    </a>
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-linear-gray-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <!-- Dynamic icon based on content type -->
+                    <div class="w-10 h-10 bg-gradient-to-br from-linear-blue-500 to-linear-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-linear-gray-900">Document Title</h1>
+                        <p class="text-sm text-linear-gray-500">Content description or subtitle</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center space-x-4">
+                    <a href="index.html" class="text-linear-gray-600 hover:text-linear-gray-900 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-1"></i>
+                        Home
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="bg-linear-gray-50 border-b border-linear-gray-200" aria-label="Breadcrumb">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a href="index.html" class="text-linear-gray-500 hover:text-linear-gray-700 transition-colors">
+                        <i class="fas fa-home"></i>
+                        <span class="sr-only">Home</span>
+                    </a>
+                </li>
+                <li class="text-linear-gray-400">/</li>
+                <li>
+                    <a href="category.html" class="text-linear-gray-500 hover:text-linear-gray-700 transition-colors font-medium">
+                        Category Name
+                    </a>
+                </li>
+                <li class="text-linear-gray-400">/</li>
+                <li class="text-linear-gray-900 font-medium">Current Document</li>
+            </ol>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar Navigation (Optional) -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-4 sticky top-4">
+                    <h3 class="text-sm font-semibold text-linear-gray-900 mb-3">Contents</h3>
+                    <nav class="space-y-1">
+                        <!-- Dynamic table of contents will be populated here -->
+                        <a href="#section-1" class="block text-sm text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors">
+                            Section Title 1
+                        </a>
+                        <a href="#section-2" class="block text-sm text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors ml-3">
+                            Subsection
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Primary Content -->
+            <article class="lg:col-span-3">
+                <!-- Hero Section -->
+                <div class="bg-gradient-to-r from-linear-blue-50 to-indigo-50 rounded-xl p-8 mb-8">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-br from-linear-blue-500 to-linear-blue-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-star text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-linear-gray-900 mb-2">Main Content Title</h1>
+                            <p class="text-lg text-linear-gray-600">Brief description of the content or problem being addressed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Sections -->
+                <div class="prose prose-lg max-w-none">
+                    
+                    <!-- Section Template -->
+                    <section id="section-1" class="mb-12">
+                        <h2 class="text-2xl font-bold text-linear-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-section-icon mr-3 text-linear-blue-500"></i>
+                            Section Title
+                        </h2>
+                        
+                        <!-- Visual Element: Diagram or Chart -->
+                        <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6 mb-6">
+                            <div class="flex items-center justify-center h-48">
+                                <!-- SVG Diagram Placeholder -->
+                                <svg class="w-32 h-32 text-linear-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <p class="text-sm text-linear-gray-500 text-center mt-2">Visual representation of concept</p>
+                        </div>
+
+                        <!-- Content Block -->
+                        <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-linear-gray-900 mb-3">Subsection Title</h3>
+                            <p class="text-linear-gray-700 mb-4">
+                                Original content from source document goes here. Preserve the original meaning while enhancing presentation.
+                            </p>
+                            
+                            <!-- Code Block -->
+                            <div class="bg-linear-gray-900 rounded-lg p-4 mb-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-linear-gray-400 font-mono">code.example</span>
+                                    <button class="text-xs text-linear-gray-400 hover:text-white transition-colors copy-btn">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre class="text-sm text-linear-gray-300 font-mono overflow-x-auto"><code>// Example code block
+const example = "This is how you preserve original content";
+console.log(example);</code></pre>
+                            </div>
+
+                            <!-- Info Box -->
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-400"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">
+                                            <strong>Note:</strong> Important information or tip related to the content.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Step-by-Step Guide -->
+                    <section id="section-2" class="mb-12">
+                        <h2 class="text-2xl font-bold text-linear-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-list-ol mr-3 text-linear-blue-500"></i>
+                            Step-by-Step Guide
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Step 1 -->
+                            <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6 flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-linear-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                                        1
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-linear-gray-900 mb-2">Step Title</h3>
+                                    <p class="text-linear-gray-700">
+                                        Detailed step description with clear instructions.
+                                    </p>
+                                    
+                                    <!-- Visual element for step -->
+                                    <div class="mt-4 p-4 bg-linear-gray-50 rounded-lg">
+                                        <svg class="w-full h-32 text-linear-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6 flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-linear-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                                        2
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-linear-gray-900 mb-2">Next Step</h3>
+                                    <p class="text-linear-gray-700">
+                                        Continue with the next logical step in the process.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-linear-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-sm text-linear-gray-500">
+                    © 2025 Personal Wiki. Content preserved from original source.
+                </div>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <button class="text-sm text-linear-gray-500 hover:text-linear-gray-700 transition-colors">
+                        <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                    <button class="text-sm text-linear-gray-500 hover:text-linear-gray-700 transition-colors">
+                        <i class="fas fa-history mr-1"></i>History
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Interactive Features -->
+    <script>
+        // Copy code functionality
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const codeBlock = e.target.closest('.bg-linear-gray-900').querySelector('code');
+                const text = codeBlock.textContent;
+                
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const originalText = e.target.innerHTML;
+                    e.target.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+                    setTimeout(() => {
+                        e.target.innerHTML = originalText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Dynamic table of contents generation
+        function generateTableOfContents() {
+            const headings = document.querySelectorAll('h2[id], h3[id]');
+            const toc = document.querySelector('#table-of-contents');
+            
+            if (toc && headings.length > 0) {
+                headings.forEach(heading => {
+                    const link = document.createElement('a');
+                    link.href = `#${heading.id}`;
+                    link.className = 'block text-sm text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors';
+                    link.textContent = heading.textContent;
+                    
+                    if (heading.tagName === 'H3') {
+                        link.classList.add('ml-3');
+                    }
+                    
+                    toc.appendChild(link);
+                });
+            }
+        }
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTableOfContents();
+        });
+
+        // Progressive enhancement for images
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            img.src = img.dataset.src;
+            img.classList.add('fade-in');
+        });
+
+        // Responsive navigation
+        function toggleMobileNav() {
+            const nav = document.querySelector('.mobile-nav');
+            nav.classList.toggle('hidden');
+        }
+    </script>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Document Title",
+        "description": "Brief description of the content",
+        "author": {
+            "@type": "Person",
+            "name": "Document Author"
+        },
+        "datePublished": "2025-07-23",
+        "dateModified": "2025-07-23"
+    }
+    </script>
+
+</body>
+</html>
