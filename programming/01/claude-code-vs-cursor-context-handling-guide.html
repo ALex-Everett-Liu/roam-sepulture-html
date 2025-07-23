@@ -334,12 +334,15 @@
                                                     <strong>文件/行级别的引用能力：</strong>
                                                     <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
                                                         <li><strong>缺失功能：</strong>官方没有像 Cursor 一样支持 <code class="px-1 bg-gray-100 rounded">@file.js(line1-10)</code> 的精确引用机制</li>
-                                                        <li><strong>替代方案：</strong>可以用 <code class="px-1 bg-gray-100 rounded">claude edit src/example.js</code> 但整体提交文件内容</li>
+                                                        <li><strong>替代方案：</strong>你可以用命令参数指定 Claude 关注或者操作的文件，例如 <code class="px-1 bg-gray-100 rounded">claude edit src/example.js</code>，但这会整体提交该文件内容到 LLM 上下文，而无法在 prompt 粒度上自定义省略/精准行区间。
+                                                        </li>
                                                         <li><strong>手动方法：</strong>需手动复制粘贴代码片段并注明行号</li>
+                                                        <li>如有汇报改动等需求，Claude Code 可以呈现 diff，但不直接暴露在 prompt 级别选行的语法（参考 [Anthropic 官网]、业内评测与知乎、Twitter 等开发者使用分享）。
+                                                        </li>
                                                     </ul>
                                                 </li>
                                                 <li>
-                                                    <strong>3. 交互与上下文限制：</strong>
+                                                    <strong>交互与上下文限制：</strong>
                                                     <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
                                                         <li>Claude Code 在上下文额上限较高（理论10万token），可以整体 ingest 比较大的项目或文件块，但会优先自动决定哪些代码或文件相关，并非交互型输入控件那样让用户精细控制文件/行。</li>
                                                         <li>如需引用特定文件某段落，通用做法仍是手动复制粘贴需要的代码片段到 prompt，对照说明片段来源或行号（比如 `// from example.js lines 10-20`），这种方式全自动化程度和交互性相比 Cursor 的 `@` 语法是较弱的。</li>
@@ -364,9 +367,9 @@
                                         3. 总结对比与建议
                                     </h4>
                                     <ul class="list-disc list-inside space-y-2 text-gray-700">
-                                        <li><strong>工作流依赖：</strong>如果极度依赖 prompt 级别文件行片段引用，Claude Code 目前不支持</li>
-                                        <li><strong>使用场景：</strong>更适合大任务和全项目级别的上下文分析</li>
-                                        <li><strong>精准控制：</strong>只能手动粘贴代码片段并注明位置</li>
+                                        <li><strong>工作流依赖：</strong>如果你的开发工作流极度依赖 prompt 级别文件行片段引用（如 Cursor 的 @file(lineX-Y)），那目前 Claude Code 并不直接支持类似语法或插件。</li>
+                                        <li><strong>使用场景：</strong>Claude Code 更适合大任务和全项目级别的上下文分析，由工具自动决定引用哪些重要代码区域。</li>
+                                        <li><strong>精准控制：</strong>如果要在 Claude Code 下精准让 LLM关注代码的某一段，你只能在 prompt 中直接粘贴那一段，并加上行号或文件路径说明。</li>
                                     </ul>
                                 </section>
 
@@ -535,10 +538,10 @@
                                 <section id="best-practices" class="space-y-6">
                                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                         <h4 class="text-lg font-semibold text-blue-900 mb-3">
-                                            Best practices for getting Claude Code to explain specific code
+                                            Best practices for getting Claude Code to explain a specific code line, block, or function
                                         </h4>
                                         <p class="text-blue-800 mb-4">
-                                            If you want Claude Code to explain a particular line of code or a whole function (dozens to hundreds of lines), here are the most effective approaches:
+                                            If you want Claude Code to explain a particular line of code or a whole function (which could span from dozens to hundreds of lines), here are the most effective and recommended approaches:
                                         </p>
                                     </div>
 
@@ -550,10 +553,15 @@
                                                 <div>
                                                     <h5 class="font-semibold text-gray-900 mb-2">Be Explicit: Give Both Context and Motivation</h5>
                                                     <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
-                                                        <li>Copy the exact code snippet and paste it directly into your prompt</li>
-                                                        <li>Add clear instructions like "Please explain what this function does step by step"</li>
-                                                        <li>State file origin and line numbers: "from example.js, lines 10-120"</li>
-                                                        <li>Explain motivation: "I'm new to this codebase, help me onboard"<a href="#ref-4" id="cite-4" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[4]</a></li>
+                                                        <li>Copy the exact code snippet (e.g., the lines or function you want explained) and paste it directly into your prompt.</li>
+                                                        <li>Add a clear instruction, such as “Please explain what the following function does, step by step,” or “What happens on line 53 of this file?”.</li>
+                                                        <li>If the code is long (hundreds of lines), try to provide only the relevant lines. State where this code is from, e.g., “from `example.js`, lines 10-120”.</li>
+                                                        <li>Explicit and direct prompts *always* yield better answers than vague ones, particularly for large code snippets or non-trivial functions. Explain why you want it explained if possible (e.g., “I’m new to this codebase, help me onboard”)[2][1]<a href="#ref-4" id="cite-4" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[4]</a>.</li>
+                                                        <div class="mt-3 pl-4 border-l-2 border-gray-300">
+                                                            <p class="text-sm text-gray-600 italic">
+                                                                明确直接的提问**总能**比模糊问题获得更好的回答，尤其是对于大段代码或复杂函数。如果可能，说明你需要解释的原因（例如“我是这个代码库的新手，希望能快速上手”）[2][1]。
+                                                            </p>
+                                                        </div>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -565,16 +573,23 @@
                                                 <div>
                                                     <h5 class="font-semibold text-gray-900 mb-2">Structure Your Prompt for Clarity</h5>
                                                     <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
-                                                        <li>Use code blocks with triple backticks and language specification</li>
-                                                        <li>Use XML tags or sections for complex functions</li>
-                                                        <li>Specify desired output format (step-by-step, summary, etc.)</li>
+                                                        <li>Use code blocks (triple backticks and language if appropriate) to format your code.</li>
+                                                        <li>If you want a certain style (like step-by-step, pseudocode, or high-level summary), *say so* in your instructions[2]. Specify desired output format.</li>
+                                                        <li>For large or complex functions, you can further structure your prompt with sections or XML tags to help Claude focus, e.g.:</li>
+                                                        <div class="mt-3 pl-4 border-l-2 border-gray-300">
+                                                            <p class="text-sm text-gray-600 italic">
+                                                                对于大型或复杂函数，你可以通过分节或XML标签进一步组织提示词，以帮助Claude集中注意力，例如：
+                                                            </p>
+                                                        </div>
                                                     </ul>
                                                     <div class="bg-gray-100 rounded p-3 mt-3">
                                                         <pre class="text-xs font-mono"><code>&lt;function_to_explain&gt;
 // your code here...
 &lt;/function_to_explain&gt;
+
 &lt;question&gt;
-Explain this function step by step
+Please explain the purpose of this function and how it works, step by step.
+Focus on variable flow and any tricky logic.
 &lt;/question&gt;</code></pre>
                                                     </div>
                                                 </div>
@@ -619,6 +634,47 @@ userData = await fetchUserData(userId);
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">5</div>
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-900 mb-2">Use Project Memory (CLAUDE.md) If Applicable</h5>
+                                                    <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
+                                                        <li>If your workflow involves repeatedly referencing specific files or styles, or you want project-wide context to always be available, update <code class="px-1 bg-gray-100 rounded">CLAUDE.md</code> with references to important patterns or files.</li>
+                                                        <li>For highly-repeated patterns ("always use MUI components for new UIs"), add these as memory via the <code class="px-1 bg-gray-100 rounded">#</code> shortcut or directly in <code class="px-1 bg-gray-100 rounded">CLAUDE.md</code><a href="#ref-1" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[1]</a><a href="#ref-2" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[2]</a><a href="#ref-4" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[4]</a>.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">6</div>
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-900 mb-2">For Extremely Large Functions or Files</h5>
+                                                    <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
+                                                        <li>Claude 3.7 models can contextually handle large blocks (even thousands of lines)<a href="#ref-4" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[4]</a>.</li>
+                                                        <li>If you hit a context limit, split your request: "Here is part 1 of 3 of function <code class="px-1 bg-gray-100 rounded">FooBar</code>, lines 10–110…" and so on.</li>
+                                                        <li>You can also ask Claude to "analyze the structure and summarize what each logical segment is responsible for" if you just want a higher-level overview<a href="#ref-1" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[1]</a><a href="#ref-4" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[4]</a>.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">7</div>
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-900 mb-2">General Tips</h5>
+                                                    <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
+                                                        <li>Use the <code class="px-1 bg-gray-100 rounded">/clear</code> command to keep your session focused on the current question, especially in long sessions<a href="#ref-1" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[1]</a><a href="#ref-4" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[4]</a>.</li>
+                                                        <li>For repeated explanations or reviews, consider creating a custom slash command that includes your preferred explanation template (e.g., stored in <code class="px-1 bg-gray-100 rounded">.claude/commands/explain-function.md</code>)<a href="#ref-1" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[1]</a><a href="#ref-4" class="text-blue-600 hover:text-blue-800 text-sm ml-1">[4]</a>.</li>
+                                                        <li>Give feedback/corrections during the interaction: If the initial explanation misses a point, clarify or ask for more detail.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Summary Table -->
@@ -635,19 +691,27 @@ userData = await fetchUserData(userId);
                                                 <tbody>
                                                     <tr class="border-b">
                                                         <td class="py-2">Explain single line</td>
-                                                        <td class="py-2">Paste line, reference source & context</td>
+                                                        <td class="py-2">Paste the line, reference source & context, ask directly</td>
                                                     </tr>
                                                     <tr class="border-b">
                                                         <td class="py-2">Explain whole function</td>
-                                                        <td class="py-2">Paste function, state file & lines</td>
+                                                        <td class="py-2">Paste function, state file & lines, specify output format (stepwise, summary, et cetera)</td>
                                                     </tr>
                                                     <tr class="border-b">
-                                                        <td class="py-2">Large code block</td>
-                                                        <td class="py-2">Split into parts, ask for summaries</td>
+                                                        <td class="py-2">Extra large code block</td>
+                                                        <td class="py-2">Split into parts if needed, reference file/lines, ask for summaries</td>
+                                                    </tr>
+                                                    <tr class="border-b">
+                                                        <td class="py-2">Project-wide patterns</td>
+                                                        <td class="py-2">Update CLAUDE.md with patterns, use # shortcut for memory</td>
+                                                    </tr>
+                                                    <tr class="border-b">
+                                                        <td class="py-2">Massive files & functions</td>
+                                                        <td class="py-2">Split into parts, ask for segment analysis, use summaries</td>
                                                     </tr>
                                                     <tr>
                                                         <td class="py-2">Repeatable needs</td>
-                                                        <td class="py-2">Use CLAUDE.md, custom commands</td>
+                                                        <td class="py-2">Store conventions or context in `CLAUDE.md`, custom slash commands</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -658,7 +722,7 @@ userData = await fetchUserData(userId);
                                 <div class="bg-blue-100 border border-blue-300 rounded-lg p-4 mt-4">
                                     <p class="text-blue-900 font-semibold">
                                         <i class="fas fa-lightbulb mr-2"></i>
-                                        In short: Copy the relevant code to the prompt, label where it is from, and ask directly and specifically for the kind of explanation you want.
+                                        In short: Copy the relevant code to the prompt, label where it is from, and ask directly and specifically for the kind of explanation you want. Structure your prompt for clarity, and if required, use reference quoting or output format tags for higher quality results.[1][2][4]
                                     </p>
                                 </div>
                             </div>

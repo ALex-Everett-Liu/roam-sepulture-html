@@ -24,7 +24,7 @@ This personal wiki system is a static HTML-based knowledge base with client-side
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Browser Runtime                          │
+│                     Browser Runtime                         │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌──────────────┐  ┌────────────────────┐  │
 │  │   search.js │  │   HTML Pages │  │   search-index.json│  │
@@ -36,15 +36,15 @@ This personal wiki system is a static HTML-based knowledge base with client-side
 └─────────────────────────────────────────────────────────────┘
                               │
 ┌─────────────────────────────────────────────────────────────┐
-│                  Build Time (Node.js)                        │
+│                  Build Time (Node.js)                       │
 ├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────┐  ┌────────────────────┐      │
-│  │ generate-search-index.js    │  │   Dependencies     │      │
-│  │                             │  │                    │      │
-│  │ • Crawl HTML files          │  │ • JSDOM (dev)      │      │
-│  │ • Extract content           │  │ • Node.js fs       │      │
-│  │ • Build search index        │  │                    │      │
-│  └─────────────────────────────┘  └────────────────────┘      │
+│  ┌─────────────────────────────┐  ┌────────────────────┐    │
+│  │ generate-search-index.js    │  │   Dependencies     │    │
+│  │                             │  │                    │    │
+│  │ • Crawl HTML files          │  │ • JSDOM (dev)      │    │
+│  │ • Extract content           │  │ • Node.js fs       │    │
+│  │ • Build search index        │  │                    │    │
+│  └─────────────────────────────┘  └────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
