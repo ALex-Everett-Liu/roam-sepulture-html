@@ -13,9 +13,9 @@
   },
   {
     "title": "设置 Git Bash 环境变量 - 编程指南",
-    "content": "设置 Git Bash 环境变量 Claude Code 配置指南 首页 编程 设置 Git Bash 环境变量 问题描述 启动 Claude Code 时遇到以下错误提示： Launching Claude Code... Claude Code on Windows requires git-bash (https://git-scm.com/downloads/win). If installed but not in PATH, set environment variable pointing to your bash.exe, similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\\Program Files\\Git\\bin\\bash.exe Git Bash 路径确认 首先确认你的 Git Bash 安装位置： E:\\ scoop\\ apps\\ git\\ 2.50.0\\ bin\\ bash.exe 目标路径： E:\\scoop\\apps\\git\\2.50.0\\bin\\bash.exe 解决方案 设置环境变量 CLAUDE_CODE_GIT_BASH_PATH 指向你的 Git Bash 路径。 变量名： CLAUDE_CODE_GIT_BASH_PATH 变量值： E:\\scoop\\apps\\git\\2.50.0\\bin\\bash.exe 方法 1：通过 PowerShell 设置（推荐） 1 PowerShell 管理员运行 以管理员身份打开 PowerShell 按 Win + X → 选择 \"Windows PowerShell（管理员）\" 执行设置命令 [Environment]::SetEnvironmentVariable(\"CLAUDE_CODE_GIT_BASH_PATH\", \"E:\\scoop\\apps\\git\\2.50.0\\bin\\bash.exe\", \"Machine\") 提示： 使用 \"Machine\" 表示系统级环境变量（需要管理员权限） 若仅当前用户使用可替换为 \"User\" 方法 2：手动设置环境变量 2 图形界面设置 打开系统设置 按 Win + R → 输入 sysdm.cpl → 回车 或：控制面板 → 系统和安全 → 系统 → 高级系统设置 设置环境变量 点击\"环境变量\" → 在\"系统变量",
+    "content": "设置 Git Bash 环境变量 Claude Code 配置指南 首页 编程 设置 Git Bash 环境变量 问题描述 启动 Claude Code 时遇到以下错误提示： Launching Claude Code... Claude Code on Windows requires git-bash (https://git-scm.com/downloads/win). If installed but not in PATH, set environment variable pointing to your bash.exe, similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\\Program Files\\Git\\bin\\bash.exe Git Bash 路径确认 首先确认你的 Git Bash 安装位置： Git Bash bash.exe Git Command Line E:\\ scoop\\ apps\\ git\\ 2.50.0\\ bin\\ bash.exe 目标路径： E:\\scoop\\apps\\git\\2.50.0\\bin\\bash.exe 解决方案 设置环境变量 CLAUDE_CODE_GIT_BASH_PATH 指向你的 Git Bash 路径。 变量名： CLAUDE_CODE_GIT_BASH_PATH 变量值： E:\\scoop\\apps\\git\\2.50.0\\bin\\bash.exe 方法 1：通过 PowerShell 设置（推荐） PS C:\\Users\\User> [Environment]::SetEnvironmentVariable(...) ✓ Success Windows PowerShell Terminal 1 PowerShell 管理员运行 以管理员身份打开 PowerShell 按 Win + X → 选择 \"Windows PowerShell（管理员）\" 执行设置命令 [Environment]::SetEnvironmentVariable(\"CLAUDE_CODE_GIT_BASH_PATH\", \"E:\\scoop\\apps\\git\\2.50.0\\bin\\bash.exe\", \"Machine\") 提示： 使用 \"Machine\" 表示系统级环境变量（需要管理员权限）",
     "url": "programming/01/设置-Git-Bash-环境变量.html",
-    "lastModified": "2025-07-22T20:13:00.328Z"
+    "lastModified": "2025-07-23T01:47:20.404Z"
   },
   {
     "title": "编程文档 - Personal Wiki",
