@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude Code 精准上下文对比 - 编程指南</title>
+    <title>Claude Code精准上下文对比</title>
     
     <!-- TailwindCSS 3.0+ via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,115 +38,144 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
-        .modern-container {
-            max-width: 1200px;
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
             background: var(--card-bg);
             min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
         }
 
-        .modern-header {
-            background: linear-gradient(135deg, #1e293b, #475569);
+        .header {
+            background: linear-gradient(135deg, #1e293b, #334155);
             color: white;
             padding: 3rem 2rem;
             text-align: center;
         }
 
-        .modern-nav {
-            background: var(--card-bg);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 3fr;
-            gap: 2rem;
-            padding: 2rem;
-        }
-
-        .sidebar {
-            position: sticky;
-            top: 2rem;
-            height: fit-content;
-        }
-
-        .toc-container {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .content-area {
-            background: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        .content {
+            padding: 3rem 2rem;
         }
 
         .section {
             margin-bottom: 3rem;
-            scroll-margin-top: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .section h2 {
-            font-size: 1.8rem;
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        h1 {
+            font-size: 2.5rem;
             font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 1.5rem;
+            margin: 2rem 0 1rem 0;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--accent-color);
         }
 
-        .section h3 {
+        h3 {
             font-size: 1.4rem;
             font-weight: 600;
             color: var(--secondary-color);
-            margin: 2rem 0 1rem 0;
+            margin: 1.5rem 0 1rem 0;
         }
 
-        .code-block {
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: var(--secondary-color);
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        pre {
             background: #1e293b;
             color: #e2e8f0;
             padding: 1.5rem;
             border-radius: 8px;
             font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
             font-size: 0.9rem;
-            line-height: 1.5;
+            line-height: 1.6;
             overflow-x: auto;
-            margin: 1rem 0;
-            position: relative;
-            border: 1px solid #334155;
+            margin: 1.5rem 0;
         }
 
-        .code-block::before {
-            content: attr(data-lang);
-            position: absolute;
-            top: 0.75rem;
-            right: 1rem;
-            font-size: 0.75rem;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 500;
+        code {
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        .highlight-box {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
         }
 
         .comparison-table {
-            border-collapse: collapse;
             width: 100%;
-            margin: 1.5rem 0;
+            border-collapse: collapse;
+            margin: 2rem 0;
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .comparison-table th,
@@ -166,398 +195,334 @@
             background: #f8fafc;
         }
 
-        .comparison-table tr:hover {
+        .user-message, .assistant-message {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .user-message {
+            background: #f3f4f6;
+            border-left: 4px solid #9ca3af;
+        }
+
+        .assistant-message {
             background: #eff6ff;
+            border-left: 4px solid var(--accent-color);
         }
 
-        .tag {
-            display: inline-block;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin: 0.25rem 0.25rem 0.25rem 0;
-        }
-
-        .date-info {
+        .role-header {
+            font-weight: 600;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            color: var(--secondary-color);
+            gap: 0.5rem;
+        }
+
+        .user-message .role-header {
+            color: #4b5563;
+        }
+
+        .assistant-message .role-header {
+            color: var(--accent-color);
+        }
+
+        .nav-breadcrumb {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
             font-size: 0.9rem;
-            margin-bottom: 1rem;
         }
 
-        .highlight-box {
-            background: #fef3c7;
-            border-left: 4px solid var(--warning-color);
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 8px 8px 0;
+        .nav-breadcrumb a {
+            color: var(--accent-color);
+            text-decoration: none;
         }
 
-        .info-box {
-            background: #dbeafe;
-            border-left: 4px solid var(--accent-color);
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 8px 8px 0;
+        .nav-breadcrumb a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                padding: 1rem;
+            .container {
+                margin: 0;
+                box-shadow: none;
             }
-            
-            .sidebar {
-                position: static;
-                order: 2;
+
+            .header {
+                padding: 2rem 1rem;
+            }
+
+            .content {
+                padding: 2rem 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="modern-container">
-        <!-- Header Section -->
-        <header class="modern-header">
-            <div class="max-w-4xl mx-auto">
-                <h1 class="text-4xl font-bold mb-3 flex items-center justify-center gap-4">
-                    <i class="fas fa-robot text-3xl"></i>
-                    Claude Code 精准上下文对比
-                </h1>
-                <p class="text-xl opacity-90">深入理解 Claude Code 的上下文处理机制</p>
-                
-                <!-- Tags and Date -->
-                <div class="flex flex-col items-center mt-4 space-y-2">
-                    <div>
-                        <span class="tag">Claude Code</span>
-                        <span class="tag">上下文处理</span>
-                        <span class="tag">AI 编程</span>
-                    </div>
-                    <div class="date-info">
-                        <i class="fas fa-calendar"></i>
-                        <span>创建日期: 2025-07-23</span>
-                        <i class="fas fa-clock"></i>
-                        <span>最后更新: 2025-07-23</span>
-                    </div>
-                </div>
-            </div>
+    <div class="container">
+        <header class="header">
+            <h1>Claude Code精准上下文对比</h1>
+            <p>深入对比 Cursor 的 @file 机制与 Claude Code 的上下文处理能力</p>
         </header>
 
-        <!-- Breadcrumb Navigation -->
-        <nav class="modern-nav" aria-label="Breadcrumb">
-            <div class="max-w-6xl mx-auto">
-                <ol class="flex items-center space-x-2 text-sm">
-                    <li>
-                        <a href="../../index.html" class="text-blue-600 hover:text-blue-800 transition-colors">
-                            <i class="fas fa-home"></i> 首页
-                        </a>
-                    </li>
-                    <li class="text-gray-400"><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li>
-                        <a href="../../programming.html" class="text-blue-600 hover:text-blue-800 transition-colors">
-                            <i class="fas fa-code"></i> 编程
-                        </a>
-                    </li>
-                    <li class="text-gray-400"><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li class="text-gray-700 font-medium">Claude Code 精准上下文对比</li>
-                </ol>
-            </div>
+        <nav class="nav-breadcrumb">
+            <a href="../../index.html">首页</a> &gt; 
+            <a href="../../programming.html">编程</a> &gt; 
+            <span>Claude Code精准上下文对比</span>
         </nav>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Sidebar with Table of Contents -->
-            <aside class="sidebar">
-                <div class="toc-container">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3 border-b pb-2">
-                        <i class="fas fa-list mr-2"></i>
-                        目录
-                    </h3>
-                    <nav class="space-y-1 text-sm">
-                        <a href="#overview" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors">1. 概述</a>
-                        <a href="#context-mechanism" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors ml-4">上下文机制</a>
-                        <a href="#comparison" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors">2. 精准对比</a>
-                        <a href="#advantages" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors ml-4">核心优势</a>
-                        <a href="#limitations" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors ml-4">局限性</a>
-                        <a href="#practical-usage" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors">3. 实际应用</a>
-                        <a href="#examples" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors ml-4">示例对比</a>
-                        <a href="#best-practices" class="block text-gray-600 hover:text-blue-600 py-1 transition-colors">4. 最佳实践</a>
-                    </nav>
+        <main class="content">
+            <div class="user-message">
+                <div class="role-header">
+                    <i class="fas fa-user"></i>
+                    🧑‍💻 User
                 </div>
-            </aside>
-
-            <!-- Primary Content -->
-            <div class="content-area">
-                <!-- Overview Section -->
-                <section id="overview" class="section">
-                    <h2>1. Claude Code 上下文处理概述</h2>
-                    <p>Claude Code 在处理代码上下文时采用了独特的精准匹配机制，与传统的模糊匹配相比，能够更准确地理解代码意图和上下文关系。</p>
-                    
-                    <div class="info-box">
-                        <strong>💡 关键洞察：</strong> Claude Code 的上下文处理不仅仅是文本匹配，而是基于代码语义和结构的深层理解。
-                    </div>
-
-                    <h3 id="context-mechanism">上下文机制详解</h3>
-                    <p>Claude Code 使用以下机制实现精准上下文处理：</p>
-                    <ul style="margin: 1rem 0; padding-left: 2rem;">
-                        <li><strong>语义分析：</strong> 基于 AST (抽象语法树) 的代码结构分析</li>
-                        <li><strong>作用域感知：</strong> 理解变量、函数、类的作用域关系</li>
-                        <li><strong>依赖追踪：</strong> 识别代码片段之间的依赖关系</li>
-                        <li><strong>类型推断：</strong> 通过上下文推断变量和表达式的类型</li>
-                    </ul>
-                </section>
-
-                <!-- Comparison Section -->
-                <section id="comparison" class="section">
-                    <h2>2. 精准对比：传统 vs Claude Code</h2>
-                    
-                    <table class="comparison-table">
-                        <thead>
-                            <tr>
-                                <th>对比维度</th>
-                                <th>传统方法</th>
-                                <th>Claude Code</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>匹配精度</strong></td>
-                                <td>基于关键词的模糊匹配<br>容易产生误匹配</td>
-                                <td>基于语义的精准匹配<br>理解代码意图</td>
-                            </tr>
-                            <tr>
-                                <td><strong>上下文理解</strong></td>
-                                <td>局部文本片段<br>缺乏全局视角</td>
-                                <td>完整的代码结构<br>跨文件关联</td>
-                            </tr>
-                            <tr>
-                                <td><strong>类型感知</strong></td>
-                                <td>无类型信息<br>容易推断错误</td>
-                                <td>完整的类型系统<br>精确的类型推断</td>
-                            </tr>
-                            <tr>
-                                <td><strong>作用域处理</strong></td>
-                                <td>忽略作用域边界<br>命名冲突风险</td>
-                                <td>精确的作用域分析<br>避免命名冲突</td>
-                            </tr>
-                            <tr>
-                                <td><strong>依赖关系</strong></td>
-                                <td>简单的文本依赖<br>忽略语义依赖</td>
-                                <td>完整的依赖图<br>语义级别的依赖</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3 id="advantages">核心优势</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
-                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem;">
-                            <h4 style="color: #166534; margin-bottom: 0.5rem;">🎯 精准定位</h4>
-                            <p style="font-size: 0.9rem; color: #15803d;">能够精确定位到具体的代码片段，而不是模糊的文本匹配</p>
-                        </div>
-                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem;">
-                            <h4 style="color: #1e40af; margin-bottom: 0.5rem;">🔍 深度理解</h4>
-                            <p style="font-size: 0.9rem; color: #1d4ed8;">理解代码的语义含义，而非表面的文本形式</p>
-                        </div>
-                        <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem;">
-                            <h4 style="color: #92400e; margin-bottom: 0.5rem;">🔗 跨文件关联</h4>
-                            <p style="font-size: 0.9rem; color: #a16207;">能够追踪跨文件的依赖关系和引用</p>
-                        </div>
-                    </div>
-
-                    <h3 id="limitations">局限性分析</h3>
-                    <div class="highlight-box">
-                        <strong>⚠️ 需要注意的限制：</strong>
-                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
-                            <li>对于高度动态的语言特性可能理解有限</li>
-                            <li>复杂宏定义或模板元编程的解析可能有挑战</li>
-                            <li>运行时行为的预测需要结合静态分析</li>
-                        </ul>
-                    </div>
-                </section>
-
-                <!-- Practical Usage Section -->
-                <section id="practical-usage" class="section">
-                    <h2>3. 实际应用场景</h2>
-                    
-                    <h3 id="examples">示例对比：函数调用上下文</h3>
-                    <p>让我们通过一个具体的例子来对比传统方法和 Claude Code 的差异：</p>
-
-                    <div style="margin: 1.5rem 0;">
-                        <h4 style="font-weight: 600; margin-bottom: 0.5rem;">代码示例：</h4>
-                        <div class="code-block" data-lang="javascript">
-// utils.js
-export function calculateTotal(items) {
-    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-}
-
-// main.js
-import { calculateTotal } from './utils.js';
-
-const cart = [
-    { name: 'apple', price: 1.5, quantity: 3 },
-    { name: 'banana', price: 0.5, quantity: 5 }
-];
-
-const total = calculateTotal(cart);
-console.log(`Total: $${total}`);
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
-                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
-                            <h4 style="color: #dc2626; margin-bottom: 0.5rem;">❌ 传统方法</h4>
-                            <ul style="font-size: 0.9rem; color: #991b1b;">
-                                <li>搜索 "calculateTotal" 可能匹配注释</li>
-                                <li>无法识别函数参数类型</li>
-                                <li>忽略 import/export 关系</li>
-                                <li>不理解 items 数组结构</li>
-                            </ul>
-                        </div>
-                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem;">
-                            <h4 style="color: #16a34a; margin-bottom: 0.5rem;">✅ Claude Code</h4>
-                            <ul style="font-size: 0.9rem; color: #15803d;">
-                                <li>精确识别函数定义和调用</li>
-                                <li>推断参数为数组类型</li>
-                                <li>追踪 import/export 依赖</li>
-                                <li>理解 items 的结构要求</li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Best Practices Section -->
-                <section id="best-practices" class="section">
-                    <h2>4. 最佳实践指南</h2>
-                    
-                    <div style="display: grid; gap: 1.5rem;">
-                        <div style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
-                            <h3 style="color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-lightbulb text-yellow-500"></i>
-                                优化上下文清晰度
-                            </h3>
-                            <ul style="padding-left: 1.5rem;">
-                                <li>使用明确的变量和函数命名</li>
-                                <li>添加必要的类型注解</li>
-                                <li>保持代码结构清晰</li>
-                                <li>合理使用注释说明复杂逻辑</li>
-                            </ul>
-                        </div>
-
-                        <div style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
-                            <h3 style="color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-cog text-blue-500"></i>
-                                环境配置建议
-                            </h3>
-                            <ul style="padding-left: 1.5rem;">
-                                <li>确保项目依赖完整安装</li>
-                                <li>配置正确的 TypeScript 类型定义</li>
-                                <li>使用一致的代码格式化标准</li>
-                                <li>定期更新依赖包</li>
-                            </ul>
-                        </div>
-
-                        <div style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
-                            <h3 style="color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-search text-green-500"></i>
-                                验证和测试
-                            </h3>
-                            <ul style="padding-left: 1.5rem;">
-                                <li>使用单元测试验证上下文理解</li>
-                                <li>进行代码审查确保准确性</li>
-                                <li>利用 IDE 的类型检查功能</li>
-                                <li>监控实际使用中的错误率</li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Summary Section -->
-                <section class="section">
-                    <h2>总结</h2>
-                    <div class="info-box">
-                        <p>Claude Code 的精准上下文对比能力代表了 AI 辅助编程的重大进步。通过深度理解代码语义和结构，它能够提供比传统方法更准确、更有价值的代码分析和建议。</p>
-                        <p style="margin-top: 1rem;"><strong>关键要点：</strong></p>
-                        <ul style="padding-left: 1.5rem;">
-                            <li>语义级理解比文本匹配更可靠</li>
-                            <li>完整的上下文分析提高准确性</li>
-                            <li>类型感知和作用域分析是关键优势</li>
-                            <li>需要合理的代码实践来发挥最大效用</li>
-                        </ul>
-                    </div>
-                </section>
+                <p>i want to switch from Cursor to Claude Code. in Cursor, we can @example.js or even @example.js(line10-20) to provide precise context inside certain project to llm, now, i want to know how could we achieve this in Claude Code?</p>
             </div>
-        </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-16">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center text-sm">
-                <div class="text-gray-600">
-                    © 2025 Personal Wiki. 内容保持原文，以现代方式呈现
+            <div class="assistant-message">
+                <div class="role-header">
+                    <i class="fas fa-robot"></i>
+                    🤖 Assistant
                 </div>
-                <div class="flex space-x-4 mt-4 md:mt-0">
-                    <button class="text-gray-600 hover:text-gray-800 transition-colors" onclick="window.print()">
-                        <i class="fas fa-print mr-1"></i>打印
-                    </button>
-                    <a href="https://github.com" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
-                        <i class="fab fa-github mr-1"></i>GitHub
-                    </a>
-                </div>
+                <p>目前，Cursor 支持通过 <code>@example.js</code> 或 <code>@example.js(line10-20)</code> 这样在 prompt 里精准选取项目里的特定文件或行，从而为 LLM（如 GPT-4、Claude）提供精细上下文，这极大提升了代码 AI 交互的效率和针对性。那么，你想迁移到 Anthropic/Claude 新出的 Claude Code，有没有类似的上下文指定能力？我们来详细对比下：</p>
             </div>
-        </div>
-    </footer>
 
-    <!-- JavaScript for Interactive Features -->
-    <script>
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+            <section class="section">
+                <h2>1. Cursor 的 <code>@file</code> 精准上下文机制</h2>
+                <ul>
+                    <li><strong>优点：</strong>在对话时通过 <code>@xxx.js</code>，甚至可以指定 <code>@xxx.js(10-20)</code>，极为便捷地给 LLM 精准上下文片段。</li>
+                    <li><strong>支持：</strong>在同一 prompt 里引用多个文件或文件区段，这很方便沟通与大型 refactor/review 场景。</li>
+                </ul>
+            </section>
 
-        // Add print styles
-        const printStyles = `
-            @media print {
-                .sidebar { display: none; }
-                .modern-nav { display: none; }
-                body { background: white; }
-                .modern-container { box-shadow: none; }
-            }
-        `;
-        
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = printStyles;
-        document.head.appendChild(styleSheet);
-    </script>
+            <section class="section">
+                <h2>2. Claude Code 的上下文引用机制</h2>
+                <p>据目前公开资料，Claude Code（截至 2025 年 2 月 research preview）和 Cursor 的机制有一些区别：<a href="#ref-3">[3]</a></p>
 
-    <!-- Structured Data for SEO -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": "Claude Code 精准上下文对比",
-        "description": "深入分析 Claude Code 的上下文处理机制，对比传统方法的优势和实际应用",
-        "author": {
-            "@type": "Person",
-            "name": "Personal Wiki"
-        },
-        "datePublished": "2025-07-23",
-        "dateModified": "2025-07-23",
-        "keywords": ["Claude Code", "上下文处理", "AI 编程", "代码分析"]
-    }
-    </script>
+                <h3>a) Claude Code 的核心定位和入口</h3>
+                <ul>
+                    <li>Claude Code 是 Anthropic 推出的工程 AI 代理，重点是"直接在 terminal 让 Claude 帮你解决工程任务"，而非一个 IDE 内联代码编辑器（如 Cursor），它目前以 CLI 工具/Agent 形式存在。<a href="#ref-3">[3]</a></li>
+                </ul>
+
+                <h3>b) Claude Code 的上下文获取方式</h3>
+                <ol>
+                    <li><strong>与项目文件的交互：</strong>
+                        <ul>
+                            <li>Claude Code 通过命令行交互，与"本地代码库"关联。</li>
+                            <li>它通常要求你定位到项目根目录，Claude 会自动"感知"到代码结构，可以读取、修改和生成你项目里的文件。<a href="#ref-3">[3]</a></li>
+                        </ul>
+                    </li>
+                    <li><strong>文件/行级别的引用能力：</strong>
+                        <ul>
+                            <li>目前<strong>官方没有像 Cursor 一样支持 <code>@file.js(line1-10)</code> 这种在 prompt 中局部 inline 精确引用某些文件行的机制</strong>。</li>
+                            <li>但你可以用命令参数指定 Claude 关注或者操作的文件，例如 <code>claude edit src/example.js</code>，但这会整体提交该文件内容到 LLM 上下文，而无法在 prompt 粒度上自定义省略/精准行区间。</li>
+                            <li>如有汇报改动等需求，Claude Code 可以呈现 diff，但不直接暴露在 prompt 级别选行的语法（参考 <a href="#ref-anthropic">[Anthropic 官网]</a>、业内评测与知乎、Twitter 等开发者使用分享）。</li>
+                        </ul>
+                    </li>
+                    <li><strong>交互与上下文限制：</strong>
+                        <ul>
+                            <li>Claude Code 在上下文额上限较高（理论10万token），可以整体 ingest 比较大的项目或文件块，但会优先自动决定哪些代码或文件相关，并非交互型输入控件那样让用户精细控制文件/行。</li>
+                            <li>如需引用特定文件某段落，通用做法仍是手动复制粘贴需要的代码片段到 prompt，对照说明片段来源或行号（比如 <code>// from example.js lines 10-20</code>），这种方式全自动化程度和交互性相比 Cursor 的 <code>@</code> 语法是较弱的。</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p><strong>3. Interaction and Context Limitations:</strong></p>
+                <ul>
+                    <li>Claude Code has a relatively high context limit (theoretically 100K tokens), allowing it to ingest larger projects or file chunks as a whole. However, it automatically prioritizes which code or files are relevant, rather than offering fine-grained file/line control like interactive input widgets.</li>
+                    <li>To reference specific sections of a file, the common practice is still to manually copy and paste the required code snippets into the prompt, along with annotations about their source or line numbers (e.g., <code>// from example.js lines 10-20</code>). This method is less automated and interactive compared to Cursor's <code>@</code> syntax.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>3. 总结对比与建议</h2>
+                <ul>
+                    <li><strong>如果你的开发工作流极度依赖 prompt 级别文件行片段引用（如 Cursor 的 <code>@file(lineX-Y)</code>），那目前 Claude Code 并不直接支持类似语法或插件。</strong></li>
+                    <li>Claude Code 更适合大任务和全项目级别的上下文分析，由工具自动决定引用哪些重要代码区域。</li>
+                    <li>如果要在 Claude Code 下精准让 LLM关注代码的某一段，你只能在 prompt 中直接粘贴那一段，并加上行号或文件路径说明。</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>4. 参考/出处</h2>
+                <ul>
+                    <li>详细参考了 Codesubmit 2025 年最新盘点，明确写道：</li>
+                </ul>
+                <blockquote>
+                    In addition, Claude Code is available as a limited research preview, and enables developers to delegate substantial engineering tasks to Claude directly from their terminal.<br>
+                    ... Claude Code ... enables developers to delegate substantial engineering tasks to Claude directly from their terminal.
+                    <br><br>
+                    但它并没有提到支持类似 Cursor 那样 prompt 级指定精细文件行区段的语法，更多是以自动感知项目结构和文件为主。<a href="#ref-3">[3]</a>
+                </blockquote>
+
+                <div class="highlight-box">
+                    <strong>结论：</strong><br>
+                    Claude Code 目前主要通过自动读取项目文件（而不是 prompt 语法）来确定上下文。如果要像 Cursor 那样指定代码区段，你只能在 prompt 中直接粘贴代码片段，并注明行号或文件出处，尚无法用 <code>@xxx.js(10-20)</code> 这样的快捷语法。<a href="#ref-3">[3]</a>
+                </div>
+
+                <p><strong>如需进一步自动化，你可以关注 Claude Code 未来的 feature update 或参与社区讨论，推动官方支持 Cursor 式的精准上下文选择能力！</strong></p>
+            </section>
+
+            <section class="section">
+                <div class="user-message">
+                    <div class="role-header">
+                        <i class="fas fa-user"></i>
+                        🧑‍💻 User
+                    </div>
+                    <p>&gt; 如需引用特定文件某段落，通用做法仍是手动复制粘贴需要的代码片段到 prompt，对照说明片段来源或行号（比如 // from example.js lines 10-20）</p>
+                    <p>这里的最佳实践是什么？比如让它给我解释某一行代码或某一个函数（包含几十到几百行代码）</p>
+                    <p>please answer me in English</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="assistant-message">
+                    <div class="role-header">
+                        <i class="fas fa-robot"></i>
+                        🤖 Assistant
+                    </div>
+                    <h3><strong>Best practices for getting Claude Code to explain a specific code line, block, or function</strong></h3>
+                    <p>If you want Claude Code to explain a particular line of code or a whole function (which could span from dozens to hundreds of lines), here are the most effective and recommended approaches:</p>
+                </div>
+
+                <h3>1. <strong>Be Explicit: Give Both Context and Motivation</strong></h3>
+                <ul>
+                    <li><strong>Copy the exact code snippet</strong> (e.g., the lines or function you want explained) and paste it directly into your prompt.</li>
+                    <li><strong>Add a clear instruction</strong>, such as "Please explain what the following function does, step by step," or "What happens on line 53 of this file?".</li>
+                    <li><strong>If the code is long</strong> (hundreds of lines), try to provide only the relevant lines. State where this code is from, e.g., "from <code>example.js</code>, lines 10-120".</li>
+                    <li>Explicit and direct prompts <em>always</em> yield better answers than vague ones, particularly for large code snippets or non-trivial functions. Explain why you want it explained if possible (e.g., "I'm new to this codebase, help me onboard")<a href="#ref-2">[2]</a><a href="#ref-1">[1]</a>.</li>
+                </ul>
+
+                <h3>2. <strong>Structure Your Prompt for Clarity</strong></h3>
+                <ul>
+                    <li>Use code blocks (triple backticks and language if appropriate) to format your code.</li>
+                    <li>For large or complex functions, you can further structure your prompt with sections or XML tags to help Claude focus, e.g.:
+                        <pre><code>&lt;function_to_explain&gt;
+// ...your function code here...
+&lt;/function_to_explain&gt;
+&lt;question&gt;
+Please explain the purpose of this function and how it works, step by step. Focus on variable flow and any tricky logic.
+&lt;/question&gt;</code></pre>
+                    </li>
+                    <li>If you want a certain style (like step-by-step, pseudocode, or high-level summary), <em>say so</em> in your instructions<a href="#ref-2">[2]</a>.</li>
+                </ul>
+
+                <h3>3. <strong>Ground Claude's Response in the Source</strong></h3>
+                <ul>
+                    <li>You can instruct Claude:<br>
+                        "Before answering, please quote the lines or code fragments most relevant to your explanation."</li>
+                    <li>Optionally, add:<br>
+                        "Summarize the main logic, and anchor your explanation in specific pieces of code as you go."</li>
+                    <li>This technique, sometimes called "reference quoting," makes Claude's answer much more trustworthy and targeted, especially for long blocks<a href="#ref-2">[2]</a>.</li>
+                </ul>
+
+                <h3>4. <strong>Prompt Examples You Can Use</strong></h3>
+
+                <h4>For a single line:</h4>
+                <pre><code>Please explain the purpose of the following line in context. This is from `example.js` line 53:
+```js
+userData = await fetchUserData(userId);
+```</code></pre>
+
+                <h4>For a full function:</h4>
+                <pre><code>Here is the function `getSortedUserList` from `users.ts` lines 41-122. Please explain what it does, line by line, and summarize any important design choices the author made.
+
+```typescript
+// ...function code...
+```</code></pre>
+
+                <h4>With a desired output format:</h4>
+                <pre><code>&lt;instructions&gt;
+You are an expert in TypeScript. For the following function, explain each part, list any potential bugs, and then summarize in a paragraph.
+&lt;/instructions&gt;
+&lt;function_code&gt;
+// ...whole function here...
+&lt;/function_code&gt;</code></pre>
+
+                <h3>5. <strong>Use Project Memory (CLAUDE.md) If Applicable</strong></h3>
+                <ul>
+                    <li>If your workflow involves repeatedly referencing specific files or styles, or you want project-wide context to always be available, update <code>CLAUDE.md</code> with references to important patterns or files.</li>
+                    <li>For highly-repeated patterns ("always use MUI components for new UIs"), add these as memory via the <code>#</code> shortcut or directly in <code>CLAUDE.md</code><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a>.</li>
+                </ul>
+
+                <h3>6. <strong>For Extremely Large Functions or Files</strong></h3>
+                <ul>
+                    <li>Claude 3.7 models can contextually handle large blocks (even thousands of lines)<a href="#ref-4">[4]</a>.</li>
+                    <li>If you hit a context limit, split your request: "Here is part 1 of 3 of function <code>FooBar</code>, lines 10–110…" and so on.</li>
+                    <li>You can also ask Claude to "analyze the structure and summarize what each logical segment is responsible for" if you just want a higher-level overview<a href="#ref-1">[1]</a><a href="#ref-4">[4]</a>.</li>
+                </ul>
+
+                <h3>7. <strong>General Tips</strong></h3>
+                <ul>
+                    <li>Use the <code>/clear</code> command to keep your session focused on the current question, especially in long sessions<a href="#ref-1">[1]</a><a href="#ref-4">[4]</a>.</li>
+                    <li>For repeated explanations or reviews, consider creating a custom slash command that includes your preferred explanation template (e.g., stored in <code>.claude/commands/explain-function.md</code>)<a href="#ref-1">[1]</a><a href="#ref-4">[4]</a>.</li>
+                    <li>Give feedback/corrections during the interaction: If the initial explanation misses a point, clarify or ask for more detail.</li>
+                </ul>
+
+                <h3>Summary Table</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Situation</th>
+                            <th>Best Practice</th>
+                            <th>Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Explain a single line</td>
+                            <td>Paste the line, reference source & context, ask directly</td>
+                            <td><a href="#ref-2">[2]</a><a href="#ref-1">[1]</a></td>
+                        </tr>
+                        <tr>
+                            <td>Explain a whole function</td>
+                            <td>Paste function, state file & lines, specify output format (stepwise, summary, et cetera)</td>
+                            <td><a href="#ref-2">[2]</a><a href="#ref-1">[1]</a><a href="#ref-4">[4]</a></td>
+                        </tr>
+                        <tr>
+                            <td>Extra large code block</td>
+                            <td>Split into parts if needed, reference file/lines, ask for summaries</td>
+                            <td><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a></td>
+                        </tr>
+                        <tr>
+                            <td>Repeatable needs</td>
+                            <td>Store conventions or context in <code>CLAUDE.md</code>, custom slash commands</td>
+                            <td><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>References:</strong><br>
+                    <a href="#ref-1">[1]</a> <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic Claude Code – Official Best Practices</a><br>
+                    <a href="#ref-2">[2]</a> <a href="https://apidog.com/blog/claude-code-beginners-guide-best-practices/" target="_blank">ApiDog Claude Code Guide: Principles and Prompting</a><br>
+                    <a href="#ref-4">[4]</a> <a href="https://www.builder.io/blog/claude-code" target="_blank">Builder.io – Power Workflow & Memory in Claude Code</a>
+                </div>
+
+                <div class="highlight-box">
+                    <strong>In short:</strong><br>
+                    <strong>Copy the relevant code to the prompt, label where it is from, and ask directly and specifically for the kind of explanation you want. Structure your prompt for clarity, and if required, use reference quoting or output format tags for higher quality results.</strong><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a>
+                </div>
+
+                <div class="info-box">
+                    <strong>References:</strong><br>
+                    <a href="#ref-1">[1]</a> <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Claude Code Best Practices</a><br>
+                    <a href="#ref-2">[2]</a> <a href="https://apidog.com/blog/claude-code-beginners-guide-best-practices/" target="_blank">Claude Code Beginners' Guide: Best Practices</a><br>
+                    <a href="#ref-3">[3]</a> <a href="https://grantslatton.com/claude-code" target="_blank">Claude Code</a><br>
+                    <a href="#ref-4">[4]</a> <a href="https://www.builder.io/blog/claude-code" target="_blank">How I use Claude Code (+ my best tips)</a>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>
