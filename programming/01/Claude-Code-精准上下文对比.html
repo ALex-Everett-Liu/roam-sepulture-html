@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude Code精准上下文对比</title>
+    <title>Claude Code精准上下文对比 - Cursor @file 机制与 Claude Code 上下文处理深度分析</title>
     
     <!-- TailwindCSS 3.0+ via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,518 +11,752 @@
     <!-- Font Awesome 6.4.0+ -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'linear-gray': {
+                            50: '#fafafa',
+                            100: '#f5f5f5', 
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717'
+                        },
+                        'linear-blue': {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary-color: #1e293b;
-            --secondary-color: #475569;
-            --accent-color: #3b82f6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --error-color: #ef4444;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --border-color: #e2e8f0;
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Focus styles */
+        *:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.7;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            min-height: 100vh;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e293b, #334155);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
-        }
-
-        .content {
-            padding: 3rem 2rem;
-        }
-
-        .section {
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .section:last-child {
-            border-bottom: none;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin: 2rem 0 1rem 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--accent-color);
-        }
-
-        h3 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--secondary-color);
-            margin: 1.5rem 0 1rem 0;
-        }
-
-        h4 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: var(--primary-color);
-            margin: 1rem 0 0.5rem 0;
-        }
-
-        p {
-            margin-bottom: 1rem;
-            color: var(--text-color);
-        }
-
-        ul, ol {
-            margin: 1rem 0;
-            padding-left: 2rem;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        blockquote {
-            border-left: 4px solid var(--accent-color);
+        /* Conversation styling */
+        .conversation-container {
+            border-left: 3px solid #e5e5e5;
+            margin-left: 1rem;
             padding-left: 1.5rem;
-            margin: 1.5rem 0;
-            font-style: italic;
-            color: var(--secondary-color);
-            background: #f8fafc;
-            padding: 1rem 1.5rem;
-            border-radius: 0 8px 8px 0;
         }
-
-        pre {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 1.5rem;
-            border-radius: 8px;
-            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            overflow-x: auto;
-            margin: 1.5rem 0;
+        
+        .conversation-item {
+            position: relative;
+            margin-bottom: 2rem;
         }
-
-        code {
-            background: #f1f5f9;
-            color: #1e293b;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
-            font-size: 0.9em;
+        
+        .conversation-item::before {
+            content: '';
+            position: absolute;
+            left: -2.25rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3b82f6;
         }
-
-        pre code {
-            background: none;
-            color: inherit;
-            padding: 0;
-            border-radius: 0;
+        
+        .user-message::before {
+            background: #6b7280;
         }
-
-        .highlight-box {
-            background: #fef3c7;
-            border-left: 4px solid var(--warning-color);
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 8px 8px 0;
+        
+        .assistant-message::before {
+            background: #3b82f6;
         }
-
-        .info-box {
-            background: #dbeafe;
-            border-left: 4px solid var(--accent-color);
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 8px 8px 0;
+        
+        /* Nested list styling */
+        .nested-list > li {
+            margin-bottom: 0.5rem;
         }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2rem 0;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        
+        .nested-list ul {
+            margin-top: 0.5rem;
+            margin-left: 1.5rem;
         }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .comparison-table th {
-            background: var(--accent-color);
-            color: white;
-            font-weight: 600;
-        }
-
-        .comparison-table tr:nth-child(even) {
-            background: #f8fafc;
-        }
-
-        .user-message, .assistant-message {
-            margin: 1.5rem 0;
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-
-        .user-message {
-            background: #f3f4f6;
-            border-left: 4px solid #9ca3af;
-        }
-
-        .assistant-message {
-            background: #eff6ff;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .role-header {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .user-message .role-header {
-            color: #4b5563;
-        }
-
-        .assistant-message .role-header {
-            color: var(--accent-color);
-        }
-
-        .nav-breadcrumb {
-            background: var(--card-bg);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-        }
-
-        .nav-breadcrumb a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-
-        .nav-breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 0;
-                box-shadow: none;
-            }
-
-            .header {
-                padding: 2rem 1rem;
-            }
-
-            .content {
-                padding: 2rem 1rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
+        
+        .nested-list ul li {
+            margin-bottom: 0.25rem;
+            list-style-type: circle;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1>Claude Code精准上下文对比</h1>
-            <p>深入对比 Cursor 的 @file 机制与 Claude Code 的上下文处理能力</p>
-        </header>
+<body class="bg-linear-gray-50 font-sans">
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md">
+        Skip to main content
+    </a>
 
-        <nav class="nav-breadcrumb">
-            <a href="../../index.html">首页</a> &gt; 
-            <a href="../../programming.html">编程</a> &gt; 
-            <span>Claude Code精准上下文对比</span>
-        </nav>
-
-        <main class="content">
-            <div class="user-message">
-                <div class="role-header">
-                    <i class="fas fa-user"></i>
-                    🧑‍💻 User
-                </div>
-                <p>i want to switch from Cursor to Claude Code. in Cursor, we can @example.js or even @example.js(line10-20) to provide precise context inside certain project to llm, now, i want to know how could we achieve this in Claude Code?</p>
-            </div>
-
-            <div class="assistant-message">
-                <div class="role-header">
-                    <i class="fas fa-robot"></i>
-                    🤖 Assistant
-                </div>
-                <p>目前，Cursor 支持通过 <code>@example.js</code> 或 <code>@example.js(line10-20)</code> 这样在 prompt 里精准选取项目里的特定文件或行，从而为 LLM（如 GPT-4、Claude）提供精细上下文，这极大提升了代码 AI 交互的效率和针对性。那么，你想迁移到 Anthropic/Claude 新出的 Claude Code，有没有类似的上下文指定能力？我们来详细对比下：</p>
-            </div>
-
-            <section class="section">
-                <h2>1. Cursor 的 <code>@file</code> 精准上下文机制</h2>
-                <ul>
-                    <li><strong>优点：</strong>在对话时通过 <code>@xxx.js</code>，甚至可以指定 <code>@xxx.js(10-20)</code>，极为便捷地给 LLM 精准上下文片段。</li>
-                    <li><strong>支持：</strong>在同一 prompt 里引用多个文件或文件区段，这很方便沟通与大型 refactor/review 场景。</li>
-                </ul>
-            </section>
-
-            <section class="section">
-                <h2>2. Claude Code 的上下文引用机制</h2>
-                <p>据目前公开资料，Claude Code（截至 2025 年 2 月 research preview）和 Cursor 的机制有一些区别：<a href="#ref-3">[3]</a></p>
-
-                <h3>a) Claude Code 的核心定位和入口</h3>
-                <ul>
-                    <li>Claude Code 是 Anthropic 推出的工程 AI 代理，重点是"直接在 terminal 让 Claude 帮你解决工程任务"，而非一个 IDE 内联代码编辑器（如 Cursor），它目前以 CLI 工具/Agent 形式存在。<a href="#ref-3">[3]</a></li>
-                </ul>
-
-                <h3>b) Claude Code 的上下文获取方式</h3>
-                <ol>
-                    <li><strong>与项目文件的交互：</strong>
-                        <ul>
-                            <li>Claude Code 通过命令行交互，与"本地代码库"关联。</li>
-                            <li>它通常要求你定位到项目根目录，Claude 会自动"感知"到代码结构，可以读取、修改和生成你项目里的文件。<a href="#ref-3">[3]</a></li>
-                        </ul>
-                    </li>
-                    <li><strong>文件/行级别的引用能力：</strong>
-                        <ul>
-                            <li>目前<strong>官方没有像 Cursor 一样支持 <code>@file.js(line1-10)</code> 这种在 prompt 中局部 inline 精确引用某些文件行的机制</strong>。</li>
-                            <li>但你可以用命令参数指定 Claude 关注或者操作的文件，例如 <code>claude edit src/example.js</code>，但这会整体提交该文件内容到 LLM 上下文，而无法在 prompt 粒度上自定义省略/精准行区间。</li>
-                            <li>如有汇报改动等需求，Claude Code 可以呈现 diff，但不直接暴露在 prompt 级别选行的语法（参考 <a href="#ref-anthropic">[Anthropic 官网]</a>、业内评测与知乎、Twitter 等开发者使用分享）。</li>
-                        </ul>
-                    </li>
-                    <li><strong>交互与上下文限制：</strong>
-                        <ul>
-                            <li>Claude Code 在上下文额上限较高（理论10万token），可以整体 ingest 比较大的项目或文件块，但会优先自动决定哪些代码或文件相关，并非交互型输入控件那样让用户精细控制文件/行。</li>
-                            <li>如需引用特定文件某段落，通用做法仍是手动复制粘贴需要的代码片段到 prompt，对照说明片段来源或行号（比如 <code>// from example.js lines 10-20</code>），这种方式全自动化程度和交互性相比 Cursor 的 <code>@</code> 语法是较弱的。</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <p><strong>3. Interaction and Context Limitations:</strong></p>
-                <ul>
-                    <li>Claude Code has a relatively high context limit (theoretically 100K tokens), allowing it to ingest larger projects or file chunks as a whole. However, it automatically prioritizes which code or files are relevant, rather than offering fine-grained file/line control like interactive input widgets.</li>
-                    <li>To reference specific sections of a file, the common practice is still to manually copy and paste the required code snippets into the prompt, along with annotations about their source or line numbers (e.g., <code>// from example.js lines 10-20</code>). This method is less automated and interactive compared to Cursor's <code>@</code> syntax.</li>
-                </ul>
-            </section>
-
-            <section class="section">
-                <h2>3. 总结对比与建议</h2>
-                <ul>
-                    <li><strong>如果你的开发工作流极度依赖 prompt 级别文件行片段引用（如 Cursor 的 <code>@file(lineX-Y)</code>），那目前 Claude Code 并不直接支持类似语法或插件。</strong></li>
-                    <li>Claude Code 更适合大任务和全项目级别的上下文分析，由工具自动决定引用哪些重要代码区域。</li>
-                    <li>如果要在 Claude Code 下精准让 LLM关注代码的某一段，你只能在 prompt 中直接粘贴那一段，并加上行号或文件路径说明。</li>
-                </ul>
-            </section>
-
-            <section class="section">
-                <h2>4. 参考/出处</h2>
-                <ul>
-                    <li>详细参考了 Codesubmit 2025 年最新盘点，明确写道：</li>
-                </ul>
-                <blockquote>
-                    In addition, Claude Code is available as a limited research preview, and enables developers to delegate substantial engineering tasks to Claude directly from their terminal.<br>
-                    ... Claude Code ... enables developers to delegate substantial engineering tasks to Claude directly from their terminal.
-                    <br><br>
-                    但它并没有提到支持类似 Cursor 那样 prompt 级指定精细文件行区段的语法，更多是以自动感知项目结构和文件为主。<a href="#ref-3">[3]</a>
-                </blockquote>
-
-                <div class="highlight-box">
-                    <strong>结论：</strong><br>
-                    Claude Code 目前主要通过自动读取项目文件（而不是 prompt 语法）来确定上下文。如果要像 Cursor 那样指定代码区段，你只能在 prompt 中直接粘贴代码片段，并注明行号或文件出处，尚无法用 <code>@xxx.js(10-20)</code> 这样的快捷语法。<a href="#ref-3">[3]</a>
-                </div>
-
-                <p><strong>如需进一步自动化，你可以关注 Claude Code 未来的 feature update 或参与社区讨论，推动官方支持 Cursor 式的精准上下文选择能力！</strong></p>
-            </section>
-
-            <section class="section">
-                <div class="user-message">
-                    <div class="role-header">
-                        <i class="fas fa-user"></i>
-                        🧑‍💻 User
+    <!-- Header Section -->
+    <header class="bg-white border-b border-linear-gray-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-linear-blue-500 to-linear-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-code-branch text-white text-lg"></i>
                     </div>
-                    <p>&gt; 如需引用特定文件某段落，通用做法仍是手动复制粘贴需要的代码片段到 prompt，对照说明片段来源或行号（比如 // from example.js lines 10-20）</p>
-                    <p>这里的最佳实践是什么？比如让它给我解释某一行代码或某一个函数（包含几十到几百行代码）</p>
-                    <p>please answer me in English</p>
-                </div>
-            </section>
-
-            <section class="section">
-                <div class="assistant-message">
-                    <div class="role-header">
-                        <i class="fas fa-robot"></i>
-                        🤖 Assistant
+                    <div>
+                        <h1 class="text-2xl font-bold text-linear-gray-900">Claude Code精准上下文对比</h1>
+                        <p class="text-sm text-linear-gray-500">深入对比 Cursor 的 @file 机制与 Claude Code 的上下文处理能力</p>
                     </div>
-                    <h3><strong>Best practices for getting Claude Code to explain a specific code line, block, or function</strong></h3>
-                    <p>If you want Claude Code to explain a particular line of code or a whole function (which could span from dozens to hundreds of lines), here are the most effective and recommended approaches:</p>
+                </div>
+                <nav class="hidden md:flex items-center space-x-4">
+                    <a href="../../index.html" class="text-linear-gray-600 hover:text-linear-gray-900 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-1"></i>
+                        首页
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="bg-linear-gray-50 border-b border-linear-gray-200" aria-label="Breadcrumb">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a href="../../index.html" class="text-linear-gray-500 hover:text-linear-gray-700 transition-colors">
+                        <i class="fas fa-home"></i>
+                        <span class="sr-only">首页</span>
+                    </a>
+                </li>
+                <li class="text-linear-gray-400">/</li>
+                <li>
+                    <a href="../../programming.html" class="text-linear-gray-500 hover:text-linear-gray-700 transition-colors font-medium">
+                        编程
+                    </a>
+                </li>
+                <li class="text-linear-gray-400">/</li>
+                <li class="text-linear-gray-900 font-medium">Claude Code精准上下文对比</li>
+            </ol>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar Navigation -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-4 sticky top-4">
+                    <h3 class="text-sm font-semibold text-linear-gray-900 mb-3">目录导航</h3>
+                    <nav class="space-y-1 text-sm" id="table-of-contents">
+                        <a href="#metadata" class="block text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors">元数据</a>
+                        <a href="#conversation" class="block text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors">对话记录</a>
+                        <a href="#cursor-mechanism" class="block text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors ml-3">Cursor @file 机制</a>
+                        <a href="#claude-context" class="block text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors ml-3">Claude Code 上下文机制</a>
+                        <a href="#best-practices" class="block text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors ml-3">最佳实践指南</a>
+                        <a href="#comparison" class="block text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors">总结对比</a>
+                        <a href="#references" class="block text-linear-gray-600 hover:text-linear-blue-600 py-1 transition-colors">参考文献</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Primary Content -->
+            <article class="lg:col-span-3">
+                <!-- Hero Section -->
+                <div class="bg-gradient-to-r from-linear-blue-50 to-indigo-50 rounded-xl p-8 mb-8">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-br from-linear-blue-500 to-linear-blue-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exchange-alt text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-linear-gray-900 mb-2">Claude Code精准上下文对比</h1>
+                            <p class="text-lg text-linear-gray-600">从 Cursor 的 @file 机制迁移到 Claude Code 的完整指南</p>
+                        </div>
+                    </div>
                 </div>
 
-                <h3>1. <strong>Be Explicit: Give Both Context and Motivation</strong></h3>
-                <ul>
-                    <li><strong>Copy the exact code snippet</strong> (e.g., the lines or function you want explained) and paste it directly into your prompt.</li>
-                    <li><strong>Add a clear instruction</strong>, such as "Please explain what the following function does, step by step," or "What happens on line 53 of this file?".</li>
-                    <li><strong>If the code is long</strong> (hundreds of lines), try to provide only the relevant lines. State where this code is from, e.g., "from <code>example.js</code>, lines 10-120".</li>
-                    <li>Explicit and direct prompts <em>always</em> yield better answers than vague ones, particularly for large code snippets or non-trivial functions. Explain why you want it explained if possible (e.g., "I'm new to this codebase, help me onboard")<a href="#ref-2">[2]</a><a href="#ref-1">[1]</a>.</li>
-                </ul>
+                <!-- Metadata Section -->
+                <section id="metadata" class="mb-8">
+                    <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6">
+                        <h2 class="text-xl font-bold text-linear-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-info-circle mr-2 text-linear-blue-500"></i>
+                            元数据
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="font-semibold text-linear-gray-700">创建日期:</span>
+                                <span class="text-linear-gray-600 ml-2">2025-07-23</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-linear-gray-700">最后更新:</span>
+                                <span class="text-linear-gray-600 ml-2">2025-07-23</span>
+                            </div>
+                            <div class="md:col-span-2">
+                                <span class="font-semibold text-linear-gray-700">标签:</span>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <span class="px-2 py-1 bg-linear-blue-100 text-linear-blue-700 rounded-full text-xs">Claude Code</span>
+                                    <span class="px-2 py-1 bg-linear-blue-100 text-linear-blue-700 rounded-full text-xs">Cursor</span>
+                                    <span class="px-2 py-1 bg-linear-blue-100 text-linear-blue-700 rounded-full text-xs">AI工具</span>
+                                    <span class="px-2 py-1 bg-linear-blue-100 text-linear-blue-700 rounded-full text-xs">上下文处理</span>
+                                    <span class="px-2 py-1 bg-linear-blue-100 text-linear-blue-700 rounded-full text-xs">开发工具</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                <h3>2. <strong>Structure Your Prompt for Clarity</strong></h3>
-                <ul>
-                    <li>Use code blocks (triple backticks and language if appropriate) to format your code.</li>
-                    <li>For large or complex functions, you can further structure your prompt with sections or XML tags to help Claude focus, e.g.:
-                        <pre><code>&lt;function_to_explain&gt;
-// ...your function code here...
+                <!-- Conversation Section -->
+                <section id="conversation" class="mb-8">
+                    <h2 class="text-2xl font-bold text-linear-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-comments mr-3 text-linear-blue-500"></i>
+                        对话记录
+                    </h2>
+                    
+                    <div class="conversation-container">
+                        <!-- Initial Question -->
+                        <div class="conversation-item user-message">
+                            <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">用户提问</h3>
+                                        <p class="text-sm text-gray-500">关于从 Cursor 迁移到 Claude Code</p>
+                                    </div>
+                                </div>
+                                <div class="text-gray-700 leading-relaxed">
+                                    <p>i want to switch from Cursor to Claude Code. in Cursor, we can @example.js or even @example.js(line10-20) to provide precise context inside certain project to llm, now, i want to know how could we achieve this in Claude Code?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Initial Response -->
+                        <div class="conversation-item assistant-message">
+                            <div class="bg-white rounded-lg shadow-sm border border-linear-blue-200 p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-robot text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-blue-900">助手回答</h3>
+                                        <p class="text-sm text-blue-600">详细分析对比</p>
+                                    </div>
+                                </div>
+                                <div class="text-gray-700 leading-relaxed">
+                                    <p class="mb-4">目前，Cursor 支持通过 <code class="px-2 py-1 bg-gray-100 rounded text-sm">@example.js</code> 或 <code class="px-2 py-1 bg-gray-100 rounded text-sm">@example.js(line10-20)</code> 这样在 prompt 里精准选取项目里的特定文件或行，从而为 LLM（如 GPT-4、Claude）提供精细上下文，这极大提升了代码 AI 交互的效率和针对性。那么，你想迁移到 Anthropic/Claude 新出的 Claude Code，有没有类似的上下文指定能力？我们来详细对比下：</p>
+                                
+                                <!-- Cursor Mechanism -->
+                                <section id="cursor-mechanism" class="mb-6">
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                        <i class="fas fa-cursor mr-2 text-green-500"></i>
+                                        1. Cursor 的 @file 精准上下文机制
+                                    </h4>
+                                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                        <li><strong>优点：</strong>在对话时通过 <code class="px-1 bg-gray-100 rounded">@xxx.js</code>，甚至可以指定 <code class="px-1 bg-gray-100 rounded">@xxx.js(10-20)</code>，极为便捷地给 LLM 精准上下文片段。</li>
+                                        <li><strong>支持：</strong>在同一 prompt 里引用多个文件或文件区段，这很方便沟通与大型 refactor/review 场景。</li>
+                                    </ul>
+                                </section>
+
+                                <!-- Claude Context -->
+                                <section id="claude-context" class="mb-6">
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                        <i class="fas fa-terminal mr-2 text-purple-500"></i>
+                                        2. Claude Code 的上下文引用机制
+                                    </h4>
+                                    <p class="text-gray-700 mb-4">据目前公开资料，Claude Code（截至 2025 年 2 月 research preview）和 Cursor 的机制有一些区别：</p>
+                                    
+                                    <div class="space-y-4 ml-4">
+                                        <div class="border-l-4 border-purple-400 pl-4">
+                                            <h5 class="font-semibold text-gray-900 mb-2">a) Claude Code 的核心定位和入口</h5>
+                                            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                                <li>Claude Code 是 Anthropic 推出的工程 AI 代理，重点是"直接在 terminal 让 Claude 帮你解决工程任务"</li>
+                                                <li>目前以 CLI 工具/Agent 形式存在，而非 IDE 内联代码编辑器</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="border-l-4 border-purple-400 pl-4">
+                                            <h5 class="font-semibold text-gray-900 mb-2">b) Claude Code 的上下文获取方式</h5>
+                                            <ol class="list-decimal list-inside space-y-3 text-gray-700">
+                                                <li>
+                                                    <strong>与项目文件的交互：</strong>
+                                                    <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                                                        <li>通过命令行交互，与本地代码库关联</li>
+                                                        <li>定位到项目根目录，自动感知代码结构</li>
+                                                        <li>可以读取、修改和生成项目文件</li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <strong>文件/行级别的引用能力：</strong>
+                                                    <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                                                        <li><strong>缺失功能：</strong>官方没有像 Cursor 一样支持 <code class="px-1 bg-gray-100 rounded">@file.js(line1-10)</code> 的精确引用机制</li>
+                                                        <li><strong>替代方案：</strong>可以用 <code class="px-1 bg-gray-100 rounded">claude edit src/example.js</code> 但整体提交文件内容</li>
+                                                        <li><strong>手动方法：</strong>需手动复制粘贴代码片段并注明行号</li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <strong>交互与上下文限制：</strong>
+                                                    <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                                                        <li>上下文上限较高（理论10万token）</li>
+                                                        <li>自动决定相关代码，用户无法精细控制</li>
+                                                        <li>手动复制粘贴仍是主要方式</li>
+                                                    </ul>
+                                                </li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- Summary -->
+                                <section id="comparison" class="mb-6">
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                        <i class="fas fa-balance-scale mr-2 text-blue-500"></i>
+                                        3. 总结对比与建议
+                                    </h4>
+                                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                        <li><strong>工作流依赖：</strong>如果极度依赖 prompt 级别文件行片段引用，Claude Code 目前不支持</li>
+                                        <li><strong>使用场景：</strong>更适合大任务和全项目级别的上下文分析</li>
+                                        <li><strong>精准控制：</strong>只能手动粘贴代码片段并注明位置</li>
+                                    </ul>
+                                </section>
+
+                                <!-- References -->
+                                <section id="references" class="mb-6">
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <i class="fas fa-book mr-2 text-orange-500"></i>
+                                        参考文献
+                                    </h4>
+                                    
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+                                        <h5 class="font-semibold text-gray-900 border-b border-gray-200 pb-2">主要来源</h5>
+                                        
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-start space-x-2">
+                                                <span class="font-semibold text-gray-600">[3]</span>
+                                                <div>
+                                                    <span class="text-gray-800">AI Code Tools: The Ultimate Guide in 2025</span>
+                                                    <a href="https://codesubmit.io/blog/ai-code-tools/research" 
+                                                       class="text-blue-600 hover:text-blue-800 transition-colors ml-1" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer">
+                                                        https://codesubmit.io/blog/ai-code-tools/research
+                                                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <h5 class="font-semibold text-gray-900 border-b border-gray-200 pb-2 mt-4">技术实现与工具</h5>
+                                        
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-start space-x-2">
+                                                <span class="font-semibold text-gray-600">[1]</span>
+                                                <div>
+                                                    <span class="text-gray-800">Comprehensive MCP implementation achieving full Claude Code IDE parity</span>
+                                                    <a href="https://github.com/greggh/claude-code.nvim/pull/30" 
+                                                       class="text-blue-600 hover:text-blue-800 transition-colors ml-1" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer">
+                                                        greggh/claude-code.nvim#30
+                                                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-start space-x-2">
+                                                <span class="font-semibold text-gray-600">[2]</span>
+                                                <div>
+                                                    <span class="text-gray-800">Bun.sh LLM Full Documentation</span>
+                                                    <a href="https://bun.sh/llms-full.txt" 
+                                                       class="text-blue-600 hover:text-blue-800 transition-colors ml-1" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer">
+                                                        https://bun.sh/llms-full.txt
+                                                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <h5 class="font-semibold text-gray-900 border-b border-gray-200 pb-2 mt-4">官方文档与指南</h5>
+                                        
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-start space-x-2">
+                                                <span class="font-semibold text-gray-600">[1]</span>
+                                                <div>
+                                                    <span class="text-gray-800">Claude Code Best Practices</span>
+                                                    <a href="https://www.anthropic.com/engineering/claude-code-best-practices" 
+                                                       class="text-blue-600 hover:text-blue-800 transition-colors ml-1" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer">
+                                                        Anthropic Official
+                                                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-start space-x-2">
+                                                <span class="font-semibold text-gray-600">[2]</span>
+                                                <div>
+                                                    <span class="text-gray-800">Claude Code Beginners' Guide: Best Practices</span>
+                                                    <a href="https://apidog.com/blog/claude-code-beginners-guide-best-practices/" 
+                                                       class="text-blue-600 hover:text-blue-800 transition-colors ml-1" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer">
+                                                        ApiDog
+                                                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-start space-x-2">
+                                                <span class="font-semibold text-gray-600">[3]</span>
+                                                <div>
+                                                    <span class="text-gray-800">Claude Code</span>
+                                                    <a href="https://grantslatton.com/claude-code" 
+                                                       class="text-blue-600 hover:text-blue-800 transition-colors ml-1" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer">
+                                                        Grant Slatest
+                                                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-start space-x-2">
+                                                <span class="font-semibold text-gray-600">[4]</span>
+                                                <div>
+                                                    <span class="text-gray-800">How I use Claude Code (+ my best tips)</span>
+                                                    <a href="https://www.builder.io/blog/claude-code" 
+                                                       class="text-blue-600 hover:text-blue-800 transition-colors ml-1" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer">
+                                                        Builder.io
+                                                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4 p-3 bg-gray-50 rounded text-xs text-gray-600">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            注：参考文献编号与原文保持一致，按引用顺序和分类组织。
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+
+                        <!-- Follow-up Question -->
+                        <div class="conversation-item user-message">
+                            <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">用户追问</h3>
+                                        <p class="text-sm text-gray-500">关于最佳实践</p>
+                                    </div>
+                                </div>
+                                <div class="text-gray-700 leading-relaxed">
+                                    <blockquote class="border-l-4 border-gray-400 pl-4 italic mb-3">
+                                        "如需引用特定文件某段落，通用做法仍是手动复制粘贴需要的代码片段到 prompt..."
+                                    </blockquote>
+                                    <p class="mb-2">这里的最佳实践是什么？比如让它给我解释某一行代码或某一个函数（包含几十到几百行代码）</p>
+                                    <p class="text-sm text-gray-600 italic">please answer me in English</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Best Practices Response -->
+                        <div class="conversation-item assistant-message">
+                            <div class="bg-white rounded-lg shadow-sm border border-linear-blue-200 p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-robot text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-blue-900">最佳实践指南</h3>
+                                        <p class="text-sm text-blue-600">详细操作步骤</p>
+                                    </div>
+                                </div>
+                                
+                                <section id="best-practices" class="space-y-6">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <h4 class="text-lg font-semibold text-blue-900 mb-3">
+                                            Best practices for getting Claude Code to explain specific code
+                                        </h4>
+                                        <p class="text-blue-800 mb-4">
+                                            If you want Claude Code to explain a particular line of code or a whole function (dozens to hundreds of lines), here are the most effective approaches:
+                                        </p>
+                                    </div>
+
+                                    <!-- Step by Step Guide -->
+                                    <div class="space-y-4">
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">1</div>
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-900 mb-2">Be Explicit: Give Both Context and Motivation</h5>
+                                                    <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
+                                                        <li>Copy the exact code snippet and paste it directly into your prompt</li>
+                                                        <li>Add clear instructions like "Please explain what this function does step by step"</li>
+                                                        <li>State file origin and line numbers: "from example.js, lines 10-120"</li>
+                                                        <li>Explain motivation: "I'm new to this codebase, help me onboard"</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">2</div>
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-900 mb-2">Structure Your Prompt for Clarity</h5>
+                                                    <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
+                                                        <li>Use code blocks with triple backticks and language specification</li>
+                                                        <li>Use XML tags or sections for complex functions</li>
+                                                        <li>Specify desired output format (step-by-step, summary, etc.)</li>
+                                                    </ul>
+                                                    <div class="bg-gray-100 rounded p-3 mt-3">
+                                                        <pre class="text-xs font-mono"><code>&lt;function_to_explain&gt;
+// your code here...
 &lt;/function_to_explain&gt;
 &lt;question&gt;
-Please explain the purpose of this function and how it works, step by step. Focus on variable flow and any tricky logic.
+Explain this function step by step
 &lt;/question&gt;</code></pre>
-                    </li>
-                    <li>If you want a certain style (like step-by-step, pseudocode, or high-level summary), <em>say so</em> in your instructions<a href="#ref-2">[2]</a>.</li>
-                </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                <h3>3. <strong>Ground Claude's Response in the Source</strong></h3>
-                <ul>
-                    <li>You can instruct Claude:<br>
-                        "Before answering, please quote the lines or code fragments most relevant to your explanation."</li>
-                    <li>Optionally, add:<br>
-                        "Summarize the main logic, and anchor your explanation in specific pieces of code as you go."</li>
-                    <li>This technique, sometimes called "reference quoting," makes Claude's answer much more trustworthy and targeted, especially for long blocks<a href="#ref-2">[2]</a>.</li>
-                </ul>
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">3</div>
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-900 mb-2">Ground Claude's Response in the Source</h5>
+                                                    <ul class="list-disc list-inside space-y-1 text-gray-700 text-sm">
+                                                        <li>Instruct Claude to quote relevant lines before explaining</li>
+                                                        <li>Use "reference quoting" technique for targeted responses</li>
+                                                        <li>Ask for summaries anchored in specific code pieces</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                <h3>4. <strong>Prompt Examples You Can Use</strong></h3>
-
-                <h4>For a single line:</h4>
-                <pre><code>Please explain the purpose of the following line in context. This is from `example.js` line 53:
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">4</div>
+                                                <div>
+                                                    <h5 class="font-semibold text-gray-900 mb-2">Prompt Examples</h5>
+                                                    <div class="space-y-2 text-sm">
+                                                        <div class="bg-gray-50 rounded p-2">
+                                                            <strong class="text-gray-700">Single line:</strong>
+                                                            <pre class="text-xs mt-1"><code>Explain line 53 from example.js:
 ```js
 userData = await fetchUserData(userId);
 ```</code></pre>
-
-                <h4>For a full function:</h4>
-                <pre><code>Here is the function `getSortedUserList` from `users.ts` lines 41-122. Please explain what it does, line by line, and summarize any important design choices the author made.
-
+                                                        </div>
+                                                        <div class="bg-gray-50 rounded p-2">
+                                                            <strong class="text-gray-700">Full function:</strong>
+                                                            <pre class="text-xs mt-1"><code>Explain getSortedUserList from users.ts lines 41-122:
 ```typescript
-// ...function code...
+// paste function here...
 ```</code></pre>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                <h4>With a desired output format:</h4>
-                <pre><code>&lt;instructions&gt;
-You are an expert in TypeScript. For the following function, explain each part, list any potential bugs, and then summarize in a paragraph.
-&lt;/instructions&gt;
-&lt;function_code&gt;
-// ...whole function here...
-&lt;/function_code&gt;</code></pre>
+                                    <!-- Summary Table -->
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <h5 class="font-semibold text-gray-900 mb-3">Summary Table</h5>
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-sm">
+                                                <thead>
+                                                    <tr class="border-b">
+                                                        <th class="text-left py-2 font-semibold">Situation</th>
+                                                        <th class="text-left py-2 font-semibold">Best Practice</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="border-b">
+                                                        <td class="py-2">Explain single line</td>
+                                                        <td class="py-2">Paste line, reference source & context</td>
+                                                    </tr>
+                                                    <tr class="border-b">
+                                                        <td class="py-2">Explain whole function</td>
+                                                        <td class="py-2">Paste function, state file & lines</td>
+                                                    </tr>
+                                                    <tr class="border-b">
+                                                        <td class="py-2">Large code block</td>
+                                                        <td class="py-2">Split into parts, ask for summaries</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="py-2">Repeatable needs</td>
+                                                        <td class="py-2">Use CLAUDE.md, custom commands</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </section>
 
-                <h3>5. <strong>Use Project Memory (CLAUDE.md) If Applicable</strong></h3>
-                <ul>
-                    <li>If your workflow involves repeatedly referencing specific files or styles, or you want project-wide context to always be available, update <code>CLAUDE.md</code> with references to important patterns or files.</li>
-                    <li>For highly-repeated patterns ("always use MUI components for new UIs"), add these as memory via the <code>#</code> shortcut or directly in <code>CLAUDE.md</code><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a>.</li>
-                </ul>
+                                <div class="bg-blue-100 border border-blue-300 rounded-lg p-4 mt-4">
+                                    <p class="text-blue-900 font-semibold">
+                                        <i class="fas fa-lightbulb mr-2"></i>
+                                        In short: Copy the relevant code to the prompt, label where it is from, and ask directly and specifically for the kind of explanation you want.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                <h3>6. <strong>For Extremely Large Functions or Files</strong></h3>
-                <ul>
-                    <li>Claude 3.7 models can contextually handle large blocks (even thousands of lines)<a href="#ref-4">[4]</a>.</li>
-                    <li>If you hit a context limit, split your request: "Here is part 1 of 3 of function <code>FooBar</code>, lines 10–110…" and so on.</li>
-                    <li>You can also ask Claude to "analyze the structure and summarize what each logical segment is responsible for" if you just want a higher-level overview<a href="#ref-1">[1]</a><a href="#ref-4">[4]</a>.</li>
-                </ul>
+                <!-- Final Summary -->
+                <section class="mb-8">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200">
+                        <h2 class="text-xl font-bold text-green-900 mb-3 flex items-center">
+                            <i class="fas fa-check-circle mr-2 text-green-600"></i>
+                            关键结论
+                        </h2>
+                        <div class="text-green-800 space-y-2">
+                            <p><strong>Claude Code 目前主要通过自动读取项目文件来确定上下文，而非 prompt 语法。</strong></p>
+                            <p>如果要像 Cursor 那样指定代码区段，只能在 prompt 中直接粘贴代码片段，并注明行号或文件出处。</p>
+                            <p><strong>期待功能：</strong>关注 Claude Code 未来的 feature update，推动官方支持 Cursor 式的精准上下文选择能力！</p>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
 
-                <h3>7. <strong>General Tips</strong></h3>
-                <ul>
-                    <li>Use the <code>/clear</code> command to keep your session focused on the current question, especially in long sessions<a href="#ref-1">[1]</a><a href="#ref-4">[4]</a>.</li>
-                    <li>For repeated explanations or reviews, consider creating a custom slash command that includes your preferred explanation template (e.g., stored in <code>.claude/commands/explain-function.md</code>)<a href="#ref-1">[1]</a><a href="#ref-4">[4]</a>.</li>
-                    <li>Give feedback/corrections during the interaction: If the initial explanation misses a point, clarify or ask for more detail.</li>
-                </ul>
-
-                <h3>Summary Table</h3>
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Situation</th>
-                            <th>Best Practice</th>
-                            <th>Reference</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Explain a single line</td>
-                            <td>Paste the line, reference source & context, ask directly</td>
-                            <td><a href="#ref-2">[2]</a><a href="#ref-1">[1]</a></td>
-                        </tr>
-                        <tr>
-                            <td>Explain a whole function</td>
-                            <td>Paste function, state file & lines, specify output format (stepwise, summary, et cetera)</td>
-                            <td><a href="#ref-2">[2]</a><a href="#ref-1">[1]</a><a href="#ref-4">[4]</a></td>
-                        </tr>
-                        <tr>
-                            <td>Extra large code block</td>
-                            <td>Split into parts if needed, reference file/lines, ask for summaries</td>
-                            <td><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a></td>
-                        </tr>
-                        <tr>
-                            <td>Repeatable needs</td>
-                            <td>Store conventions or context in <code>CLAUDE.md</code>, custom slash commands</td>
-                            <td><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="info-box">
-                    <strong>References:</strong><br>
-                    <a href="#ref-1">[1]</a> <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic Claude Code – Official Best Practices</a><br>
-                    <a href="#ref-2">[2]</a> <a href="https://apidog.com/blog/claude-code-beginners-guide-best-practices/" target="_blank">ApiDog Claude Code Guide: Principles and Prompting</a><br>
-                    <a href="#ref-4">[4]</a> <a href="https://www.builder.io/blog/claude-code" target="_blank">Builder.io – Power Workflow & Memory in Claude Code</a>
+    <!-- Footer -->
+    <footer class="bg-white border-t border-linear-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-sm text-linear-gray-500">
+                    © 2025 个人知识库 - 内容来源于原始对话记录
                 </div>
-
-                <div class="highlight-box">
-                    <strong>In short:</strong><br>
-                    <strong>Copy the relevant code to the prompt, label where it is from, and ask directly and specifically for the kind of explanation you want. Structure your prompt for clarity, and if required, use reference quoting or output format tags for higher quality results.</strong><a href="#ref-1">[1]</a><a href="#ref-2">[2]</a><a href="#ref-4">[4]</a>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <button class="text-sm text-linear-gray-500 hover:text-linear-gray-700 transition-colors">
+                        <i class="fas fa-edit mr-1"></i>编辑
+                    </button>
+                    <button class="text-sm text-linear-gray-500 hover:text-linear-gray-700 transition-colors">
+                        <i class="fas fa-history mr-1"></i>历史
+                    </button>
                 </div>
+            </div>
+        </div>
+    </footer>
 
-                <div class="info-box">
-                    <strong>References:</strong><br>
-                    <a href="#ref-1">[1]</a> <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Claude Code Best Practices</a><br>
-                    <a href="#ref-2">[2]</a> <a href="https://apidog.com/blog/claude-code-beginners-guide-best-practices/" target="_blank">Claude Code Beginners' Guide: Best Practices</a><br>
-                    <a href="#ref-3">[3]</a> <a href="https://grantslatton.com/claude-code" target="_blank">Claude Code</a><br>
-                    <a href="#ref-4">[4]</a> <a href="https://www.builder.io/blog/claude-code" target="_blank">How I use Claude Code (+ my best tips)</a>
-                </div>
-            </section>
-        </main>
-    </div>
+    <!-- JavaScript for Interactive Features -->
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Dynamic table of contents highlighting
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('[id]');
+            const navLinks = document.querySelectorAll('#table-of-contents a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('text-linear-blue-600', 'font-semibold');
+                link.classList.add('text-linear-gray-600');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.remove('text-linear-gray-600');
+                    link.classList.add('text-linear-blue-600', 'font-semibold');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNav);
+        updateActiveNav(); // Initial call
+    </script>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Claude Code精准上下文对比 - Cursor @file 机制与 Claude Code 上下文处理深度分析",
+        "description": "深入对比分析 Cursor 的 @file 精准上下文机制与 Claude Code 的上下文处理能力，提供从 Cursor 迁移到 Claude Code 的完整指南",
+        "author": {
+            "@type": "Person",
+            "name": "AI助手对话记录"
+        },
+        "datePublished": "2025-07-23",
+        "dateModified": "2025-07-23",
+        "keywords": ["Claude Code", "Cursor", "AI工具", "上下文处理", "代码编辑器", "开发工具"],
+        "articleSection": "编程工具对比"
+    }
+    </script>
 </body>
 </html>
