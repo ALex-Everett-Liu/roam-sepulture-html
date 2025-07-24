@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Experience With Claude Code After 2 Weeks of Adventures</title>
+    <title>My Experience With Claude Code After 2 Weeks of Adventures | 我与Claude Code的两周冒险体验</title>
     <style>
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
@@ -46,8 +46,28 @@
             padding: 40px 40px 30px 40px;
             border-radius: 10px;
             box-shadow: 0 2px 8px #ccc;
-            max-width: 900px;
+            max-width: 1100px;
             margin: 40px auto;
+        }
+        .bilingual-container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .language-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        .language-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .chinese {
+            font-family: 'Georgia', 'Times New Roman', 'Noto Serif CJK SC', serif;
         }
         .date {
             font-style: italic;
@@ -103,42 +123,90 @@
         <h1>My Experience With Claude Code After 2 Weeks of Adventures</h1>
         <div class="date">17 Jul, 2025</div>
         <div class="status">Hatching…</div>
-        <h2>Cursor Shenanigans</h2>
-        <p>
-            Cursor, my beloved, started rate limiting shenanigans a few days back. For a good 2 weeks after June 16, 2025, we had almost infinite API request access. I had a lot of code-related work around this time as I was working on <a href="https://x.com/dejavucoder/status/1943204858330529972">Gumroad bounties</a> plus my AI engineering/LLM eval-related consulting work. Apart from just codegen, I also use these tools to onboard/understand codebases faster and just ask a lot of questions in general.
-        </p>
         
-        <p>
-            All my max requests are coming under "included in pro" in cursor. This is insane stuff.
-        </p>
-        
-        <p>
-            But one fine day, they pulled the plug and started rate-limiting. I admit I milked them too much, so I didn't feel bad about this. It's worth asking whether I was doing shenanigans or it was Cursor.
-        </p>
-        
-        <p>
-            Finally got rate limited on claude 4 sonnet on cursor. hopefully it resets in a day or two idk
-        </p>
-        
-        <p>
-            But post this change, people have been getting rate-limited much faster, and you can only get unlimited usage using the auto-model feature. Speaking for myself, I don't really trust models other than Sonnet 4 and o3. Both are beasts at agentic search and code generation. Using these with API usage pricing can quickly lead to "oh husbant... now we are homeless."
-        </p>
-        
-        <p>
-            I do trust Gemini Pro 2.5 and GPT-4.1 a bit, but I use the former 2 the most. Oh, I forgot to mention Opus 4 can really help solve some bugs on which Sonnet 4 struggles for hours so when I used to get really stuck in Cursor, I would switch on API usage pricing for a short while and solve my issue (or just dump code on the Claude chat platform)
-        </p>
-        
-        <p>
-            One big reason to use cursor apart from the great developer experience was to spend 20 dollars and get 100 dollar worth of API credits value thanks to VC daddies but I am not sure if that would still retain going forward
-        </p>
-        
-        <p>
-            Lately, the requests also started getting a bit slower on Cursor - Sonnet specifically. Maybe this was an Anthropic issue (someone give this company some more GPUs and senior distributed systems engineers to keep their API up).
-        </p>
-        
-        <p>
-            Apart from the above, I was also influenced by many of the tpot peeps like @tokenbender, @thepushkarp, @xeophon_, @menhguin, etc. Tokenbender's blog showed that you can do a lot of power user and multi-agent stuff on the system so that got me hooked too.
-        </p>
+        <div class="bilingual-container">
+            <div class="language-section">
+                <div class="language-label">English</div>
+                
+                <h2>Cursor Shenanigans</h2>
+                <p>
+                    Cursor, my beloved, started rate limiting shenanigans a few days back. For a good 2 weeks after June 16, 2025, we had almost infinite API request access. I had a lot of code-related work around this time as I was working on <a href="https://x.com/dejavucoder/status/1943204858330529972">Gumroad bounties</a> plus my AI engineering/LLM eval-related consulting work. Apart from just codegen, I also use these tools to onboard/understand codebases faster and just ask a lot of questions in general.
+                </p>
+                
+                <p>
+                    All my max requests are coming under "included in pro" in cursor. This is insane stuff.
+                </p>
+                
+                <p>
+                    But one fine day, they pulled the plug and started rate-limiting. I admit I milked them too much, so I didn't feel bad about this. It's worth asking whether I was doing shenanigans or it was Cursor.
+                </p>
+                
+                <p>
+                    Finally got rate limited on claude 4 sonnet on cursor. hopefully it resets in a day or two idk
+                </p>
+                
+                <p>
+                    But post this change, people have been getting rate-limited much faster, and you can only get unlimited usage using the auto-model feature. Speaking for myself, I don't really trust models other than Sonnet 4 and o3. Both are beasts at agentic search and code generation. Using these with API usage pricing can quickly lead to "oh husbant... now we are homeless."
+                </p>
+                
+                <p>
+                    I do trust Gemini Pro 2.5 and GPT-4.1 a bit, but I use the former 2 the most. Oh, I forgot to mention Opus 4 can really help solve some bugs on which Sonnet 4 struggles for hours so when I used to get really stuck in Cursor, I would switch on API usage pricing for a short while and solve my issue (or just dump code on the Claude chat platform)
+                </p>
+                
+                <p>
+                    One big reason to use cursor apart from the great developer experience was to spend 20 dollars and get 100 dollar worth of API credits value thanks to VC daddies but I am not sure if that would still retain going forward
+                </p>
+                
+                <p>
+                    Lately, the requests also started getting a bit slower on Cursor - Sonnet specifically. Maybe this was an Anthropic issue (someone give this company some more GPUs and senior distributed systems engineers to keep their API up).
+                </p>
+                
+                <p>
+                    Apart from the above, I was also influenced by many of the tpot peeps like @tokenbender, @thepushkarp, @xeophon_, @menhguin, etc. Tokenbender's blog showed that you can do a lot of power user and multi-agent stuff on the system so that got me hooked too.
+                </p>
+            </div>
+            
+            <div class="language-section chinese">
+                <div class="language-label">中文</div>
+                
+                <h2>Cursor的滑稽操作</h2>
+                <p>
+                    Cursor，我的挚爱，几天前开始玩起了限流的滑稽把戏。从2025年6月16日之后的两周里，我们几乎拥有无限的API请求权限。那段时间我有很多代码相关的工作，因为我正在做<a href="https://x.com/dejavucoder/status/1943204858330529972">Gumroad悬赏任务</a>，还有AI工程/LLM评估相关的咨询工作。除了代码生成，我还用这些工具更快地理解代码库，总之会问很多问题。
+                </p>
+                
+                <p>
+                    我所有的最大请求都显示在cursor的"pro包含"里。这简直太疯狂了。
+                </p>
+                
+                <p>
+                    但有一天，他们突然拔掉了插头开始限流。我承认我确实薅得太狠了，所以对此并不感到难过。值得思考的是，到底是我太狡猾了，还是Cursor的问题。
+                </p>
+                
+                <p>
+                    终于在cursor上的claude 4 sonnet被限流了。希望一两天后能重置吧，我也不确定。
+                </p>
+                
+                <p>
+                    但自这个变化之后，人们被限流的速度快了很多，而唯一能获得无限使用的方法就是使用自动模型功能。就我个人而言，我真的不太信任除Sonnet 4和o3之外的模型。这两个在代理搜索和代码生成方面都是野兽级的。使用这些按API用量计费的模型很快就会导致"哦亲爱的...现在我们无家可归了"。
+                </p>
+                
+                <p>
+                    我确实有点信任Gemini Pro 2.5和GPT-4.1，但我用得最多的还是前两个。哦，我忘了说Opus 4真的能解决一些Sonnet 4挣扎数小时的bug，所以当我在Cursor里真的卡住时，我会短暂开启API计费模式来解决问题（或者直接把代码扔到Claude聊天平台）。
+                </p>
+                
+                <p>
+                    使用cursor的一大原因，除了出色的开发者体验外，就是花20美元能获得价值100美元的API额度，这要感谢风投爸爸们，但我不确定这种情况未来是否还会继续。
+                </p>
+                
+                <p>
+                    最近，Cursor上的请求也开始变慢了 - 特别是Sonnet。也许这是Anthropic的问题（谁给这家公司多送点GPU和高级分布式系统工程师，让他们的API保持正常运行）。
+                </p>
+                
+                <p>
+                    除了上述内容，我还受到了很多tpot社区朋友的影响，比如@tokenbender、@thepushkarp、@xeophon_、@menhguin等。Tokenbender的博客展示了你可以在这个系统上做很多高级用户和多代理的事情，这也让我着迷了。
+                </p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
