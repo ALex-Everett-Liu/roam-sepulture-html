@@ -4,25 +4,140 @@
     <meta charset="UTF-8">
     <title>My Experience With Claude Code After 2 Weeks of Adventures</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f9f9f9; }
-        h1 { color: #2a4b8d; }
-        .container { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px #ccc;}
-        .subtitle { color: #444; font-size: 1.2em; margin-bottom: 20px; }
-        .date { font-style: italic; color: #666; margin-bottom: 10px; }
-        .status { color: #ff6f4d; margin-bottom: 20px; }
-        h2 { color: #2a4b8d; margin-top: 30px; }
-        a { text-decoration: none; color: #3875d7; }
-        a:hover { text-decoration: underline; }
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            margin: 0;
+            background: #F0EEE4;
+            color: #232323;
+        }
+        .blog-title {
+            text-align: center;
+            font-size: 3em;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 1.25em;
+            margin-bottom: 10px;
+        }
+        .nav-bar a {
+            color: #232323;
+            text-decoration: none;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-bar a:hover {
+            color: #2a4b8d;
+            text-decoration: underline;
+        }
+        .divider {
+            border: none;
+            border-top: 1.5px solid #e0e0d2;
+            margin: 0 10vw 40px 10vw;
+        }
+        .container {
+            background: #fff;
+            padding: 40px 40px 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #ccc;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        .date {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 18px;
+            font-size: 1.1em;
+        }
+        .status {
+            color: #ff6f4d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        h1 {
+            color: #232323;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 18px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 600;
+        }
+        h2 {
+            color: #232323;
+            font-size: 1.6em;
+            margin-top: 40px;
+            margin-bottom: 10px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+        p {
+            font-size: 1.15em;
+            line-height: 1.7;
+            color: #232323;
+        }
+        a {
+            color: #3875d7;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <div class="blog-title">sankalp's blog</div>
+    <nav class="nav-bar">
+        <a href="#">Latest</a>
+        <a href="#">Featured</a>
+        <a href="#">Blog</a>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+    </nav>
+    <hr class="divider" />
     <div class="container">
         <h1>My Experience With Claude Code After 2 Weeks of Adventures</h1>
         <div class="date">17 Jul, 2025</div>
         <div class="status">Hatching…</div>
         <h2>Cursor Shenanigans</h2>
         <p>
-            Cursor, my beloved, started rate limiting shenanigans a few days back. For a good 2 weeks after June 16, 2025, we had almost infinite API request access. I had a lot of code-related work around this time as I was working on <a href="https://gumroad.com">Gumroad bounties</a> plus my AI engineering/LLM eval-related consulting work. Apart from just codegen, I also use these tools to onboard/understand codebases faster and just ask a lot of questions in general.
+            Cursor, my beloved, started rate limiting shenanigans a few days back. For a good 2 weeks after June 16, 2025, we had almost infinite API request access. I had a lot of code-related work around this time as I was working on <a href="https://x.com/dejavucoder/status/1943204858330529972">Gumroad bounties</a> plus my AI engineering/LLM eval-related consulting work. Apart from just codegen, I also use these tools to onboard/understand codebases faster and just ask a lot of questions in general.
+        </p>
+        
+        <p>
+            All my max requests are coming under "included in pro" in cursor. This is insane stuff.
+        </p>
+        
+        <p>
+            But one fine day, they pulled the plug and started rate-limiting. I admit I milked them too much, so I didn't feel bad about this. It's worth asking whether I was doing shenanigans or it was Cursor.
+        </p>
+        
+        <p>
+            Finally got rate limited on claude 4 sonnet on cursor. hopefully it resets in a day or two idk
+        </p>
+        
+        <p>
+            But post this change, people have been getting rate-limited much faster, and you can only get unlimited usage using the auto-model feature. Speaking for myself, I don't really trust models other than Sonnet 4 and o3. Both are beasts at agentic search and code generation. Using these with API usage pricing can quickly lead to "oh husbant... now we are homeless."
+        </p>
+        
+        <p>
+            I do trust Gemini Pro 2.5 and GPT-4.1 a bit, but I use the former 2 the most. Oh, I forgot to mention Opus 4 can really help solve some bugs on which Sonnet 4 struggles for hours so when I used to get really stuck in Cursor, I would switch on API usage pricing for a short while and solve my issue (or just dump code on the Claude chat platform)
+        </p>
+        
+        <p>
+            One big reason to use cursor apart from the great developer experience was to spend 20 dollars and get 100 dollar worth of API credits value thanks to VC daddies but I am not sure if that would still retain going forward
+        </p>
+        
+        <p>
+            Lately, the requests also started getting a bit slower on Cursor - Sonnet specifically. Maybe this was an Anthropic issue (someone give this company some more GPUs and senior distributed systems engineers to keep their API up).
+        </p>
+        
+        <p>
+            Apart from the above, I was also influenced by many of the tpot peeps like @tokenbender, @thepushkarp, @xeophon_, @menhguin, etc. Tokenbender's blog showed that you can do a lot of power user and multi-agent stuff on the system so that got me hooked too.
         </p>
     </div>
 </body>
