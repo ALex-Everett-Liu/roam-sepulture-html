@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tag Index - My Personal Wiki</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2d3748;
+            --secondary-color: #4a5568;
+            --accent-color: #3182ce;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
+            --tag-bg: #e2e8f0;
+            --tag-hover: #cbd5e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: var(--card-bg);
+            padding: 15px 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .search-section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #search-input, #tag-search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #search-input:focus, #tag-search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: var(--tag-bg);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .tag:hover {
+            background: var(--tag-hover);
+            transform: translateY(-1px);
+        }
+
+        .tag.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .results-section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .results-count {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .clear-filters {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--secondary-color);
+            padding: 5px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .clear-filters:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .article-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .article-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .article-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .article-description {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .article-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .article-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .tag-item {
+            background: var(--tag-bg);
+            color: var(--text-color);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary-color);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-tags"></i>
+                Tag Index
+            </h1>
+            <div class="subtitle">Browse and search pages by tags and keywords</div>
+        </div>
+
+        <div class="nav">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Tags</span>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search pages by title or description...">
+                <input type="text" id="tag-search-input" placeholder="Search tags...">
+            </div>
+            
+            <div class="filter-section">
+                <span class="filter-label">Popular Tags:</span>
+                <div class="tag-cloud" id="tag-cloud"></div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <div class="results-count" id="results-count">All Pages</div>
+                <button class="clear-filters" onclick="clearAllFilters()">Clear Filters</button>
+            </div>
+            <div class="articles-grid" id="articles-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Page database with tags and metadata
+        const pages = [
+            {
+                title: "My Experience With Claude Code After 2 Weeks",
+                description: "记录我与Claude Code两周使用体验，包括Cursor限流、AI编程工具对比等真实体验分享。",
+                url: "private-pages-01/claude-code-experience-01.html",
+                tags: ["claude-code", "cursor", "ai-programming", "experience", "rate-limiting", "productivity", "bilingual"],
+                category: "personal-experience",
+                date: "2025-07-17"
+            },
+            {
+                title: "设置 Git Bash 环境变量",
+                description: "详细指南如何在 Windows 系统中为 Claude Code 配置 Git Bash 环境变量，解决启动错误问题。",
+                url: "programming/01/设置-Git-Bash-环境变量.html",
+                tags: ["git-bash", "windows", "environment-variables", "claude-code", "setup", "configuration"],
+                category: "configuration",
+                date: "2025-07-23"
+            },
+            {
+                title: "Claude Code vs Cursor: Context Guide",
+                description: "Complete migration guide comparing Cursor's @file syntax with Claude Code's context handling approach.",
+                url: "programming/01/claude-code-vs-cursor-context-handling-guide.html",
+                tags: ["claude-code", "cursor", "context-handling", "migration", "comparison", "guide"],
+                category: "comparison",
+                date: "2025-07-23"
+            }
+        ];
+
+        // Global variables
+        let currentSearchQuery = '';
+        let currentSelectedTags = [];
+        let filteredPages = [...pages];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTagCloud();
+            renderArticles();
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('search-input').addEventListener('input', handleSearch);
+            document.getElementById('tag-search-input').addEventListener('input', handleTagSearch);
+        }
+
+        // Render tag cloud
+        function renderTagCloud() {
+            const tagCloud = document.getElementById('tag-cloud');
+            const allTags = [...new Set(pages.flatMap(page => page.tags))].sort();
+            
+            tagCloud.innerHTML = '';
+            allTags.forEach(tag => {
+                const tagElement = document.createElement('button');
+                tagElement.className = 'tag';
+                tagElement.textContent = tag;
+                tagElement.onclick = () => toggleTag(tag, tagElement);
+                tagCloud.appendChild(tagElement);
+            });
+        }
+
+        // Toggle tag selection
+        function toggleTag(tag, element) {
+            const index = currentSelectedTags.indexOf(tag);
+            if (index > -1) {
+                currentSelectedTags.splice(index, 1);
+                element.classList.remove('active');
+            } else {
+                currentSelectedTags.push(tag);
+                element.classList.add('active');
+            }
+            filterAndRender();
+        }
+
+        // Handle search input
+        function handleSearch(event) {
+            currentSearchQuery = event.target.value.toLowerCase();
+            filterAndRender();
+        }
+
+        // Handle tag search
+        function handleTagSearch(event) {
+            const query = event.target.value.toLowerCase();
+            const tags = document.querySelectorAll('.tag');
+            
+            tags.forEach(tag => {
+                if (tag.textContent.toLowerCase().includes(query)) {
+                    tag.style.display = 'inline-block';
+                } else {
+                    tag.style.display = 'none';
+                }
+            });
+        }
+
+        // Filter pages based on search and tags
+        function filterPages() {
+            filteredPages = pages.filter(page => {
+                const matchesSearch = !currentSearchQuery || 
+                    page.title.toLowerCase().includes(currentSearchQuery) ||
+                    page.description.toLowerCase().includes(currentSearchQuery);
+                
+                const matchesTags = currentSelectedTags.length === 0 ||
+                    currentSelectedTags.every(tag => page.tags.includes(tag));
+                
+                return matchesSearch && matchesTags;
+            });
+        }
+
+        // Render articles
+        function renderArticles() {
+            const container = document.getElementById('articles-container');
+            const countElement = document.getElementById('results-count');
+            
+            countElement.textContent = `${filteredPages.length} page${filteredPages.length !== 1 ? 's' : ''}`;
+            
+            if (filteredPages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No pages found</h3>
+                        <p>Try adjusting your search or filter criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            filteredPages.forEach(page => {
+                const articleElement = document.createElement('div');
+                articleElement.className = 'article-card';
+                articleElement.innerHTML = `
+                    <a href="${page.url}">
+                        <div class="article-title">${page.title}</div>
+                        <div class="article-description">${page.description}</div>
+                        <div class="article-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                ${page.date}
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-folder"></i>
+                                ${page.category}
+                            </div>
+                        </div>
+                        <div class="article-tags">
+                            ${page.tags.map(tag => `<span class="tag-item">${tag}</span>`).join('')}
+                        </div>
+                    </a>
+                `;
+                container.appendChild(articleElement);
+            });
+        }
+
+        // Filter and render
+        function filterAndRender() {
+            filterPages();
+            renderArticles();
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            currentSearchQuery = '';
+            currentSelectedTags = [];
+            
+            document.getElementById('search-input').value = '';
+            document.getElementById('tag-search-input').value = '';
+            
+            document.querySelectorAll('.tag').forEach(tag => {
+                tag.classList.remove('active');
+                tag.style.display = 'inline-block';
+            });
+            
+            filterAndRender();
+        }
+    </script>
+</body>
+</html>
