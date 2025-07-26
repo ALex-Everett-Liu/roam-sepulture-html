@@ -1,0 +1,142 @@
+{
+  "images": [
+    {
+      "id": 1,
+      "title": "Tall Portrait",
+      "description": "A beautiful tall portrait image showcasing vertical composition",
+      "src": "https://picsum.photos/300/450",
+      "ranking": 9.2,
+      "tags": ["portrait", "tall", "vertical", "sample"],
+      "width": "300px",
+      "height": "450px",
+      "gridSpan": 1
+    },
+    {
+      "id": 2,
+      "title": "Wide Landscape",
+      "description": "Expansive landscape view with panoramic width",
+      "src": "https://picsum.photos/600/300",
+      "ranking": 8.8,
+      "tags": ["landscape", "wide", "panoramic", "sample"],
+      "width": "600px",
+      "height": "300px",
+      "gridSpan": 2
+    },
+    {
+      "id": 3,
+      "title": "Square Photo",
+      "description": "Perfect square format image with balanced composition",
+      "src": "https://picsum.photos/400/400",
+      "ranking": 7.5,
+      "tags": ["square", "balanced", "minimal", "sample"],
+      "width": "400px",
+      "height": "400px",
+      "gridSpan": 1
+    },
+    {
+      "id": 4,
+      "title": "Small Thumbnail",
+      "description": "Compact thumbnail size for quick previews",
+      "src": "https://picsum.photos/200/150",
+      "ranking": 6.8,
+      "tags": ["thumbnail", "small", "preview", "sample"],
+      "width": "200px",
+      "height": "150px",
+      "gridSpan": 1
+    },
+    {
+      "id": 5,
+      "title": "Extra Wide Banner",
+      "description": "Full-width banner image spanning multiple columns",
+      "src": "https://picsum.photos/800/250",
+      "ranking": 9.5,
+      "tags": ["banner", "wide", "hero", "sample"],
+      "width": "800px",
+      "height": "250px",
+      "gridSpan": 3
+    },
+    {
+      "id": 6,
+      "title": "Medium Rectangle",
+      "description": "Standard medium rectangle format for versatile use",
+      "src": "https://picsum.photos/350/250",
+      "ranking": 8.3,
+      "tags": ["medium", "rectangle", "standard", "sample"],
+      "width": "350px",
+      "height": "250px",
+      "gridSpan": 1
+    },
+    {
+      "id": 7,
+      "title": "Large Portrait",
+      "description": "Large vertical image with detailed content",
+      "src": "https://picsum.photos/400/600",
+      "ranking": 9.0,
+      "tags": ["portrait", "large", "detailed", "sample"],
+      "width": "400px",
+      "height": "600px",
+      "gridSpan": 1
+    },
+    {
+      "id": 8,
+      "title": "Extra Tall",
+      "description": "Very tall image showcasing vertical space",
+      "src": "https://picsum.photos/250/700",
+      "ranking": 8.7,
+      "tags": ["tall", "vertical", "narrow", "sample"],
+      "width": "250px",
+      "height": "700px",
+      "gridSpan": 1
+    },
+    {
+      "id": 9,
+      "title": "Mini Square",
+      "description": "Tiny square for icon or small preview",
+      "src": "https://picsum.photos/150/150",
+      "ranking": 6.2,
+      "tags": ["mini", "square", "icon", "sample"],
+      "width": "150px",
+      "height": "150px",
+      "gridSpan": 1
+    },
+    {
+      "id": 10,
+      "title": "Full Width Hero",
+      "description": "Massive hero image taking full width",
+      "src": "https://picsum.photos/1000/400",
+      "ranking": 9.8,
+      "tags": ["hero", "full-width", "feature", "sample"],
+      "width": "1000px",
+      "height": "400px",
+      "gridSpan": 4
+    },
+    {
+      "id": 11,
+      "title": "Medium Wide",
+      "description": "Moderately wide image for balanced layout",
+      "src": "https://picsum.photos/500/300",
+      "ranking": 8.1,
+      "tags": ["medium", "wide", "balanced", "sample"],
+      "width": "500px",
+      "height": "300px",
+      "gridSpan": 2
+    },
+    {
+      "id": 12,
+      "title": "Compact Portrait",
+      "description": "Small portrait format for tight spaces",
+      "src": "https://picsum.photos/280/420",
+      "ranking": 7.9,
+      "tags": ["compact", "portrait", "small", "sample"],
+      "width": "280px",
+      "height": "420px",
+      "gridSpan": 1
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2025-07-26",
+    "totalImages": 12,
+    "availableTags": ["landscape", "sunset", "nature", "mountains", "city", "urban", "night", "skyline", "ocean", "water", "dawn", "peaceful", "forest", "autumn", "trees", "desert", "sand", "golden", "mountain", "snow", "peak", "winter", "street", "busy", "lake", "reflection", "clear", "flowers", "garden", "spring", "colorful", "storm", "lightning", "dramatic", "weather", "beach", "sunrise", "calm", "wildlife", "deer", "animals"]
+  }
+}

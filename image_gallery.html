@@ -129,6 +129,39 @@
             height: 200px;
         }
         
+        /* Custom sizing classes */
+        .gallery-item.tall {
+            grid-row: span 2;
+        }
+        
+        .gallery-item.wide {
+            grid-column: span 2;
+        }
+        
+        .gallery-item.extra-wide {
+            grid-column: span 3;
+        }
+        
+        .gallery-item.full-width {
+            grid-column: span 4;
+        }
+        
+        .gallery-item.mini {
+            max-width: 150px;
+        }
+        
+        .gallery-item.small {
+            max-width: 200px;
+        }
+        
+        .gallery-item.medium {
+            max-width: 350px;
+        }
+        
+        .gallery-item.large {
+            max-width: 500px;
+        }
+        
         .gallery-item .caption {
             position: absolute;
             bottom: 0;
@@ -275,10 +308,16 @@
       "description": "Image description",
       "src": "path/to/your/image.jpg",
       "ranking": 8.5,
-      "tags": ["nature", "landscape"]
+      "tags": ["nature", "landscape"],
+      "width": "400px",
+      "height": "300px",
+      "gridSpan": 2
     }
   ]
 }</pre>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--secondary-color);">
+                    <strong>Optional fields:</strong> width, height (custom dimensions), gridSpan (1-4 columns)
+                </p>
             </details>
         </div>
     </div>
@@ -329,7 +368,7 @@
         // Load image data from external JSON file
         async function loadImageData() {
             try {
-                const response = await fetch('images_data.json');
+                const response = await fetch('private-pages-01/images_data_sample.json');
                 if (!response.ok) {
                     throw new Error('Failed to load image data');
                 }
@@ -466,10 +505,34 @@
 
             filteredImages.forEach(img => {
                 const item = document.createElement('div');
-                item.className = 'gallery-item';
+                let classes = 'gallery-item';
+                
+                // Add custom grid span classes based on gridSpan
+                if (img.gridSpan) {
+                    if (img.gridSpan === 2) classes += ' wide';
+                    else if (img.gridSpan === 3) classes += ' extra-wide';
+                    else if (img.gridSpan >= 4) classes += ' full-width';
+                }
+                
+                // Determine height class based on custom height
+                let imgStyle = '';
+                let placeholderStyle = '';
+                
+                if (img.height) {
+                    imgStyle = `style="width: 100%; height: ${img.height}; object-fit: cover;"`;
+                    placeholderStyle = `style="height: ${img.height};"`;
+                }
+                
+                const imgWidth = img.width || '100%';
+                const imgHeight = img.height || '200px';
+                
+                item.className = classes;
                 
                 item.innerHTML = `
-                    ${img.src ? `<img src="${img.src}" alt="${img.title}">` : `<div class="placeholder">${img.title}</div>`}
+                    ${img.src ? 
+                        `<img src="${img.src}" alt="${img.title}" style="width: 100%; height: ${imgHeight}; object-fit: cover;">` : 
+                        `<div class="placeholder" style="height: ${imgHeight}">${img.title}</div>`
+                    }
                     <div class="ranking">⭐ ${img.ranking}</div>
                     <div class="caption">
                         ${img.title}
@@ -477,6 +540,11 @@
                         <div class="image-tags">
                             ${img.tags.map(tag => `<span class="image-tag">${tag}</span>`).join('')}
                         </div>
+                        ${img.width || img.height ? 
+                            `<div style="margin-top: 5px; font-size: 0.7rem; opacity: 0.8;">
+                                ${img.width} × ${img.height || 'auto'}
+                            </div>` : ''
+                        }
                     </div>
                 `;
                 
