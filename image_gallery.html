@@ -15,6 +15,8 @@
             --border-color: #e2e8f0;
             --tag-bg: #e2e8f0;
             --tag-hover: #cbd5e0;
+            --group-bg: #f8fafc;
+            --group-border: #e2e8f0;
         }
         
         body {
@@ -240,9 +242,156 @@
             }
         }
         
+        /* Image Group Styles */
+        .image-group {
+            margin-bottom: 40px;
+            border: 1px solid var(--group-border);
+            border-radius: 12px;
+            background: var(--group-bg);
+            overflow: hidden;
+        }
+        
+        .group-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .group-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .group-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .group-ranking {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        
+        .group-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        
+        .group-tag {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+        
+        .subsidiary-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 15px;
+            background: white;
+        }
+        
+        .subsidiary-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .subsidiary-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .subsidiary-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .subsidiary-item .placeholder {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            height: 120px;
+        }
+        
+        .subsidiary-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.6));
+            color: white;
+            padding: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+        
+        .standalone-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .expand-group-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+        }
+        
+        .expand-group-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .group-collapsed .subsidiary-gallery {
+            display: none;
+        }
+        
+        .group-collapsed .group-header {
+            border-radius: 12px;
+        }
+        
         @media (max-width: 480px) {
             .gallery {
                 grid-template-columns: 1fr;
+            }
+            
+            .subsidiary-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 8px;
+                padding: 10px;
+            }
+            
+            .subsidiary-item img,
+            .subsidiary-item .placeholder {
+                height: 100px;
             }
         }
     </style>
@@ -293,10 +442,10 @@
             </div>
             
             <h4>How to manage your gallery:</h4>
-            <p><strong>1. Edit JSON file:</strong> Modify <code>images_data.json</code> to add/update images</p>
-            <p><strong>2. Import/Export:</strong> Use the buttons above to manage your gallery data</p>
-            <p><strong>3. Add images:</strong> Update image paths in the JSON file</p>
-            <p><strong>4. Structure:</strong> Each image needs: title, description, src, ranking, and tags</p>
+            <p><strong>1. Edit JSON file:</strong> Modify <code>images_data_groups.json</code> to add/update images</p>
+            <p><strong>2. Image Groups:</strong> Create collections with major images and subsidiary images</p>
+            <p><strong>3. Import/Export:</strong> Use the buttons above to manage your gallery data</p>
+            <p><strong>4. Structure:</strong> Each image needs: title, description, src (for major images), and display properties</p>
             
             <details style="margin-top: 15px;">
                 <summary style="cursor: pointer; color: var(--accent-color);">JSON Format Example</summary>
@@ -304,19 +453,34 @@
   "images": [
     {
       "id": 1,
-      "title": "Your Image Title",
-      "description": "Image description",
+      "title": "Sunset Beach Collection",
+      "description": "Beautiful sunset at the beach with multiple perspectives",
       "src": "path/to/your/image.jpg",
-      "ranking": 8.5,
-      "tags": ["nature", "landscape"],
+      "ranking": 9.2,
+      "tags": ["sunset", "beach", "ocean"],
+      "width": "600px",
+      "height": "400px",
+      "gridSpan": 2,
+      "isMajor": true,
+      "groupId": "group-1"
+    },
+    {
+      "id": 2,
+      "title": "Sunset Beach - Wide Shot",
+      "src": "path/to/subsidiary1.jpg",
       "width": "400px",
-      "height": "300px",
-      "gridSpan": 2
+      "height": "150px",
+      "gridSpan": 2,
+      "isMajor": false,
+      "groupId": "group-1",
+      "majorImageId": 1
     }
   ]
 }</pre>
                 <p style="margin-top: 10px; font-size: 0.9rem; color: var(--secondary-color);">
-                    <strong>Optional fields:</strong> width, height (custom dimensions), gridSpan (1-4 columns)
+                    <strong>Major Images:</strong> Include ranking, tags, description (used for filtering/sorting)<br>
+                    <strong>Subsidiary Images:</strong> Inherit metadata from major image, only need src, width, height, gridSpan<br>
+                    <strong>Standalone Images:</strong> Set isMajor: true without groupId for individual display
                 </p>
             </details>
         </div>
@@ -380,7 +544,7 @@
         // Load image data from external JSON file
         async function loadImageData() {
             try {
-                const response = await fetch('private-pages-01/images_data_sample.json');
+                const response = await fetch('private-pages-01/images_data_groups.json');
                 if (!response.ok) {
                     throw new Error('Failed to load image data');
                 }
@@ -428,7 +592,9 @@
                 return;
             }
             
-            const allTags = [...new Set(images.flatMap(img => img.tags))].sort();
+            // Only use tags from major images for filtering
+            const majorImages = images.filter(img => img.isMajor !== false);
+            const allTags = [...new Set(majorImages.flatMap(img => img.tags))].sort();
             
             tagCloud.innerHTML = '';
             allTags.forEach(tag => {
@@ -477,14 +643,17 @@
         function filterAndSortImages() {
             if (!images || images.length === 0) return;
             
-            // Filter by tags
-            filteredImages = images.filter(img => {
+            // Get major images for filtering/sorting
+            const majorImages = images.filter(img => img.isMajor !== false);
+            
+            // Filter by tags (using major image tags)
+            let filteredMajorImages = majorImages.filter(img => {
                 if (selectedTags.length === 0) return true;
                 return selectedTags.every(tag => img.tags.includes(tag));
             });
 
-            // Sort images
-            filteredImages.sort((a, b) => {
+            // Sort major images
+            filteredMajorImages.sort((a, b) => {
                 switch (currentSort) {
                     case 'ranking-asc':
                         return a.ranking - b.ranking;
@@ -496,6 +665,37 @@
                         return b.title.localeCompare(a.title);
                     default:
                         return 0;
+                }
+            });
+
+            // Build filtered images array with groups
+            filteredImages = [];
+            filteredMajorImages.forEach(major => {
+                filteredImages.push(major);
+                
+                // Add subsidiary images that belong to this major
+                if (major.groupId) {
+                    const subsidiaries = images.filter(img => 
+                        img.isMajor === false && 
+                        img.groupId === major.groupId &&
+                        img.majorImageId === major.id
+                    );
+                    filteredImages.push(...subsidiaries.sort((a, b) => a.id - b.id));
+                }
+            });
+            
+            // Add standalone images (not part of any group)
+            const standaloneImages = images.filter(img => 
+                img.isMajor !== false && 
+                !img.groupId &&
+                (selectedTags.length === 0 || 
+                 selectedTags.every(tag => img.tags.includes(tag)))
+            );
+            
+            // Add standalone images that aren't already included
+            standaloneImages.forEach(standalone => {
+                if (!filteredImages.find(img => img.id === standalone.id)) {
+                    filteredImages.push(standalone);
                 }
             });
         }
@@ -515,65 +715,245 @@
                 return;
             }
 
+            // Group images by their group relationships
+            const imageGroups = {};
+            const standaloneImages = [];
+
             filteredImages.forEach(img => {
-                const item = document.createElement('div');
-                let classes = 'gallery-item';
-                
-                // Add custom grid span classes based on gridSpan
-                if (img.gridSpan) {
-                    if (img.gridSpan === 2) classes += ' wide';
-                    else if (img.gridSpan === 3) classes += ' extra-wide';
-                    else if (img.gridSpan >= 4) classes += ' full-width';
+                if (img.isMajor === false) {
+                    // Subsidiary image - handled by major
+                    return;
                 }
-                
-                // Handle responsive sizing - maintain aspect ratio if no height specified
-                let imgContainerStyle = '';
-                let imgStyle = '';
-                let placeholderStyle = '';
-                
-                if (img.width && !img.height) {
-                    // Only width specified - use aspect ratio preservation
-                    imgContainerStyle = `style="width: ${img.width};"`;
-                    imgStyle = `style="width: 100%; height: auto; display: block;"`;
-                } else if (img.height) {
-                    // Both width and height specified
-                    imgContainerStyle = img.width ? `style="width: ${img.width};"` : '';
-                    imgStyle = `style="width: 100%; height: ${img.height}; object-fit: cover;"`;
-                    placeholderStyle = `style="height: ${img.height};"`;
-                } else {
-                    // Neither specified - use default
-                    imgStyle = `style="width: 100%; height: auto; display: block;"`;
-                }
-                
-                const imgWidth = img.width || '100%';
-                const imgHeight = img.height || 'auto';
-                
-                item.className = classes;
-                
-                item.innerHTML = `
-                    ${img.src ? 
-                        `<div ${imgContainerStyle}>
-                            <img src="${img.src}" alt="${img.title}" ${imgStyle} onclick="openFullscreen('${img.src}', '${img.title}')" loading="lazy">
-                        </div>` : 
-                        `<div class="placeholder" ${placeholderStyle} onclick="openFullscreen(null, '${img.title}')">${img.title}</div>`
+
+                if (img.groupId) {
+                    if (!imageGroups[img.groupId]) {
+                        imageGroups[img.groupId] = {
+                            major: img,
+                            subsidiaries: []
+                        };
                     }
-                    <div class="ranking">⭐ ${img.ranking}</div>
-                    <div class="caption">
-                        ${img.title}
-                        <div>${img.description}</div>
-                        <div class="image-tags">
-                            ${img.tags.map(tag => `<span class="image-tag">${tag}</span>`).join('')}
-                        </div>
-                        ${img.width || img.height ? 
-                            `<div style="margin-top: 5px; font-size: 0.7rem; opacity: 0.8;">
-                                ${img.width || 'auto'} × ${img.height || 'auto'}
-                            </div>` : ''
-                        }
-                    </div>
-                `;
-                
-                gallery.appendChild(item);
+                } else {
+                    standaloneImages.push(img);
+                }
             });
+
+            // Add subsidiaries to their groups
+            filteredImages.forEach(img => {
+                if (img.isMajor === false && img.groupId && imageGroups[img.groupId]) {
+                    imageGroups[img.groupId].subsidiaries.push(img);
+                }
+            });
+
+            // Sort subsidiaries by ID
+            Object.values(imageGroups).forEach(group => {
+                group.subsidiaries.sort((a, b) => a.id - b.id);
+            });
+
+            // Render image groups
+            Object.entries(imageGroups).forEach(([groupId, group]) => {
+                const groupElement = createImageGroup(group.major, group.subsidiaries);
+                gallery.appendChild(groupElement);
+            });
+
+            // Render standalone images
+            if (standaloneImages.length > 0) {
+                const standaloneContainer = document.createElement('div');
+                standaloneContainer.className = 'standalone-gallery';
+                
+                standaloneImages.forEach(img => {
+                    const item = createStandaloneImage(img);
+                    standaloneContainer.appendChild(item);
+                });
+                
+                gallery.appendChild(standaloneContainer);
+            }
+        }
+
+        // Create image group element
+        function createImageGroup(majorImage, subsidiaries) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'image-group';
+            groupDiv.setAttribute('data-group-id', majorImage.groupId);
+
+            // Create group header
+            const header = document.createElement('div');
+            header.className = 'group-header';
+            header.innerHTML = `
+                <div class="group-title">${majorImage.title}</div>
+                <div class="group-meta">
+                    <span class="group-ranking">⭐ ${majorImage.ranking}</span>
+                    <div class="group-tags">
+                        ${majorImage.tags.map(tag => `<span class="group-tag">${tag}</span>`).join('')}
+                    </div>
+                    <button class="expand-group-btn" onclick="toggleGroup(this)">
+                        ${subsidiaries.length} more
+                    </button>
+                </div>
+            `;
+
+            // Create major image display
+            const majorDiv = createMajorImage(majorImage);
+
+            // Create subsidiary gallery
+            const subsidiaryGallery = document.createElement('div');
+            subsidiaryGallery.className = 'subsidiary-gallery';
+            
+            subsidiaries.forEach(subsidiary => {
+                const subItem = createSubsidiaryImage(subsidiary);
+                subsidiaryGallery.appendChild(subItem);
+            });
+
+            groupDiv.appendChild(header);
+            groupDiv.appendChild(majorDiv);
+            groupDiv.appendChild(subsidiaryGallery);
+
+            return groupDiv;
+        }
+
+        // Create major image display
+        function createMajorImage(img) {
+            let classes = 'gallery-item';
+            
+            // Add custom grid span classes based on gridSpan
+            if (img.gridSpan) {
+                if (img.gridSpan === 2) classes += ' wide';
+                else if (img.gridSpan === 3) classes += ' extra-wide';
+                else if (img.gridSpan >= 4) classes += ' full-width';
+            }
+
+            // Handle responsive sizing
+            let imgContainerStyle = '';
+            let imgStyle = '';
+            let placeholderStyle = '';
+            
+            if (img.width && !img.height) {
+                imgContainerStyle = `style="width: ${img.width};"`;
+                imgStyle = `style="width: 100%; height: auto; display: block;"`;
+            } else if (img.height) {
+                imgContainerStyle = img.width ? `style="width: ${img.width};"` : '';
+                imgStyle = `style="width: 100%; height: ${img.height}; object-fit: cover;"`;
+                placeholderStyle = `style="height: ${img.height};"`;
+            } else {
+                imgStyle = `style="width: 100%; height: auto; display: block;"`;
+            }
+
+            const item = document.createElement('div');
+            item.className = classes;
+            item.style.margin = '15px';
+            
+            item.innerHTML = `
+                ${img.src ? 
+                    `<div ${imgContainerStyle}>
+                        <img src="${img.src}" alt="${img.title}" ${imgStyle} onclick="openFullscreen('${img.src}', '${img.title}')" loading="lazy">
+                    </div>` : 
+                    `<div class="placeholder" ${placeholderStyle} onclick="openFullscreen(null, '${img.title}')">${img.title}</div>`
+                }
+                <div class="caption">
+                    ${img.title}
+                    <div>${img.description}</div>
+                    ${img.width || img.height ? 
+                        `<div style="margin-top: 5px; font-size: 0.7rem; opacity: 0.8;">
+                            ${img.width || 'auto'} × ${img.height || 'auto'}
+                        </div>` : ''
+                    }
+                </div>
+            `;
+
+            return item;
+        }
+
+        // Create subsidiary image display
+        function createSubsidiaryImage(img) {
+            const item = document.createElement('div');
+            item.className = 'subsidiary-item';
+
+            let imgStyle = '';
+            let placeholderStyle = '';
+            
+            if (img.width && !img.height) {
+                imgStyle = `style="width: 100%; height: auto; display: block;"`;
+            } else if (img.height) {
+                imgStyle = `style="width: 100%; height: ${img.height}; object-fit: cover;"`;
+                placeholderStyle = `style="height: ${img.height};"`;
+            } else {
+                imgStyle = `style="width: 100%; height: auto; display: block;"`;
+            }
+
+            item.innerHTML = `
+                ${img.src ? 
+                    `<img src="${img.src}" alt="${img.title}" ${imgStyle} onclick="openFullscreen('${img.src}', '${img.title}')" loading="lazy">` : 
+                    `<div class="placeholder" ${placeholderStyle} onclick="openFullscreen(null, '${img.title}')">${img.title}</div>`
+                }
+                <div class="subsidiary-label">${img.title}</div>
+            `;
+
+            return item;
+        }
+
+        // Create standalone image display
+        function createStandaloneImage(img) {
+            let classes = 'gallery-item';
+            
+            // Add custom grid span classes based on gridSpan
+            if (img.gridSpan) {
+                if (img.gridSpan === 2) classes += ' wide';
+                else if (img.gridSpan === 3) classes += ' extra-wide';
+                else if (img.gridSpan >= 4) classes += ' full-width';
+            }
+
+            // Handle responsive sizing
+            let imgContainerStyle = '';
+            let imgStyle = '';
+            let placeholderStyle = '';
+            
+            if (img.width && !img.height) {
+                imgContainerStyle = `style="width: ${img.width};"`;
+                imgStyle = `style="width: 100%; height: auto; display: block;"`;
+            } else if (img.height) {
+                imgContainerStyle = img.width ? `style="width: ${img.width};"` : '';
+                imgStyle = `style="width: 100%; height: ${img.height}; object-fit: cover;"`;
+                placeholderStyle = `style="height: ${img.height};"`;
+            } else {
+                imgStyle = `style="width: 100%; height: auto; display: block;"`;
+            }
+
+            const item = document.createElement('div');
+            item.className = classes;
+            
+            item.innerHTML = `
+                ${img.src ? 
+                    `<div ${imgContainerStyle}>
+                        <img src="${img.src}" alt="${img.title}" ${imgStyle} onclick="openFullscreen('${img.src}', '${img.title}')" loading="lazy">
+                    </div>` : 
+                    `<div class="placeholder" ${placeholderStyle} onclick="openFullscreen(null, '${img.title}')">${img.title}</div>`
+                }
+                <div class="ranking">⭐ ${img.ranking}</div>
+                <div class="caption">
+                    ${img.title}
+                    <div>${img.description}</div>
+                    <div class="image-tags">
+                        ${img.tags.map(tag => `<span class="image-tag">${tag}</span>`).join('')}
+                    </div>
+                    ${img.width || img.height ? 
+                        `<div style="margin-top: 5px; font-size: 0.7rem; opacity: 0.8;">
+                            ${img.width || 'auto'} × ${img.height || 'auto'}
+                        </div>` : ''
+                    }
+                </div>
+            `;
+
+            return item;
+        }
+
+        // Toggle group expansion
+        function toggleGroup(button) {
+            const group = button.closest('.image-group');
+            group.classList.toggle('group-collapsed');
+            
+            const isCollapsed = group.classList.contains('group-collapsed');
+            button.textContent = isCollapsed ? 
+                `${group.querySelectorAll('.subsidiary-item').length} more` : 
+                'Hide';
         }
 
         // Export current gallery data to JSON
