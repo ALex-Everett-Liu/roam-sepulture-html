@@ -302,23 +302,19 @@ const cleaned = content
 
 ---
 
-## Independent Module Documentation
-
-Each module in this system operates as a completely independent application with no integration points between them.
+## Module Documentation
 
 ### tags.html - Tag Index Module
-**Purpose**: Browse and search pages by tags and keywords
-**Architecture**: Client-side tag-based navigation system
-**Data Source**: Hardcoded `pages` array with metadata
+A client-side tag-based navigation system for browsing pages by tags and keywords.
 
-#### Key Features
-- **Tag-based filtering**: Multi-select tag cloud with real-time filtering
-- **Full-text search**: Search by title and description
-- **Responsive grid**: Card-based layout for page listings
-- **Metadata display**: Shows category, date, and tags for each page
-- **Independent data**: Self-contained page database
+**Features:**
+- Tag-based filtering with multi-select cloud
+- Full-text search by title and description
+- Responsive card-based layout
+- Metadata display (category, date, tags)
+- Self-contained page database
 
-#### Data Structure
+**Data Structure:**
 ```javascript
 const pages = [{
   title: "Page Title",
@@ -330,48 +326,38 @@ const pages = [{
 }];
 ```
 
-#### Technical Implementation
-- **Pure HTML/CSS/JS**: No external dependencies
-- **Client-side filtering**: No server requirements
-- **Responsive design**: Mobile-first approach
-- **Accessibility**: Keyboard navigation support
+### template.html - Documentation Template
+A modern documentation template that transforms plain text into visually appealing HTML.
 
-### template.html - Documentation Template Module
-**Purpose**: Modern documentation template for transforming plain text into visually appealing HTML
-**Architecture**: Client-side documentation renderer with progressive enhancement
+**Features:**
+- Progressive enhancement (works without JS)
+- TailwindCSS styling
+- Visual elements (icons, diagrams, code blocks)
+- Accessibility compliant
+- SEO optimized
 
-#### Key Features
-- **Progressive enhancement**: Works without JavaScript
-- **TailwindCSS styling**: Modern, responsive design
-- **Visual elements**: Icons, diagrams, and code blocks
-- **Accessibility**: WCAG 2.1 AA compliance
-- **SEO optimized**: Structured data and meta tags
+**Technical Stack:**
+- TailwindCSS
+- Font Awesome icons
+- Google Fonts (Inter, JetBrains Mono)
+- Semantic HTML structure
 
-#### Design Principles
-- **Content preservation**: Maintains original text meaning
-- **Visual enhancement**: Adds styling without content changes
-- **Responsive layout**: Works on all screen sizes
-- **Performance optimized**: Minimal JavaScript usage
+### image_gallery.html - Image Gallery
+Complete image gallery with ranking, tags, and fullscreen viewing capabilities.
 
-#### Technical Stack
-- **TailwindCSS**: Utility-first CSS framework
-- **Font Awesome**: Icon system
-- **Google Fonts**: Inter and JetBrains Mono
-- **Semantic HTML**: Proper document structure
+**Features:**
+- External JSON data loading
+- Numeric ranking system (e.g., 8.5, 9.25)
+- Tag filtering and sorting
+- Fullscreen viewer with zoom/pan
+- Import/export functionality
+- Custom dimensions: Per-image width/height configuration
+- CSS Grid system: Responsive layout with span control (1-4 columns)
+- Touch gestures: Pinch-to-zoom and pan for mobile
+- Keyboard shortcuts: ESC, +/-, 0 keys for navigation
+- File operations: Import/export via FileReader API
 
-### image_gallery.html - Image Gallery Module
-**Purpose**: Complete standalone image gallery with ranking, tags, and fullscreen viewing
-**Architecture**: Client-side image management system with external JSON support
-
-#### Key Features
-- **External JSON data**: Images loaded from `private-pages-01/images_data_sample.json`
-- **Ranking system**: Numeric ratings (e.g., 8.5, 9.25, 7.8)
-- **Tag filtering**: Multi-select tag cloud for image filtering
-- **Sorting**: By ranking, name, and other criteria
-- **Fullscreen viewer**: Zoom, pan, and touch support
-- **Import/export**: JSON data management
-
-#### Data Structure
+**Data Structure:**
 ```json
 {
   "images": [{
@@ -388,43 +374,14 @@ const pages = [{
 }
 ```
 
-#### Advanced Features
-- **Custom dimensions**: Per-image width/height configuration
-- **CSS Grid system**: Responsive layout with span control (1-4 columns)
-- **Touch gestures**: Pinch-to-zoom and pan for mobile
-- **Keyboard shortcuts**: ESC, +/-, 0 keys for navigation
-- **File operations**: Import/export via FileReader API
-
 ### index.html - Navigation Hub
-**Purpose**: Central navigation with search integration
-**Architecture**: Simple HTML navigation with client-side search
+Central navigation page with search integration and topic organization.
 
-#### Key Features
-- **Search integration**: Uses search.js for full-text search
-- **Hierarchical navigation**: Organized by topic categories
-- **Visual hierarchy**: Nested list styling with tree indicators
-- **Responsive design**: Works on mobile and desktop
-
----
-
-## Module Independence Principle
-
-### Design Philosophy
-Each module is designed as a **completely independent application** with these characteristics:
-
-- **Zero dependencies**: No shared code or data between modules
-- **Standalone operation**: Each module works without the others
-- **Self-contained**: All functionality within a single HTML file
-- **No integration points**: Modules do not communicate or share state
-
-### Benefits
-- **Selective usage**: Use only the modules you need
-- **Simplified maintenance**: Changes to one module don't affect others
-- **Easy deployment**: Each module can be deployed independently
-- **Reduced complexity**: No cross-module dependencies to manage
-
-### Navigation
-While modules are independent, they include navigation links back to `index.html` for user convenience, but this is purely for user experience and not a technical integration.
+**Features:**
+- Full-text search integration
+- Hierarchical topic navigation
+- Visual hierarchy: Nested list styling with tree indicators
+- Responsive design: Works on mobile and desktop
 
 ---
 
