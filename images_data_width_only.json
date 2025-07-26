@@ -1,0 +1,65 @@
+{
+  "images": [
+    {
+      "id": 1,
+      "title": "Auto Height Landscape",
+      "description": "Landscape image with auto-calculated height based on aspect ratio",
+      "src": "https://picsum.photos/400/300",
+      "ranking": 9.2,
+      "tags": ["landscape", "auto-height", "responsive"],
+      "width": "350px"
+    },
+    {
+      "id": 2,
+      "title": "Portrait Auto Height",
+      "description": "Portrait image maintaining aspect ratio",
+      "src": "https://picsum.photos/300/400",
+      "ranking": 8.7,
+      "tags": ["portrait", "auto-height", "tall"],
+      "width": "280px"
+    },
+    {
+      "id": 3,
+      "title": "Square Auto Height",
+      "description": "Square image with auto height - should be perfect square",
+      "src": "https://picsum.photos/300/300",
+      "ranking": 8.5,
+      "tags": ["square", "auto-height", "balanced"],
+      "width": "300px"
+    },
+    {
+      "id": 4,
+      "title": "Wide Banner Auto Height",
+      "description": "Wide banner maintaining aspect ratio",
+      "src": "https://picsum.photos/600/200",
+      "ranking": 9.0,
+      "tags": ["banner", "wide", "auto-height"],
+      "width": "500px",
+      "gridSpan": 2
+    },
+    {
+      "id": 5,
+      "title": "Tall Vertical Auto Height",
+      "description": "Very tall image with auto height calculation",
+      "src": "https://picsum.photos/250/600",
+      "ranking": 8.9,
+      "tags": ["tall", "vertical", "auto-height"],
+      "width": "200px"
+    },
+    {
+      "id": 6,
+      "title": "Standard Photo Auto Height",
+      "description": "Standard 4:3 aspect ratio photo",
+      "src": "https://picsum.photos/400/300",
+      "ranking": 7.8,
+      "tags": ["standard", "auto-height", "photo"],
+      "width": "320px"
+    }
+  ],
+  "metadata": {
+    "version": "2.0",
+    "description": "Images with width-only specification for auto-height calculation",
+    "totalImages": 6,
+    "features": ["auto-height", "aspect-ratio-preservation", "responsive-width"]
+  }
+}

@@ -526,24 +526,36 @@
                     else if (img.gridSpan >= 4) classes += ' full-width';
                 }
                 
-                // Determine height class based on custom height
+                // Handle responsive sizing - maintain aspect ratio if no height specified
+                let imgContainerStyle = '';
                 let imgStyle = '';
                 let placeholderStyle = '';
                 
-                if (img.height) {
+                if (img.width && !img.height) {
+                    // Only width specified - use aspect ratio preservation
+                    imgContainerStyle = `style="width: ${img.width};"`;
+                    imgStyle = `style="width: 100%; height: auto; display: block;"`;
+                } else if (img.height) {
+                    // Both width and height specified
+                    imgContainerStyle = img.width ? `style="width: ${img.width};"` : '';
                     imgStyle = `style="width: 100%; height: ${img.height}; object-fit: cover;"`;
                     placeholderStyle = `style="height: ${img.height};"`;
+                } else {
+                    // Neither specified - use default
+                    imgStyle = `style="width: 100%; height: auto; display: block;"`;
                 }
                 
                 const imgWidth = img.width || '100%';
-                const imgHeight = img.height || '200px';
+                const imgHeight = img.height || 'auto';
                 
                 item.className = classes;
                 
                 item.innerHTML = `
                     ${img.src ? 
-                        `<img src="${img.src}" alt="${img.title}" style="width: 100%; height: ${imgHeight}; object-fit: cover; cursor: pointer;" onclick="openFullscreen('${img.src}', '${img.title}')">` : 
-                        `<div class="placeholder" style="height: ${imgHeight}; cursor: pointer;" onclick="openFullscreen(null, '${img.title}')">${img.title}</div>`
+                        `<div ${imgContainerStyle}>
+                            <img src="${img.src}" alt="${img.title}" ${imgStyle} onclick="openFullscreen('${img.src}', '${img.title}')" loading="lazy">
+                        </div>` : 
+                        `<div class="placeholder" ${placeholderStyle} onclick="openFullscreen(null, '${img.title}')">${img.title}</div>`
                     }
                     <div class="ranking">⭐ ${img.ranking}</div>
                     <div class="caption">
@@ -554,7 +566,7 @@
                         </div>
                         ${img.width || img.height ? 
                             `<div style="margin-top: 5px; font-size: 0.7rem; opacity: 0.8;">
-                                ${img.width} × ${img.height || 'auto'}
+                                ${img.width || 'auto'} × ${img.height || 'auto'}
                             </div>` : ''
                         }
                     </div>
