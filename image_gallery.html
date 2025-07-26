@@ -245,23 +245,52 @@
         </div>
         
         <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-            <h3>How to add your images:</h3>
-            <p>1. Update the image data in the JavaScript below</p>
-            <p>2. Replace placeholder images with actual &lt;img&gt; tags</p>
-            <p>3. Add ranking values (e.g., 8.5, 9.25, 7.8)</p>
-            <p>4. Add relevant tags for filtering</p>
-            <p>Example: Add your image data to the images array below</p>
+            <h3>Gallery Management</h3>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button onclick="refreshGallery()" style="padding: 8px 16px; background: var(--accent-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    🔄 Refresh Gallery
+                </button>
+                <button onclick="exportGalleryData()" style="padding: 8px 16px; background: var(--secondary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    📤 Export Data
+                </button>
+                <button onclick="importGalleryData()" style="padding: 8px 16px; background: var(--secondary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    📥 Import Data
+                </button>
+            </div>
+            
+            <h4>How to manage your gallery:</h4>
+            <p><strong>1. Edit JSON file:</strong> Modify <code>images_data.json</code> to add/update images</p>
+            <p><strong>2. Import/Export:</strong> Use the buttons above to manage your gallery data</p>
+            <p><strong>3. Add images:</strong> Update image paths in the JSON file</p>
+            <p><strong>4. Structure:</strong> Each image needs: title, description, src, ranking, and tags</p>
+            
+            <details style="margin-top: 15px;">
+                <summary style="cursor: pointer; color: var(--accent-color);">JSON Format Example</summary>
+                <pre style="background: #f1f3f4; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">{
+  "images": [
+    {
+      "id": 1,
+      "title": "Your Image Title",
+      "description": "Image description",
+      "src": "path/to/your/image.jpg",
+      "ranking": 8.5,
+      "tags": ["nature", "landscape"]
+    }
+  ]
+}</pre>
+            </details>
         </div>
     </div>
 
     <script>
-        // Image database with ranking and tags
-        const images = [
+        // Fallback data in case JSON file fails to load
+        const fallbackImages = [
             {
                 id: 1,
                 title: "Sunset Landscape",
                 description: "Beautiful sunset over mountains",
-                src: null, // Replace with actual image path
+                src: null,
                 ranking: 9.25,
                 tags: ["landscape", "sunset", "nature", "mountains"]
             },
@@ -280,93 +309,47 @@
                 src: null,
                 ranking: 7.8,
                 tags: ["ocean", "water", "dawn", "peaceful"]
-            },
-            {
-                id: 4,
-                title: "Forest Path",
-                description: "Serene forest path in autumn",
-                src: null,
-                ranking: 8.9,
-                tags: ["forest", "nature", "autumn", "trees"]
-            },
-            {
-                id: 5,
-                title: "Desert Dunes",
-                description: "Golden sand dunes at sunset",
-                src: null,
-                ranking: 9.0,
-                tags: ["desert", "sand", "sunset", "golden"]
-            },
-            {
-                id: 6,
-                title: "Mountain Peak",
-                description: "Snow-capped mountain peak",
-                src: null,
-                ranking: 9.5,
-                tags: ["mountain", "snow", "peak", "winter"]
-            },
-            {
-                id: 7,
-                title: "Urban Street",
-                description: "Busy street in downtown",
-                src: null,
-                ranking: 7.2,
-                tags: ["urban", "street", "city", "busy"]
-            },
-            {
-                id: 8,
-                title: "Lake Reflection",
-                description: "Crystal clear lake with mountain reflection",
-                src: null,
-                ranking: 8.6,
-                tags: ["lake", "reflection", "mountain", "clear"]
-            },
-            {
-                id: 9,
-                title: "Flower Garden",
-                description: "Colorful flower garden in spring",
-                src: null,
-                ranking: 8.3,
-                tags: ["flowers", "garden", "spring", "colorful"]
-            },
-            {
-                id: 10,
-                title: "Thunderstorm",
-                description: "Dramatic thunderstorm with lightning",
-                src: null,
-                ranking: 9.8,
-                tags: ["storm", "lightning", "dramatic", "weather"]
-            },
-            {
-                id: 11,
-                title: "Beach Sunrise",
-                description: "Golden sunrise over calm beach",
-                src: null,
-                ranking: 8.9,
-                tags: ["beach", "sunrise", "golden", "calm"]
-            },
-            {
-                id: 12,
-                title: "Wildlife",
-                description: "Wild deer in natural habitat",
-                src: null,
-                ranking: 9.1,
-                tags: ["wildlife", "deer", "nature", "animals"]
             }
         ];
 
         // Global variables
-        let filteredImages = [...images];
+        let images = [];
+        let filteredImages = [];
         let currentSort = 'ranking-desc';
         let selectedTags = [];
         let tagSearchQuery = '';
+        let isLoading = true;
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
-            renderTagCloud();
-            renderGallery();
+            loadImageData();
             setupEventListeners();
         });
+
+        // Load image data from external JSON file
+        async function loadImageData() {
+            try {
+                const response = await fetch('images_data.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load image data');
+                }
+                const data = await response.json();
+                images = data.images || fallbackImages;
+                
+                // Update UI with loaded data
+                renderTagCloud();
+                renderGallery();
+                
+                console.log(`Successfully loaded ${images.length} images`);
+            } catch (error) {
+                console.warn('Failed to load external JSON, using fallback data:', error);
+                images = fallbackImages;
+                renderTagCloud();
+                renderGallery();
+            } finally {
+                isLoading = false;
+            }
+        }
 
         // Setup event listeners
         function setupEventListeners() {
@@ -374,9 +357,26 @@
             document.getElementById('tag-search').addEventListener('input', handleTagSearch);
         }
 
+        // Show loading state
+        function showLoadingState() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--secondary-color);">
+                    <div style="font-size: 2rem; margin-bottom: 20px;">📸</div>
+                    <h3>Loading gallery...</h3>
+                    <p>Please wait while we load your images.</p>
+                </div>
+            `;
+        }
+
         // Render tag cloud
         function renderTagCloud() {
             const tagCloud = document.getElementById('tag-cloud');
+            if (!images || images.length === 0) {
+                tagCloud.innerHTML = '<span style="color: var(--secondary-color);">No tags available</span>';
+                return;
+            }
+            
             const allTags = [...new Set(images.flatMap(img => img.tags))].sort();
             
             tagCloud.innerHTML = '';
@@ -424,6 +424,8 @@
 
         // Filter and sort images
         function filterAndSortImages() {
+            if (!images || images.length === 0) return;
+            
             // Filter by tags
             filteredImages = images.filter(img => {
                 if (selectedTags.length === 0) return true;
@@ -480,6 +482,66 @@
                 
                 gallery.appendChild(item);
             });
+        }
+
+        // Export current gallery data to JSON
+        function exportGalleryData() {
+            const exportData = {
+                images: images,
+                metadata: {
+                    version: "1.0",
+                    exportedAt: new Date().toISOString(),
+                    totalImages: images.length,
+                    availableTags: [...new Set(images.flatMap(img => img.tags))].sort()
+                }
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'gallery_data_export.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Import gallery data from JSON file
+        function importGalleryData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.images && Array.isArray(data.images)) {
+                            images = data.images;
+                            selectedTags = [];
+                            filterAndRender();
+                            alert(`Successfully imported ${images.length} images`);
+                        } else {
+                            alert('Invalid file format. Please select a valid gallery JSON file.');
+                        }
+                    } catch (error) {
+                        alert('Error reading file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Manual refresh function
+        function refreshGallery() {
+            loadImageData();
         }
 
         // Clear all filters
