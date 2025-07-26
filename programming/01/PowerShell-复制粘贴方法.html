@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerShell 复制粘贴方法 - 编程指南</title>
+    
+    <!-- TailwindCSS 3.0+ via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome 6.4.0+ -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #1e293b;
+            --secondary-color: #475569;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .modern-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            min-height: 100vh;
+        }
+
+        .modern-header {
+            background: linear-gradient(135deg, #1e293b, #475569);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .modern-nav {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 2rem;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .section h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+            border: 1px solid #334155;
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 0.75rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+        }
+
+        .step-item {
+            counter-increment: step-counter;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+            padding-left: 3.5rem;
+        }
+
+        .step-item::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 1rem;
+            top: 1.25rem;
+            width: 2rem;
+            height: 2rem;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid var(--accent-color);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toc-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .toc-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .toc-link:hover {
+            background-color: #f1f5f9;
+            color: var(--accent-color);
+            border-left-color: var(--accent-color);
+        }
+
+        .toc-link.level-2 {
+            margin-left: 1rem;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+            
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+            
+            .modern-header {
+                padding: 2rem 1rem;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .icon-terminal {
+            color: #7c3aed;
+        }
+
+        .icon-console {
+            color: #059669;
+        }
+
+        .icon-settings {
+            color: #dc2626;
+        }
+
+        .icon-warning {
+            color: #f59e0b;
+        }
+
+        .icon-info {
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="modern-container">
+        <!-- Header Section -->
+        <header class="modern-header">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl font-bold mb-3 flex items-center justify-center gap-4">
+                    <i class="fas fa-terminal text-3xl"></i>
+                    PowerShell 复制粘贴方法
+                </h1>
+                <p class="text-xl opacity-90">Windows PowerShell 终端操作指南</p>
+                
+                <!-- Tags and Date -->
+                <div class="flex flex-col items-center mt-4 space-y-2">
+                    <div>
+                        <span class="inline-block bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium mr-2">PowerShell</span>
+                        <span class="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium mr-2">Windows 终端</span>
+                        <span class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">复制粘贴</span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-sm opacity-80">
+                        <span><i class="fas fa-calendar mr-1"></i>创建日期: 2025-07-26</span>
+                        <span><i class="fas fa-clock mr-1"></i>最后更新: 2025-07-26</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Breadcrumb Navigation -->
+        <nav class="modern-nav" aria-label="Breadcrumb">
+            <div class="max-w-6xl mx-auto">
+                <ol class="flex items-center space-x-2 text-sm">
+                    <li>
+                        <a href="../../index.html" class="text-blue-600 hover:text-blue-800 transition-colors">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                    </li>
+                    <li class="text-gray-400"><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li>
+                        <a href="../../programming.html" class="text-blue-600 hover:text-blue-800 transition-colors">
+                            <i class="fas fa-code"></i> 编程
+                        </a>
+                    </li>
+                    <li class="text-gray-400"><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li class="text-gray-700 font-medium">PowerShell 复制粘贴方法</li>
+                </ol>
+            </div>
+        </nav>
+
+        <!-- Main Content with Sidebar -->
+        <main class="main-content">
+            <!-- Sidebar with Table of Contents -->
+            <aside class="sidebar">
+                <div class="toc-container">
+                    <h3 class="toc-title">
+                        <i class="fas fa-list mr-2"></i>
+                        目录
+                    </h3>
+                    <nav class="toc-list" id="table-of-contents">
+                        <!-- Dynamic table of contents will be populated here -->
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Primary Content -->
+            <div class="content-area" id="main-content">
+                <!-- Introduction -->
+                <section id="introduction" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+                        概述
+                    </h2>
+                    <p class="text-gray-700 mb-4">
+                        在 PowerShell 中复制粘贴的行为取决于你使用的具体环境和配置。本指南将帮助你了解不同场景下的正确操作方式。
+                    </p>
+                </section>
+
+                <!-- Traditional PowerShell Console -->
+                <section id="traditional-console" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-desktop icon-console mr-3"></i>
+                        1. 传统 PowerShell 控制台
+                    </h2>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb text-blue-500 mt-1"></i>
+                        <div>
+                            <strong>适用环境：</strong>传统控制台使用旧版 Windows 控制台主机（conhost.exe）
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-keyboard text-purple-500 mr-2"></i>
+                        默认行为
+                    </h3>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-copy text-2xl text-green-600"></i>
+                                </div>
+                                <h4 class="font-semibold mb-2">复制操作</h4>
+                                <p class="text-sm text-gray-600">选中文本后按 <kbd class="bg-gray-100 px-2 py-1 rounded">Enter</kbd></p>
+                                <p class="text-xs text-gray-500 mt-1">或右键菜单选择"复制"</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-paste text-2xl text-blue-600"></i>
+                                </div>
+                                <h4 class="font-semibold mb-2">粘贴操作</h4>
+                                <p class="text-sm text-gray-600"><kbd class="bg-gray-100 px-2 py-1 rounded">右键单击</kbd> 或 <kbd class="bg-gray-100 px-2 py-1 rounded">Ctrl+V</kbd></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-cog icon-settings mr-2"></i>
+                        启用 Ctrl+C/Ctrl+V
+                    </h3>
+                    
+                    <div class="step-list">
+                        <div class="step-item">
+                            <strong>右键点击 PowerShell 窗口标题栏</strong>
+                            <p class="mt-2 text-gray-600">选择 <strong>属性</strong> → <strong>选项</strong></p>
+                        </div>
+                        <div class="step-item">
+                            <strong>勾选相关选项</strong>
+                            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+                                <li>✅ 启用 <code class="bg-gray-100 px-1 rounded">Ctrl 键快捷键</code> (Win10 1809+ 支持)</li>
+                                <li>❌ 取消勾选 <code class="bg-gray-100 px-1 rounded">快速编辑模式</code> (避免与选中文本冲突)</li>
+                            </ul>
+                        </div>
+                        <div class="step-item">
+                            <strong>保存设置</strong>
+                            <p class="mt-2 text-gray-600">点击"确定"保存更改</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Windows Terminal -->
+                <section id="windows-terminal" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-window-maximize text-blue-500 mr-3"></i>
+                        2. Windows Terminal 中的 PowerShell
+                    </h2>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <div>
+                            <strong>好消息！</strong> Windows Terminal 是现代化终端，默认直接支持标准快捷键
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-terminal text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">默认支持快捷键</h4>
+                                <p class="text-sm text-gray-600">无需额外配置即可使用</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                <kbd class="bg-blue-600 text-white px-3 py-1 rounded">Ctrl+C</kbd>
+                                <p class="text-sm mt-2">复制选中文本</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg text-center">
+                                <kbd class="bg-green-600 text-white px-3 py-1 rounded">Ctrl+V</kbd>
+                                <p class="text-sm mt-2">粘贴剪贴板内容</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-wrench text-orange-500 mr-2"></i>
+                        快捷键设置检查
+                    </h3>
+                    
+                    <div class="step-list">
+                        <div class="step-item">
+                            <strong>打开 Windows Terminal 设置</strong>
+                            <p class="mt-2 text-gray-600">按 <kbd class="bg-gray-100 px-2 py-1 rounded">Ctrl+,</kbd> 打开设置窗口</p>
+                        </div>
+                        <div class="step-item">
+                            <strong>检查交互设置</strong>
+                            <p class="mt-2 text-gray-600">导航到 <strong>交互</strong> 部分</p>
+                        </div>
+                        <div class="step-item">
+                            <strong>确认快捷键绑定</strong>
+                            <p class="mt-2 text-gray-600">确保 <code class="bg-gray-100 px-1 rounded">复制/粘贴快捷键</code> 未被其他功能覆盖</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Shortcut Conflicts -->
+                <section id="shortcut-conflicts" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-exclamation-triangle icon-warning mr-3"></i>
+                        3. 快捷键冲突问题
+                    </h2>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+                        <div>
+                            <strong>注意：</strong> <code class="bg-gray-100 px-1 rounded">Ctrl+C</code> 在 PowerShell 中有双重用途
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-4">
+                        <h4 class="font-semibold mb-3"><code class="bg-gray-100 px-2 py-1 rounded">Ctrl+C</code> 的两种用途：</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                    <i class="fas fa-copy text-sm text-green-600"></i>
+                                </div>
+                                <div>
+                                    <strong>复制文本：</strong>
+                                    <p class="text-sm text-gray-600">需先选中文本，再按 <code class="bg-gray-100 px-1 rounded">Ctrl+C</code></p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                    <i class="fas fa-stop text-sm text-red-600"></i>
+                                </div>
+                                <div>
+                                    <strong>终止命令：</strong>
+                                    <p class="text-sm text-gray-600">如果未选中文本，<code class="bg-gray-100 px-1 rounded">Ctrl+C</code> 会强制停止当前运行的程序</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                        解决方案
+                    </h3>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <p class="mb-4"><strong>替代快捷键：</strong>部分终端支持 Linux 风格的快捷键组合</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                                <kbd class="bg-yellow-600 text-white px-3 py-1 rounded">Ctrl+Shift+C</kbd>
+                                <p class="text-sm mt-2">复制</p>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                                <kbd class="bg-yellow-600 text-white px-3 py-1 rounded">Ctrl+Shift+V</kbd>
+                                <p class="text-sm mt-2">粘贴</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PSReadLine Enhancement -->
+                <section id="psreadline" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-cogs text-purple-500 mr-3"></i>
+                        4. 通过 PSReadLine 模块增强体验
+                    </h2>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                        <div>
+                            <strong>PSReadLine</strong> 模块为 PowerShell 5.1+ 和 PowerShell 7 提供更友好的快捷键支持
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-keyboard text-green-500 mr-2"></i>
+                        默认快捷键
+                    </h3>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-copy text-2xl text-blue-600"></i>
+                                </div>
+                                <h4 class="font-semibold mb-2">复制</h4>
+                                <p class="text-sm text-gray-600">选中文本后按 <kbd class="bg-gray-100 px-2 py-1 rounded">Ctrl+C</kbd></p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-paste text-2xl text-green-600"></i>
+                                </div>
+                                <h4 class="font-semibold mb-2">粘贴</h4>
+                                <p class="text-sm text-gray-600">按 <kbd class="bg-gray-100 px-2 py-1 rounded">Ctrl+V</kbd> 直接粘贴</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-search text-blue-500 mr-2"></i>
+                        检查配置
+                    </h3>
+                    
+                    <div class="step-list">
+                        <div class="step-item">
+                            <strong>查看当前快捷键绑定</strong>
+                            <div class="code-block" data-lang="powershell">
+Get-PSReadLineKeyHandler
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <strong>显式设置粘贴快捷键</strong>
+                            <div class="code-block" data-lang="powershell">
+Set-PSReadLineKeyHandler -Chord "Ctrl+V" -Function Paste
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Alternative Methods -->
+                <section id="alternative-methods" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-tools text-orange-500 mr-3"></i>
+                        5. 其他替代方法
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fas fa-mouse-pointer text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">右键菜单</h4>
+                                    <p class="text-sm text-gray-600">传统控制台中右键点击可直接粘贴剪贴板内容</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fas fa-magic text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">快捷键别名</h4>
+                                    <p class="text-sm text-gray-600">自定义 Profile 添加别名（需管理员权限）</p>
+                                </div>
+                            </div>
+                            <div class="code-block" data-lang="powershell">
+New-Alias -Name vim -Value "C:\Path\to\vim.exe"
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Summary -->
+                <section id="summary" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-star text-yellow-500 mr-3"></i>
+                        总结建议
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-window-maximize text-white text-xl"></i>
+                                </div>
+                                <h4 class="font-semibold mb-2">优先使用 Windows Terminal</h4>
+                                <p class="text-sm text-gray-600">现代化支持，无需额外配置</p>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-cog text-white text-xl"></i>
+                                </div>
+                                <h4 class="font-semibold mb-2">传统控制台设置</h4>
+                                <p class="text-sm text-gray-600">启用 Ctrl 快捷键或依赖右键菜单</p>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-search text-white text-xl"></i>
+                                </div>
+                                <h4 class="font-semibold mb-2">检查 PSReadLine</h4>
+                                <p class="text-sm text-gray-600">确保快捷键未被覆盖</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-white rounded-lg border-l-4 border-blue-500">
+                            <p class="text-sm text-gray-700">
+                                <strong>💡 专业提示：</strong> 如果问题依旧，可能是系统策略限制或第三方软件冲突，可尝试重置控制台设置或更新 PowerShell 版本。
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center text-sm">
+                <div class="text-gray-600">
+                    © 2025 Personal Wiki. 内容来源于原始对话记录
+                </div>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <button class="text-gray-600 hover:text-gray-800 transition-colors" onclick="window.print()">
+                        <i class="fas fa-print mr-1"></i>打印
+                    </button>
+                    <a href="https://github.com" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
+                        <i class="fab fa-github mr-1"></i>GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Interactive Features -->
+    <script>
+        // Dynamic Table of Contents Generation
+        function generateTableOfContents() {
+            const toc = document.getElementById('table-of-contents');
+            const headings = document.querySelectorAll('.section h2[id], .section h3[id]');
+            
+            headings.forEach(heading => {
+                const link = document.createElement('a');
+                link.href = `#${heading.id}`;
+                link.className = `toc-link ${heading.tagName === 'H3' ? 'level-2' : ''}`;
+                link.textContent = heading.textContent.replace(/^[^\w\s]/, '').trim();
+                
+                const listItem = document.createElement('div');
+                listItem.className = 'toc-item';
+                listItem.appendChild(link);
+                toc.appendChild(listItem);
+            });
+        }
+
+        // Add IDs to sections for navigation
+        function addSectionIDs() {
+            const sections = document.querySelectorAll('.section');
+            const titles = [
+                'introduction',
+                'traditional-console',
+                'windows-terminal',
+                'shortcut-conflicts',
+                'psreadline',
+                'alternative-methods',
+                'summary'
+            ];
+            
+            sections.forEach((section, index) => {
+                const heading = section.querySelector('h2, h3');
+                if (heading && !heading.id) {
+                    heading.id = titles[index] || `section-${index + 1}`;
+                    section.id = titles[index] || `section-${index + 1}`;
+                }
+            });
+        }
+
+        // Copy code functionality
+        function addCopyButtons() {
+            document.querySelectorAll('.code-block').forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.className = 'absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors';
+                copyBtn.onclick = async () => {
+                    const code = block.textContent.trim();
+                    try {
+                        await navigator.clipboard.writeText(code);
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy: ', err);
+                    }
+                };
+                
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            addSectionIDs();
+            generateTableOfContents();
+            addCopyButtons();
+        });
+    </script>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "PowerShell 复制粘贴方法",
+        "description": "全面解析 PowerShell 在不同环境下的复制粘贴操作，包括传统控制台、Windows Terminal 和快捷键配置",
+        "step": [
+            {
+                "@type": "HowToStep",
+                "name": "传统 PowerShell 控制台",
+                "text": "了解传统控制台的默认复制粘贴行为"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Windows Terminal",
+                "text": "使用现代化终端的默认快捷键支持"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "处理快捷键冲突",
+                "text": "解决 Ctrl+C 的双重用途问题"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "PSReadLine 增强",
+                "text": "通过 PSReadLine 模块优化体验"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "替代方法",
+                "text": "使用右键菜单和其他替代方案"
+            }
+        ],
+        "datePublished": "2025-07-26",
+        "dateModified": "2025-07-26"
+    }
+    </script>
+
+</body>
+</html>
