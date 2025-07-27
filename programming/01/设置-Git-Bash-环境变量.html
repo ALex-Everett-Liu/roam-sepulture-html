@@ -14,6 +14,13 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-batch.min.js"></script>
+    
     <style>
         :root {
             --primary-color: #1e293b;
@@ -218,29 +225,26 @@
             font-size: 0.9rem;
         }
 
-        .code-block {
+                /* Prism.js styling adjustments */
+        pre[class*="language-"] {
             background: #1e293b;
-            color: #e2e8f0;
-            padding: 1.5rem;
+            border: 1px solid #334155;
             border-radius: 8px;
-            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            padding: 1.5rem;
+            margin: 1rem 0;
             font-size: 0.9rem;
             line-height: 1.5;
             overflow-x: auto;
-            margin: 1rem 0;
-            position: relative;
-            border: 1px solid #334155;
         }
-
-        .code-block::before {
-            content: attr(data-lang);
-            position: absolute;
-            top: 0.75rem;
-            right: 1rem;
-            font-size: 0.75rem;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 500;
+        
+        code[class*="language-"] {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            color: #e2e8f0;
+        }
+        
+        /* Remove old code-block styling */
+        .code-block {
+            display: none; /* Hide old code blocks */
         }
 
         .step-list {
@@ -698,13 +702,12 @@
                         问题描述
                     </h2>
                     <p class="text-gray-700 mb-4">启动 Claude Code 时遇到以下错误提示：</p>
-                    <div class="code-block" data-lang="error">
-Launching Claude Code...
+                    <pre><code class="language-batch">Launching Claude Code...
 
 Claude Code on Windows requires git-bash (https://git-scm.com/downloads/win). 
 If installed but not in PATH, set environment variable pointing to your bash.exe, 
 similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\Program Files\Git\bin\bash.exe
-                    </div>
+</code></pre>
                 </section>
 
                 <!-- Git Bash Path Confirmation -->
@@ -831,9 +834,8 @@ similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\Program Files\Git\bin\bash.exe
                                 </div>
                                 <div class="step-item">
                                     <strong>执行设置命令</strong>
-                                    <div class="code-block" data-lang="powershell">
-[Environment]::SetEnvironmentVariable("CLAUDE_CODE_GIT_BASH_PATH", "E:\scoop\apps\git\2.50.0\bin\bash.exe", "Machine")
-                                    </div>
+                                    <pre><code class="language-powershell">[Environment]::SetEnvironmentVariable("CLAUDE_CODE_GIT_BASH_PATH", "E:\scoop\apps\git\2.50.0\bin\bash.exe", "Machine")
+</code></pre>
                                     <div class="alert alert-info">
                                         <i class="fas fa-lightbulb text-blue-500 mt-1"></i>
                                         <div>
@@ -920,13 +922,12 @@ similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\Program Files\Git\bin\bash.exe
                         </div>
                         <div class="step-item">
                             <strong>执行验证命令</strong>
-                            <div class="code-block" data-lang="powershell">
-# PowerShell 中执行
+                            <pre><code class="language-powershell"># PowerShell 中执行
 $env:CLAUDE_CODE_GIT_BASH_PATH
 
 # CMD 中执行
 echo %CLAUDE_CODE_GIT_BASH_PATH%
-                            </div>
+</code></pre>
                         </div>
                         <div class="step-item">
                             <strong>预期输出</strong>
@@ -1068,12 +1069,12 @@ echo %CLAUDE_CODE_GIT_BASH_PATH%
 
         // Copy code functionality
         function addCopyButtons() {
-            document.querySelectorAll('.code-block').forEach(block => {
+            document.querySelectorAll('pre[class*="language-"]').forEach(block => {
                 const copyBtn = document.createElement('button');
                 copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
                 copyBtn.className = 'absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors';
                 copyBtn.onclick = async () => {
-                    const code = block.textContent.trim();
+                    const code = block.querySelector('code').textContent.trim();
                     try {
                         await navigator.clipboard.writeText(code);
                         copyBtn.innerHTML = '<i class="fas fa-check"></i>';

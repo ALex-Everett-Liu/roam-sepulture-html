@@ -14,6 +14,13 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-batch.min.js"></script>
+    
     <style>
         :root {
             --primary-color: #1e293b;
@@ -112,29 +119,26 @@
             gap: 0.5rem;
         }
 
-        .code-block {
+        /* Prism.js styling adjustments */
+        pre[class*="language-"] {
             background: #1e293b;
-            color: #e2e8f0;
-            padding: 1.5rem;
+            border: 1px solid #334155;
             border-radius: 8px;
-            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            padding: 1.5rem;
+            margin: 1rem 0;
             font-size: 0.9rem;
             line-height: 1.5;
             overflow-x: auto;
-            margin: 1rem 0;
-            position: relative;
-            border: 1px solid #334155;
         }
-
-        .code-block::before {
-            content: attr(data-lang);
-            position: absolute;
-            top: 0.75rem;
-            right: 1rem;
-            font-size: 0.75rem;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 500;
+        
+        code[class*="language-"] {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            color: #e2e8f0;
+        }
+        
+        /* Remove old code-block styling */
+        .code-block {
+            display: none; /* Hide old code blocks */
         }
 
         .step-list {
@@ -583,15 +587,13 @@
                     <div class="step-list">
                         <div class="step-item">
                             <strong>查看当前快捷键绑定</strong>
-                            <div class="code-block" data-lang="powershell">
-Get-PSReadLineKeyHandler
-                            </div>
+                            <pre><code class="language-powershell">Get-PSReadLineKeyHandler
+</code></pre>
                         </div>
                         <div class="step-item">
                             <strong>显式设置粘贴快捷键</strong>
-                            <div class="code-block" data-lang="powershell">
-Set-PSReadLineKeyHandler -Chord "Ctrl+V" -Function Paste
-                            </div>
+                            <pre><code class="language-powershell">Set-PSReadLineKeyHandler -Chord "Ctrl+V" -Function Paste
+</code></pre>
                         </div>
                     </div>
                 </section>
@@ -626,9 +628,8 @@ Set-PSReadLineKeyHandler -Chord "Ctrl+V" -Function Paste
                                     <p class="text-sm text-gray-600">自定义 Profile 添加别名（需管理员权限）</p>
                                 </div>
                             </div>
-                            <div class="code-block" data-lang="powershell">
-New-Alias -Name vim -Value "C:\Path\to\vim.exe"
-                            </div>
+                            <pre><code class="language-powershell">New-Alias -Name vim -Value "C:\Path\to\vim.exe"
+</code></pre>
                         </div>
                     </div>
                 </section>
@@ -741,12 +742,12 @@ New-Alias -Name vim -Value "C:\Path\to\vim.exe"
 
         // Copy code functionality
         function addCopyButtons() {
-            document.querySelectorAll('.code-block').forEach(block => {
+            document.querySelectorAll('pre[class*="language-"]').forEach(block => {
                 const copyBtn = document.createElement('button');
                 copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
                 copyBtn.className = 'absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors';
                 copyBtn.onclick = async () => {
-                    const code = block.textContent.trim();
+                    const code = block.querySelector('code').textContent.trim();
                     try {
                         await navigator.clipboard.writeText(code);
                         copyBtn.innerHTML = '<i class="fas fa-check"></i>';

@@ -16,7 +16,7 @@
 
 This personal wiki system is a static HTML-based knowledge base with client-side full-text search capabilities. It operates entirely in the browser using `file://` URLs (no server required), making it perfect for local use before optional Vercel deployment.
 
-**Core Design Philosophy**: Zero-dependency runtime, maximum functionality with minimal complexity.
+**Core Design Philosophy**: Modern web technologies with pragmatic dependency usage for enhanced functionality and developer experience.
 
 ---
 
@@ -83,13 +83,13 @@ This personal wiki system is a static HTML-based knowledge base with client-side
 - **Runtime**: Simple string matching with scoring
 - **Rationale**: Trade disk space (~KB) for CPU time at runtime
 
-### 2. File:// URL Compatibility
-**Problem**: CORS restrictions on file:// URLs
-**Solution**: All resources are relative paths
+### 2. URL Compatibility
+**Consideration**: Support for both local and deployed usage
+**Solution**: Flexible path handling with relative URLs
 ```javascript
-// Instead of absolute URLs
-fetch('/search-index.json') // ❌ CORS error
-fetch('./search-index.json') // ✅ Works with file://
+// Flexible path handling
+fetch('./search-index.json') // Works locally and deployed
+fetch('/search-index.json') // Works in production
 ```
 
 ### 3. Search Result Scoring
@@ -292,13 +292,13 @@ const cleaned = content
 
 ### Client-Side Security
 - **XSS Prevention**: All user input escaped with `escapeHtml()`
-- **No external dependencies**: Eliminates supply chain risks
+- **Vetted dependencies**: Use established libraries with good security track records
 - **Content Security Policy**: Compatible with CSP restrictions
 
 ### Privacy
 - **No tracking**: No analytics or external calls
-- **Local-only**: All processing happens in browser
-- **No cookies**: Stateless search implementation
+- **Local-first**: Processing happens in browser when possible
+- **Minimal data collection**: Only essential data for functionality
 
 ---
 
@@ -337,9 +337,10 @@ A modern documentation template that transforms plain text into visually appeali
 - SEO optimized
 
 **Technical Stack:**
-- TailwindCSS
+- TailwindCSS (via CDN)
 - Font Awesome icons
 - Google Fonts (Inter, JetBrains Mono)
+- Prism.js syntax highlighting
 - Semantic HTML structure
 
 ### image_gallery.html - Image Gallery
@@ -395,8 +396,8 @@ Central navigation page with search integration and topic organization.
 - **Image optimization**: Automatic thumbnail generation
 - **Batch operations**: Bulk image management
 
-### Backward Compatibility
+### Compatibility Considerations
 - **Index format**: Will maintain v1 compatibility
 - **URL structure**: Existing links will continue working
-- **API surface**: search.js public API will remain stable
-- **Image data**: JSON schema will maintain backward compatibility
+- **API surface**: Core APIs will remain stable
+- **Dependency management**: Careful version pinning for stability
