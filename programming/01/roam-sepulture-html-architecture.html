@@ -14,6 +14,11 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
     <style>
         :root {
             --primary-color: #1e293b;
@@ -112,29 +117,80 @@
             gap: 0.5rem;
         }
 
-        .code-block {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 1.5rem;
+        /* Prism.js custom styling */
+        pre[class*="language-"] {
+            background: #2d3748;
             border-radius: 8px;
-            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            border: 1px solid #4a5568;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
             font-size: 0.9rem;
             line-height: 1.5;
-            overflow-x: auto;
-            margin: 1rem 0;
-            position: relative;
-            border: 1px solid #334155;
         }
 
-        .code-block::before {
-            content: attr(data-lang);
-            position: absolute;
-            top: 0.75rem;
-            right: 1rem;
-            font-size: 0.75rem;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 500;
+        code[class*="language-"] {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            color: #e2e8f0;
+        }
+
+        /* Override Prism.js default styles for better integration */
+        .token.comment,
+        .token.prolog,
+        .token.doctype,
+        .token.cdata {
+            color: #a0aec0;
+        }
+
+        .token.punctuation {
+            color: #e2e8f0;
+        }
+
+        .token.property,
+        .token.tag,
+        .token.constant,
+        .token.symbol,
+        .token.deleted {
+            color: #f56565;
+        }
+
+        .token.boolean,
+        .token.number {
+            color: #ed8936;
+        }
+
+        .token.selector,
+        .token.attr-name,
+        .token.string,
+        .token.char,
+        .token.builtin,
+        .token.inserted {
+            color: #48bb78;
+        }
+
+        .token.operator,
+        .token.entity,
+        .token.url,
+        .language-css .token.string,
+        .style .token.string,
+        .token.variable {
+            color: #e2e8f0;
+        }
+
+        .token.atrule,
+        .token.attr-value,
+        .token.function,
+        .token.class-name {
+            color: #4299e1;
+        }
+
+        .token.keyword {
+            color: #9f7aea;
+        }
+
+        .token.regex,
+        .token.important {
+            color: #f6ad55;
         }
 
         .step-list {
@@ -553,10 +609,9 @@
                             </h3>
                             <p class="text-gray-700 mb-2"><strong>Problem:</strong> CORS restrictions on file:// URLs</p>
                             <p class="text-gray-700 mb-2"><strong>Solution:</strong> All resources are relative paths</p>
-                            <div class="code-block" data-lang="javascript">
-// Instead of absolute URLs
+                            <pre><code class="language-javascript">// Instead of absolute URLs
 fetch('/search-index.json') // ❌ CORS error
-fetch('./search-index.json') // ✅ Works with file://</div>
+fetch('./search-index.json') // ✅ Works with file://</code></pre>
                         </div>
 
                         <div class="bg-white border border-gray-200 rounded-lg p-6">
@@ -566,11 +621,10 @@ fetch('./search-index.json') // ✅ Works with file://</div>
                             </h3>
                             <p class="text-gray-700 mb-2"><strong>Problem:</strong> How to rank results without complex algorithms</p>
                             <p class="text-gray-700 mb-2"><strong>Solution:</strong> Simple weighted scoring</p>
-                            <div class="code-block" data-lang="javascript">
-const score = 
+                            <pre><code class="language-javascript">const score = 
   (titleMatches * 3) +    // Title is most important
   (contentMatches * 1) +  // Content matches
-  (exactMatches * 5);     // Exact phrase matches</div>
+  (exactMatches * 5);     // Exact phrase matches</code></pre>
                         </div>
 
                         <div class="bg-white border border-gray-200 rounded-lg p-6">
@@ -580,13 +634,12 @@ const score =
                             </h3>
                             <p class="text-gray-700 mb-2"><strong>Problem:</strong> Search results overlay needs to work on mobile</p>
                             <p class="text-gray-700 mb-2"><strong>Solution:</strong> CSS positioning with viewport constraints</p>
-                            <div class="code-block" data-lang="css">
-.search-results {
+                            <pre><code class="language-css">.search-results {
   position: absolute;
   max-height: 400px;
   overflow-y: auto;
   /* Mobile-friendly with media queries */
-}</div>
+}</code></pre>
                         </div>
                     </div>
                 </section>
@@ -604,8 +657,7 @@ const score =
                                 <i class="fas fa-search text-blue-500 mr-2"></i>
                                 1. User Searches for Content
                             </h3>
-                            <div class="code-block" data-lang="text">
-User types in search box
+                            <pre><code class="language-text">User types in search box
     ↓
 debounce() waits 300ms
     ↓
@@ -615,7 +667,7 @@ highlightMatches() creates snippets
     ↓
 renderResults() displays in overlay
     ↓
-User clicks result → navigates to page</div>
+User clicks result → navigates to page</code></pre>
                         </div>
 
                         <div class="bg-white border border-gray-200 rounded-lg p-6">
@@ -623,8 +675,7 @@ User clicks result → navigates to page</div>
                                 <i class="fas fa-plus text-green-500 mr-2"></i>
                                 2. Adding New Documentation
                             </h3>
-                            <div class="code-block" data-lang="text">
-Author creates new HTML page
+                            <pre><code class="language-text">Author creates new HTML page
     ↓
 Run: npm run build-search
     ↓
@@ -632,7 +683,7 @@ generate-search-index.js crawls new page
     ↓
 search-index.json updated
     ↓
-Git commit includes both new page + updated index</div>
+Git commit includes both new page + updated index</code></pre>
                         </div>
 
                         <div class="bg-white border border-gray-200 rounded-lg p-6">
@@ -640,8 +691,7 @@ Git commit includes both new page + updated index</div>
                                 <i class="fas fa-code text-purple-500 mr-2"></i>
                                 3. Development Workflow
                             </h3>
-                            <div class="code-block" data-lang="text">
-Developer makes changes
+                            <pre><code class="language-text">Developer makes changes
     ↓
 Test locally with file:// URLs
     ↓
@@ -649,7 +699,7 @@ Run build script to regenerate index
     ↓
 Verify search still works
     ↓
-Deploy to Vercel (optional)</div>
+Deploy to Vercel (optional)</code></pre>
                         </div>
                     </div>
                 </section>
@@ -693,8 +743,7 @@ Deploy to Vercel (optional)</div>
                             <i class="fas fa-folder text-gray-500 mr-2"></i>
                             File Organization
                         </h3>
-                        <div class="code-block" data-lang="text">
-project-root/
+                        <pre><code class="language-text">project-root/
 ├── index.html              # Main navigation
 ├── search.js              # Client-side search
 ├── search-index.json      # Generated search data
@@ -702,7 +751,7 @@ project-root/
 ├── programming/           # Documentation sections
 │   ├── 01/
 │   └── programming.html
-└── ARCHITECTURE.md        # This file</div>
+└── ARCHITECTURE.md        # This file</code></pre>
                     </div>
                 </section>
 
@@ -735,12 +784,12 @@ project-root/
 
                     <div class="bg-white border border-gray-200 rounded-lg p-6 mt-6">
                         <h3 class="text-lg font-semibold mb-3">Search Index Schema</h3>
-                        <div class="code-block" data-lang="json">{
+                        <pre><code class="language-json">{
   "title": "Human-readable title",
   "content": "Searchable text content",
   "url": "relative/path/to/file.html",
   "lastModified": "2025-07-22T20:27:27.158Z"
-}</div>
+}</code></pre>
                     </div>
                 </section>
 
@@ -759,17 +808,17 @@ project-root/
                             </h3>
                             
                             <h4 class="font-semibold mb-2">Initialization</h4>
-                            <div class="code-block" data-lang="javascript">// 1. Event listener setup
+                            <pre><code class="language-javascript">// 1. Event listener setup
 document.addEventListener('DOMContentLoaded', initSearch);
 
 // 2. Search input binding
 $searchInput.addEventListener('input', debounce(handleSearchInput, 300));
 
 // 3. Click outside to close
-document.addEventListener('click', handleClickOutside);</div>
+document.addEventListener('click', handleClickOutside);</code></pre>
 
                             <h4 class="font-semibold mb-2 mt-4">Search Process</h4>
-                            <div class="code-block" data-lang="javascript">// 1. Query normalization
+                            <pre><code class="language-javascript">// 1. Query normalization
 const query = input.toLowerCase().trim();
 
 // 2. Tokenization for multi-word search
@@ -779,7 +828,7 @@ const tokens = query.split(/\s+/);
 const results = pages.map(page => ({
   ...page,
   score: calculateScore(page, tokens)
-})).filter(r => r.score > 0).sort((a, b) => b.score - a.score);</div>
+})).filter(r => r.score > 0).sort((a, b) => b.score - a.score);</code></pre>
                         </div>
 
                         <div class="bg-white border border-gray-200 rounded-lg p-6">
@@ -789,7 +838,7 @@ const results = pages.map(page => ({
                             </h3>
                             
                             <h4 class="font-semibold mb-2">Content Extraction Strategy</h4>
-                            <div class="code-block" data-lang="javascript">// 1. Parse HTML with JSDOM
+                            <pre><code class="language-javascript">// 1. Parse HTML with JSDOM
 const dom = new JSDOM(htmlContent);
 
 // 2. Extract meaningful text
@@ -800,7 +849,7 @@ const content = extractVisibleText(dom.window.document.body);
 const cleaned = content
   .replace(/\s+/g, ' ')  // Normalize whitespace
   .trim()
-  .substring(0, 5000);   // Limit for performance</div>
+  .substring(0, 5000);   // Limit for performance</code></pre>
 
                             <h4 class="font-semibold mb-2 mt-4">Index Optimization</h4>
                             <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
@@ -953,12 +1002,12 @@ const cleaned = content
 
         // Copy code functionality
         function addCopyButtons() {
-            document.querySelectorAll('.code-block').forEach(block => {
+            document.querySelectorAll('pre[class*="language-"]').forEach(block => {
                 const copyBtn = document.createElement('button');
                 copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
                 copyBtn.className = 'absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors';
                 copyBtn.onclick = async () => {
-                    const code = block.textContent.trim();
+                    const code = block.querySelector('code').textContent.trim();
                     try {
                         await navigator.clipboard.writeText(code);
                         copyBtn.innerHTML = '<i class="fas fa-check"></i>';
