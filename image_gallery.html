@@ -900,38 +900,130 @@
             console.log('Selected tags:', selectedTags);
             console.log('Current sort:', currentSort);
             
-            // Start with all images
+            // Start with all images including subsidiaries
             let workingImages = [...images];
             
             // Filter by tags if any are selected
             if (selectedTags.length > 0) {
+                // Create a map of groupId to major image for subsidiary tag lookup
+                const majorImagesByGroupId = {};
+                images.forEach(img => {
+                    if (img.isMajor !== false && img.groupId) {
+                        majorImagesByGroupId[img.groupId] = img;
+                    }
+                });
+                
                 workingImages = workingImages.filter(img => {
                     // For major images, use their own tags
                     if (img.isMajor !== false) {
                         return selectedTags.every(tag => img.tags && img.tags.includes(tag));
                     }
-                    // For subsidiary images, they inherit tags from their major image
-                    return true; // Let them pass through for now
+                    // For subsidiary images, check their major image's tags
+                    if (img.groupId && majorImagesByGroupId[img.groupId]) {
+                        const major = majorImagesByGroupId[img.groupId];
+                        return selectedTags.every(tag => major.tags && major.tags.includes(tag));
+                    }
+                    // Standalone subsidiary images (shouldn't happen normally)
+                    return true;
                 });
             }
             
             console.log('After tag filtering:', workingImages.length);
             
             // Sort based on current sort option
+            // For major images: use their own properties
+            // For subsidiary images: use their major image's properties
+            const majorImagesByGroupId = {};
+            const majorImagesById = {};
+            
+            images.forEach(img => {
+                if (img.isMajor !== false) {
+                    majorImagesById[img.id] = img;
+                    if (img.groupId) {
+                        majorImagesByGroupId[img.groupId] = img;
+                    }
+                }
+            });
+            
+            // Debug: show what we're sorting
+            console.log('=== SORTING DEBUG ===');
+            console.log('Working images before sort:', workingImages.map(img => ({
+                title: img.title,
+                id: img.id,
+                ranking: img.ranking,
+                groupId: img.groupId,
+                isMajor: img.isMajor,
+                majorImageId: img.majorImageId
+            })));
+            
             workingImages.sort((a, b) => {
+                let aValue, bValue;
+                
                 switch (currentSort) {
                     case 'ranking-asc':
-                        return (a.ranking || 0) - (b.ranking || 0);
+                        if (a.isMajor !== false) {
+                            aValue = a.ranking || 0;
+                        } else if (a.majorImageId) {
+                            aValue = majorImagesById[a.majorImageId]?.ranking || 0;
+                        } else if (a.groupId && majorImagesByGroupId[a.groupId]) {
+                            aValue = majorImagesByGroupId[a.groupId].ranking || 0;
+                        } else {
+                            aValue = 0; // Fallback
+                        }
+                        
+                        if (b.isMajor !== false) {
+                            bValue = b.ranking || 0;
+                        } else if (b.majorImageId) {
+                            bValue = majorImagesById[b.majorImageId]?.ranking || 0;
+                        } else if (b.groupId && majorImagesByGroupId[b.groupId]) {
+                            bValue = majorImagesByGroupId[b.groupId].ranking || 0;
+                        } else {
+                            bValue = 0; // Fallback
+                        }
+                        console.log(`Sorting ${a.title} (${aValue}) vs ${b.title} (${bValue}) = ${aValue - bValue}`);
+                        return aValue - bValue;
+                    
                     case 'ranking-desc':
-                        return (b.ranking || 0) - (a.ranking || 0);
+                        if (a.isMajor !== false) {
+                            aValue = a.ranking || 0;
+                        } else if (a.majorImageId) {
+                            aValue = majorImagesById[a.majorImageId]?.ranking || 0;
+                        } else if (a.groupId && majorImagesByGroupId[a.groupId]) {
+                            aValue = majorImagesByGroupId[a.groupId].ranking || 0;
+                        } else {
+                            aValue = 0; // Fallback
+                        }
+                        
+                        if (b.isMajor !== false) {
+                            bValue = b.ranking || 0;
+                        } else if (b.majorImageId) {
+                            bValue = majorImagesById[b.majorImageId]?.ranking || 0;
+                        } else if (b.groupId && majorImagesByGroupId[b.groupId]) {
+                            bValue = majorImagesByGroupId[b.groupId].ranking || 0;
+                        } else {
+                            bValue = 0; // Fallback
+                        }
+                        console.log(`Sorting ${a.title} (${aValue}) vs ${b.title} (${bValue}) = ${bValue - aValue}`);
+                        return bValue - aValue;
+                    
                     case 'name-asc':
+                        console.log(`Name asc: ${a.title} vs ${b.title} = ${(a.title || '').localeCompare(b.title || '')}`);
                         return (a.title || '').localeCompare(b.title || '');
+                    
                     case 'name-desc':
+                        console.log(`Name desc: ${a.title} vs ${b.title} = ${(b.title || '').localeCompare(a.title || '')}`);
                         return (b.title || '').localeCompare(a.title || '');
+                    
                     default:
                         return 0;
                 }
             });
+            
+            console.log('Working images after sort:', workingImages.map(img => ({
+                title: img.title,
+                id: img.id,
+                ranking: img.ranking
+            })));
             
             filteredImages = workingImages;
             console.log('Final filteredImages count:', filteredImages.length);
@@ -943,7 +1035,6 @@
             gallery.innerHTML = '';
 
             console.log('Rendering gallery with filteredImages:', filteredImages ? filteredImages.length : 0);
-            console.log('All images:', images ? images.length : 0);
 
             if (filteredImages.length === 0) {
                 gallery.innerHTML = `
@@ -955,66 +1046,78 @@
                 return;
             }
 
-            // Group images by their group relationships
-            const imageGroups = {};
-            const standaloneImages = [];
+            console.log('=== RENDER GALLERY DEBUG ===');
+            console.log('All filtered images in order:', filteredImages.map(img => ({
+                title: img.title,
+                id: img.id,
+                ranking: img.ranking,
+                groupId: img.groupId,
+                isMajor: img.isMajor
+            })));
 
+            // Create a map of group data for quick lookup
+            const groupMap = {};
+            const subsidiaryMap = {};
+            
+            // First pass: collect all major images and their subsidiaries
             filteredImages.forEach(img => {
-                if (img.isMajor === false) {
-                    // Subsidiary image - handled by major
-                    return;
+                if (img.isMajor !== false) {
+                    if (img.groupId) {
+                        if (!groupMap[img.groupId]) {
+                            groupMap[img.groupId] = {
+                                major: img,
+                                subsidiaries: []
+                            };
+                        }
+                    }
+                } else if (img.groupId && img.isMajor === false) {
+                    // Collect subsidiaries for their groups
+                    if (!subsidiaryMap[img.groupId]) {
+                        subsidiaryMap[img.groupId] = [];
+                    }
+                    subsidiaryMap[img.groupId].push(img);
                 }
+            });
 
-                if (img.groupId) {
-                    if (!imageGroups[img.groupId]) {
-                        imageGroups[img.groupId] = {
-                            major: img,
-                            subsidiaries: []
-                        };
+            // Sort subsidiaries within each group
+            Object.keys(subsidiaryMap).forEach(groupId => {
+                subsidiaryMap[groupId].sort((a, b) => a.id - b.id);
+                if (groupMap[groupId]) {
+                    groupMap[groupId].subsidiaries = subsidiaryMap[groupId];
+                }
+            });
+
+            // Render all images in the correct sorted order
+            filteredImages.forEach((img, index) => {
+                console.log(`Rendering ${index}: ${img.title} (groupId: ${img.groupId}, isMajor: ${img.isMajor})`);
+                
+                if (img.isMajor !== false) {
+                    if (img.groupId && groupMap[img.groupId]) {
+                        // This is a major image with a group - render the entire group
+                        const group = groupMap[img.groupId];
+                        if (!group.rendered) {
+                            const groupElement = createImageGroup(group.major, group.subsidiaries);
+                            
+                            // Add grid span classes to the group container
+                            if (group.major.gridSpan) {
+                                if (group.major.gridSpan === 2) groupElement.classList.add('wide');
+                                else if (group.major.gridSpan === 3) groupElement.classList.add('extra-wide');
+                                else if (group.major.gridSpan >= 4) groupElement.classList.add('full-width');
+                            }
+                            
+                            gallery.appendChild(groupElement);
+                            group.rendered = true;
+                        }
+                    } else {
+                        // This is a standalone major image
+                        const item = createStandaloneImage(img);
+                        gallery.appendChild(item);
                     }
                 } else {
-                    standaloneImages.push(img);
+                    // Subsidiary images are handled by their groups, skip here
+                    console.log(`  -> Skipping subsidiary ${img.title} (handled by group)`);
                 }
             });
-
-            // Add subsidiaries to their groups
-            filteredImages.forEach(img => {
-                if (img.isMajor === false && img.groupId && imageGroups[img.groupId]) {
-                    imageGroups[img.groupId].subsidiaries.push(img);
-                }
-            });
-
-            // Sort subsidiaries by ID
-            Object.values(imageGroups).forEach(group => {
-                group.subsidiaries.sort((a, b) => a.id - b.id);
-            });
-
-            // Render image groups
-            Object.entries(imageGroups).forEach(([groupId, group]) => {
-                const groupElement = createImageGroup(group.major, group.subsidiaries);
-                
-                // Add grid span classes to the group container
-                if (group.major.gridSpan) {
-                    if (group.major.gridSpan === 2) groupElement.classList.add('wide');
-                    else if (group.major.gridSpan === 3) groupElement.classList.add('extra-wide');
-                    else if (group.major.gridSpan >= 4) groupElement.classList.add('full-width');
-                }
-                
-                gallery.appendChild(groupElement);
-            });
-
-            // Render standalone images
-            if (standaloneImages.length > 0) {
-                const standaloneContainer = document.createElement('div');
-                standaloneContainer.className = 'standalone-gallery';
-                
-                standaloneImages.forEach(img => {
-                    const item = createStandaloneImage(img);
-                    standaloneContainer.appendChild(item);
-                });
-                
-                gallery.appendChild(standaloneContainer);
-            }
         }
 
         // Create image group element
@@ -1258,7 +1361,17 @@
                         if (data.images && Array.isArray(data.images)) {
                             images = data.images;
                             selectedTags = [];
-                            filterAndRender();
+                            // Clear tag search
+                            document.getElementById('tag-search').value = '';
+                            // Reset sort to default
+                            document.getElementById('sort-select').value = 'ranking-desc';
+                            currentSort = 'ranking-desc';
+                            
+                            // Update UI components
+                            filterAndSortImages();
+                            renderTagCloud();
+                            renderGallery();
+                            
                             alert(`Successfully imported ${images.length} images`);
                         } else {
                             alert('Invalid file format. Please select a valid gallery JSON file.');
