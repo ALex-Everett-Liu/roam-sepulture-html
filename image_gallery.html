@@ -18,6 +18,88 @@
             --group-bg: #f8fafc;
             --group-border: #e2e8f0;
         }
+
+        /* Settings Panel Styles */
+        .settings-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .settings-row label {
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .settings-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .settings-button {
+            padding: 8px 16px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .settings-button:hover {
+            background: var(--primary-color);
+        }
+
+        .settings-button.secondary {
+            background: var(--secondary-color);
+        }
+
+        .settings-button.secondary:hover {
+            background: var(--primary-color);
+        }
+
+        .current-settings {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--secondary-color);
+            margin: 10px 0;
+        }
+
+        .settings-toggle {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -458,10 +540,39 @@
             <!-- Images will be populated by JavaScript -->
         </div>
         
+        <div class="settings-panel" id="settings-panel" style="display: none;">
+            <div class="settings-header">
+                <h3>Gallery Settings</h3>
+                <button class="settings-toggle" onclick="toggleSettings()">Close Settings</button>
+            </div>
+            
+            <div class="settings-row">
+                <label>Default JSON File:</label>
+                <input type="text" id="default-json-file" class="settings-input" 
+                       placeholder="Enter JSON file path (e.g., data/my-gallery.json)">
+                <button class="settings-button" onclick="setDefaultJsonFile()">Set Default</button>
+            </div>
+            
+            <div class="settings-row">
+                <label>File Browser:</label>
+                <input type="file" id="file-input" accept=".json" style="display: none;" 
+                       onchange="handleFileSelection(event)">
+                <button class="settings-button secondary" onclick="document.getElementById('file-input').click()">Browse Files</button>
+                <button class="settings-button secondary" onclick="resetToFallback()">Use Fallback</button>
+            </div>
+            
+            <div class="current-settings" id="current-settings">
+                <strong>Current Settings:</strong> <span id="current-json-file">Loading...</span>
+            </div>
+        </div>
+
         <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
             <h3>Gallery Management</h3>
             
             <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button onclick="toggleSettings()" style="padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    ⚙️ Settings
+                </button>
                 <button onclick="refreshGallery()" style="padding: 8px 16px; background: var(--accent-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
                     🔄 Refresh Gallery
                 </button>
@@ -566,19 +677,54 @@
         let selectedTags = [];
         let tagSearchQuery = '';
         let isLoading = true;
+        let defaultJsonFile = 'private-pages-01/images_data_groups.json';
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
+            loadUserSettings();
             loadImageData();
             setupEventListeners();
+            updateSettingsDisplay();
         });
+
+        // Load user settings from localStorage
+        function loadUserSettings() {
+            const saved = localStorage.getItem('gallerySettings');
+            if (saved) {
+                try {
+                    const settings = JSON.parse(saved);
+                    if (settings.defaultJsonFile) {
+                        defaultJsonFile = settings.defaultJsonFile;
+                    }
+                    document.getElementById('default-json-file').value = defaultJsonFile;
+                } catch (error) {
+                    console.warn('Failed to load user settings:', error);
+                }
+            }
+        }
+
+        // Save user settings to localStorage
+        function saveUserSettings() {
+            const settings = {
+                defaultJsonFile: defaultJsonFile,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('gallerySettings', JSON.stringify(settings));
+            updateSettingsDisplay();
+        }
+
+        // Update settings display
+        function updateSettingsDisplay() {
+            document.getElementById('current-json-file').textContent = defaultJsonFile;
+            document.getElementById('default-json-file').value = defaultJsonFile;
+        }
 
         // Load image data from external JSON file
         async function loadImageData() {
             try {
-                const response = await fetch('private-pages-01/images_data_groups.json');
+                const response = await fetch(defaultJsonFile);
                 if (!response.ok) {
-                    throw new Error('Failed to load image data');
+                    throw new Error(`Failed to load image data from ${defaultJsonFile}`);
                 }
                 const data = await response.json();
                 images = data.images || fallbackImages;
@@ -587,9 +733,9 @@
                 renderTagCloud();
                 renderGallery();
                 
-                console.log(`Successfully loaded ${images.length} images`);
+                console.log(`Successfully loaded ${images.length} images from ${defaultJsonFile}`);
             } catch (error) {
-                console.warn('Failed to load external JSON, using fallback data:', error);
+                console.warn(`Failed to load ${defaultJsonFile}, using fallback data:`, error);
                 images = fallbackImages;
                 renderTagCloud();
                 renderGallery();
@@ -1067,6 +1213,66 @@
         // Manual refresh function
         function refreshGallery() {
             loadImageData();
+        }
+
+        // Toggle settings panel
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Set default JSON file
+        function setDefaultJsonFile() {
+            const input = document.getElementById('default-json-file');
+            const newPath = input.value.trim();
+            if (newPath) {
+                defaultJsonFile = newPath;
+                saveUserSettings();
+                loadImageData(); // Reload with new file
+                alert(`Default JSON file set to: ${newPath}`);
+            }
+        }
+
+        // Handle file selection from file browser
+        function handleFileSelection(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileName = file.name;
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.images && Array.isArray(data.images)) {
+                            images = data.images;
+                            selectedTags = [];
+                            filterAndRender();
+                            
+                            // Save this as default if user confirms
+                            if (confirm(`Would you like to set ${fileName} as your default gallery file?`)) {
+                                defaultJsonFile = fileName;
+                                saveUserSettings();
+                            }
+                        } else {
+                            alert('Invalid JSON format. Expected { "images": [...] }');
+                        }
+                    } catch (error) {
+                        alert('Error reading file: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            }
+        }
+
+        // Reset to fallback data
+        function resetToFallback() {
+            images = fallbackImages;
+            selectedTags = [];
+            filterAndRender();
+            
+            // Don't change the default file, just use fallback temporarily
+            alert('Using fallback sample data. You can refresh to try loading your default file again.');
         }
 
         // Clear all filters
