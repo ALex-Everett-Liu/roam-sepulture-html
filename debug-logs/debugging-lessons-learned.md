@@ -147,7 +147,43 @@ Before deploying image group functionality:
 - [ ] Responsive behavior works on all screen sizes
 - [ ] Import/export preserves all required fields
 
+## Additional Critical Debugging Lessons
+
+### 1. Missing filterAndSortImages() Calls
+**Issue**: "No images found" despite successful JSON loading
+**Root Cause**: `filterAndSortImages()` wasn't called after loading JSON data
+**Solution**: Added explicit calls after both success and fallback cases
+```javascript
+// Critical fix added after JSON loading
+filterAndSortImages();
+console.log('After filterAndSortImages, filteredImages:', filteredImages.length);
+```
+
+### 2. Subsidiary Image Inheritance in Filtering
+**Issue**: Subsidiary images weren't properly filtered by tags or sorted by ranking
+**Root Cause**: Filtering logic didn't account for subsidiary images inheriting metadata
+**Solution**: Enhanced filtering to check major image properties when filtering subsidiaries
+
+### 3. Import/Export Data Flow
+**Issue**: Tag cloud and UI state weren't properly refreshed after data import
+**Solution**: Added explicit UI refresh calls and state cleanup in import function
+
+### 4. Complete Debug Flow Verification
+**Test Protocol**:
+- **Refresh page** → Check console for: "After filterAndSortImages, filteredImages: [actual count]"
+- **Import new JSON** → Verify tag cloud updates automatically
+- **Filter by tags** → Confirm subsidiaries are correctly filtered via major image tags
+- **Sort by ranking** → Verify standalone images appear in correct sort position
+
+### Complete Debug Checklist
+For future gallery debugging:
+- [ ] Verify filterAndSortImages() is called after data load
+- [ ] Check subsidiary image inheritance logic
+- [ ] Validate tag cloud updates after data changes
+- [ ] Test Windows absolute path handling
+- [ ] Verify standalone image sort order preservation
+
 ---
 
-*Last updated: 2025-07-27*
+*Last updated: 2025-07-29*
 *File: `debugging-lessons-learned.md`*

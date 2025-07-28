@@ -199,8 +199,76 @@ For future image gallery features:
 - [ ] Test mixed standalone/grouped scenarios
 - [ ] Document any categorization effects on ordering
 
+## Additional Critical Fixes Discovered
+
+### Missing filterAndSortImages() Calls
+**Issue**: `filterAndSortImages()` (via `filterAndRender()`) wasn't being called after loading JSON data, causing "No images found" even with valid data.
+
+**Root Cause**: After successful JSON loading, the filtering and sorting functions were never invoked, leaving `filteredImages` empty.
+
+**Fix Applied**:
+```javascript
+// Added after successful JSON loading
+filterAndSortImages();
+console.log('After filterAndSortImages, filteredImages:', filteredImages.length);
+
+// Added for fallback data too
+filterAndSortImages();
+console.log('After fallback filterAndSortImages, filteredImages:', filteredImages.length);
+```
+
+**New Flow**:
+1. JSON loads successfully → `filterAndRender()` called → `filteredImages = 2` → Gallery displays 2 images
+2. No more "No images found" message
+
+### Filtering Logic Enhancement
+**Issue**: Subsidiary images weren't properly handled in filtering and sorting.
+
+**Fix Applied**:
+1. **Subsidiary tag filtering**: Check major image's tags for subsidiary images
+   ```javascript
+   // For subsidiary images, check their major image's tags
+   if (img.groupId && majorImagesByGroupId[img.groupId]) {
+       const major = majorImagesByGroupId[img.groupId];
+       return selectedTags.every(tag => major.tags && major.tags.includes(tag));
+   }
+   ```
+
+2. **Sorting with subsidiaries**: Use major image's ranking for subsidiary sorting
+   ```javascript
+   // Use major image's ranking for subsidiary sorting
+   if (a.isMajor !== false) {
+       aValue = a.ranking || 0;
+   } else if (a.majorImageId) {
+       aValue = majorImagesById[a.majorImageId]?.ranking || 0;
+   }
+   ```
+
+### Tag Cloud & Import Improvements
+**Issue**: Tag cloud and UI weren't updating properly after data import.
+
+**Fix Applied**:
+```javascript
+// Ensure proper UI refresh after import
+renderTagCloud();
+renderGallery();
+
+// Added cleanup
+selectedTags = [];
+document.getElementById('tag-search').value = '';
+document.getElementById('sort-select').value = 'ranking-desc';
+```
+
+### Complete Debug Flow Verification
+**Test Protocol**:
+1. **Refresh page** → Check console for: "After filterAndSortImages, filteredImages: [actual count]"
+2. **Import new JSON** → Verify tag cloud updates automatically
+3. **Filter by tags** → Confirm subsidiaries are correctly filtered via major image tags
+4. **Sort by ranking** → Verify standalone images appear in correct sort position
+
 ---
 
 *Created: 2025-07-29*
 *File: `debugging-standalone-image-sorting.md`*
 *Issue: Standalone images appearing at end instead of correct sort position*
+*Last Updated: 2025-07-29 - Added missing filterAndSortImages() calls and filtering fixes*
