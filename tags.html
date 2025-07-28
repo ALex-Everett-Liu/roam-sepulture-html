@@ -335,57 +335,43 @@
     </div>
 
     <script>
-        // Page database with tags and metadata
-        const pages = [
-            {
-                title: "My Experience With Claude Code After 2 Weeks",
-                description: "记录我与Claude Code两周使用体验，包括Cursor限流、AI编程工具对比等真实体验分享。",
-                url: "private-pages-01/claude-code-experience-01.html",
-                tags: ["claude-code", "cursor", "ai-programming", "experience", "rate-limiting", "productivity", "bilingual"],
-                category: "personal-experience",
-                date: "2025-07-17"
-            },
-            {
-                title: "设置 Git Bash 环境变量",
-                description: "详细指南如何在 Windows 系统中为 Claude Code 配置 Git Bash 环境变量，解决启动错误问题。",
-                url: "programming/01/设置-Git-Bash-环境变量.html",
-                tags: ["git-bash", "windows", "environment-variables", "claude-code", "setup", "configuration", "scoop", "persistent-symbolic-link"],
-                category: "configuration",
-                date: "2025-07-23"
-            },
-            {
-                title: "Claude Code vs Cursor: Context Guide",
-                description: "Complete migration guide comparing Cursor's @file syntax with Claude Code's context handling approach.",
-                url: "programming/01/claude-code-vs-cursor-context-handling-guide.html",
-                tags: ["claude-code", "cursor", "context-handling", "migration", "comparison", "guide"],
-                category: "comparison",
-                date: "2025-07-23"
-            },
-            {
-                title: "PowerShell 复制粘贴方法",
-                description: "全面解析 PowerShell 在不同环境下的复制粘贴操作，包括传统控制台、Windows Terminal 和快捷键配置。",
-                url: "programming/01/PowerShell-复制粘贴方法.html",
-                tags: ["powershell", "windows-terminal", "copy-paste", "terminal", "keyboard-shortcuts", "PSReadLine"],
-                category: "terminal-operations",
-                date: "2025-07-26"
-            },
-            {
-                title: "Roaming Sepulture HTML 架构文档",
-                description: "个人Wiki系统的完整架构文档，涵盖系统设计、功能清单、关键技术方案和开发工作流程。",
-                url: "programming/01/roam-sepulture-html-architecture.html",
-                tags: ["architecture", "static-site", "client-side-search", "zero-dependencies", "file-protocol", "documentation", "system-design"],
-                category: "architecture-design",
-                date: "2025-07-27"
-            }
-        ];
-
         // Global variables
+        let pages = [];
         let currentSearchQuery = '';
         let currentSelectedTags = [];
-        let filteredPages = [...pages];
+        let filteredPages = [];
+
+        // Load pages from external JSON
+        async function loadPages() {
+            try {
+                const response = await fetch('data/pages.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                pages = await response.json();
+                filteredPages = [...pages];
+            } catch (error) {
+                console.error('Error loading pages:', error);
+                // Fallback to empty array or basic error handling
+                pages = [];
+                filteredPages = [];
+                
+                // Show error message in UI
+                const container = document.getElementById('articles-container');
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Failed to load pages</h3>
+                        <p>Could not load the pages database. Please check if data/pages.json exists.</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
 
         // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadPages();
             renderTagCloud();
             renderArticles();
             setupEventListeners();
