@@ -564,6 +564,30 @@
             <div class="current-settings" id="current-settings">
                 <strong>Current Settings:</strong> <span id="current-json-file">Loading...</span>
             </div>
+
+            <!-- WebP Conversion Section -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <h4>Image Conversion Tools</h4>
+                
+                <div class="settings-row">
+                    <label>Convert to WebP:</label>
+                    <input type="file" id="convert-file-input" accept="image/*" style="display: none;" 
+                           onchange="handleImageConversion(event)">
+                    <button class="settings-button" onclick="document.getElementById('convert-file-input').click()">Select Image</button>
+                    <button class="settings-button secondary" onclick="clearConvertedResults()">Clear Results</button>
+                </div>
+                
+                <div class="settings-row">
+                    <label>Quality:</label>
+                    <input type="range" id="webp-quality" min="1" max="100" value="80" class="settings-input" 
+                           oninput="updateQualityDisplay()" style="min-width: 100px;">
+                    <span id="quality-value">80%</span>
+                </div>
+                
+                <div id="conversion-results" style="margin-top: 15px;">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
         </div>
 
         <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
@@ -581,6 +605,9 @@
                 </button>
                 <button onclick="importGalleryData()" style="padding: 8px 16px; background: var(--secondary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
                     📥 Import Data
+                </button>
+                <button onclick="diagnoseJson()" style="padding: 8px 16px; background: #ff9800; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    🔍 Diagnose JSON
                 </button>
             </div>
             
@@ -722,14 +749,51 @@
         // Load image data from external JSON file
         async function loadImageData() {
             try {
-                const response = await fetch(defaultJsonFile);
+                // Ensure proper path resolution for relative paths
+                let filePath = defaultJsonFile;
+                console.log('Attempting to load JSON from:', filePath);
+                console.log('Current page location:', window.location.href);
+                
+                // Handle Windows drive letter paths (Q:\...) and normalize separators
+                if (filePath.match(/^[a-zA-Z]:\\/)) {
+                    // Absolute Windows path - convert to file:// protocol for local file access
+                    filePath = 'file:///' + filePath.replace(/\\/g, '/');
+                    console.log('Converted Windows absolute path:', filePath);
+                } else if (!filePath.startsWith('http') && !filePath.startsWith('/')) {
+                    // Handle relative paths by ensuring they work from any directory level
+                    filePath = filePath.replace(/\\/g, '/');
+                    console.log('Normalized relative path:', filePath);
+                }
+                
+                const response = await fetch(filePath);
                 if (!response.ok) {
-                    throw new Error(`Failed to load image data from ${defaultJsonFile}`);
+                    throw new Error(`Failed to load image data from ${filePath} - Status: ${response.status}`);
                 }
                 const data = await response.json();
-                images = data.images || fallbackImages;
+                console.log('Loaded JSON data:', data);
+                console.log('JSON structure keys:', Object.keys(data));
+                console.log('Images array:', data.images);
+                console.log('Images length:', data.images ? data.images.length : 0);
                 
-                // Update UI with loaded data
+                // Handle both {images: [...]} and direct array formats
+                if (Array.isArray(data)) {
+                    images = data;
+                    console.log('Loaded direct array format, length:', images.length);
+                } else if (data.images && Array.isArray(data.images)) {
+                    images = data.images;
+                    console.log('Loaded images property format, length:', images.length);
+                } else {
+                    console.warn('Unexpected JSON format, using fallback');
+                    images = fallbackImages;
+                }
+                console.log('Final images array length:', images.length);
+                
+                // CRITICAL FIX: Apply filters after loading data
+                console.log('About to call filterAndSortImages');
+                filterAndSortImages();
+                console.log('After filterAndSortImages, filteredImages:', filteredImages.length);
+                
+                // Update UI with filtered data
                 renderTagCloud();
                 renderGallery();
                 
@@ -737,6 +801,12 @@
             } catch (error) {
                 console.warn(`Failed to load ${defaultJsonFile}, using fallback data:`, error);
                 images = fallbackImages;
+                console.log('Using fallback images, count:', images.length);
+                
+                // CRITICAL FIX: Apply filters for fallback too
+                filterAndSortImages();
+                console.log('After fallback filterAndSortImages, filteredImages:', filteredImages.length);
+                
                 renderTagCloud();
                 renderGallery();
             } finally {
@@ -819,69 +889,61 @@
 
         // Filter and sort images
         function filterAndSortImages() {
-            if (!images || images.length === 0) return;
+            console.log('Starting filterAndSortImages with images:', images ? images.length : 0);
+            if (!images || images.length === 0) {
+                console.log('No images to filter');
+                filteredImages = [];
+                return;
+            }
             
-            // Get major images for filtering/sorting
-            const majorImages = images.filter(img => img.isMajor !== false);
+            console.log('All images:', images);
+            console.log('Selected tags:', selectedTags);
+            console.log('Current sort:', currentSort);
             
-            // Filter by tags (using major image tags)
-            let filteredMajorImages = majorImages.filter(img => {
-                if (selectedTags.length === 0) return true;
-                return selectedTags.every(tag => img.tags.includes(tag));
-            });
-
-            // Sort major images
-            filteredMajorImages.sort((a, b) => {
+            // Start with all images
+            let workingImages = [...images];
+            
+            // Filter by tags if any are selected
+            if (selectedTags.length > 0) {
+                workingImages = workingImages.filter(img => {
+                    // For major images, use their own tags
+                    if (img.isMajor !== false) {
+                        return selectedTags.every(tag => img.tags && img.tags.includes(tag));
+                    }
+                    // For subsidiary images, they inherit tags from their major image
+                    return true; // Let them pass through for now
+                });
+            }
+            
+            console.log('After tag filtering:', workingImages.length);
+            
+            // Sort based on current sort option
+            workingImages.sort((a, b) => {
                 switch (currentSort) {
                     case 'ranking-asc':
-                        return a.ranking - b.ranking;
+                        return (a.ranking || 0) - (b.ranking || 0);
                     case 'ranking-desc':
-                        return b.ranking - a.ranking;
+                        return (b.ranking || 0) - (a.ranking || 0);
                     case 'name-asc':
-                        return a.title.localeCompare(b.title);
+                        return (a.title || '').localeCompare(b.title || '');
                     case 'name-desc':
-                        return b.title.localeCompare(a.title);
+                        return (b.title || '').localeCompare(a.title || '');
                     default:
                         return 0;
                 }
             });
-
-            // Build filtered images array with groups
-            filteredImages = [];
-            filteredMajorImages.forEach(major => {
-                filteredImages.push(major);
-                
-                // Add subsidiary images that belong to this major
-                if (major.groupId) {
-                    const subsidiaries = images.filter(img => 
-                        img.isMajor === false && 
-                        img.groupId === major.groupId &&
-                        img.majorImageId === major.id
-                    );
-                    filteredImages.push(...subsidiaries.sort((a, b) => a.id - b.id));
-                }
-            });
             
-            // Add standalone images (not part of any group)
-            const standaloneImages = images.filter(img => 
-                img.isMajor !== false && 
-                !img.groupId &&
-                (selectedTags.length === 0 || 
-                 selectedTags.every(tag => img.tags.includes(tag)))
-            );
-            
-            // Add standalone images that aren't already included
-            standaloneImages.forEach(standalone => {
-                if (!filteredImages.find(img => img.id === standalone.id)) {
-                    filteredImages.push(standalone);
-                }
-            });
+            filteredImages = workingImages;
+            console.log('Final filteredImages count:', filteredImages.length);
         }
 
         // Render gallery
         function renderGallery() {
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
+
+            console.log('Rendering gallery with filteredImages:', filteredImages ? filteredImages.length : 0);
+            console.log('All images:', images ? images.length : 0);
 
             if (filteredImages.length === 0) {
                 gallery.innerHTML = `
@@ -1215,6 +1277,37 @@
             loadImageData();
         }
 
+        // Diagnostic function to test JSON structure
+        function diagnoseJson() {
+            console.log('=== JSON DIAGNOSTIC ===');
+            console.log('Current settings:', defaultJsonFile);
+            
+            fetch(defaultJsonFile.replace(/\\/g, '/'))
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('JSON structure:', typeof data);
+                    console.log('JSON keys:', Object.keys(data));
+                    console.log('Sample data:', data);
+                    
+                    if (data.images) {
+                        console.log('Images found:', data.images.length);
+                        console.log('First image sample:', data.images[0]);
+                    } else if (Array.isArray(data)) {
+                        console.log('Direct array found:', data.length);
+                        console.log('First item sample:', data[0]);
+                    } else {
+                        console.warn('Unexpected JSON structure');
+                    }
+                })
+                .catch(error => {
+                    console.error('JSON loading error:', error);
+                });
+        }
+
         // Toggle settings panel
         function toggleSettings() {
             const panel = document.getElementById('settings-panel');
@@ -1272,6 +1365,10 @@
             filterAndRender();
             
             // Don't change the default file, just use fallback temporarily
+            images = fallbackImages;
+            filterAndSortImages();
+            renderTagCloud();
+            renderGallery();
             alert('Using fallback sample data. You can refresh to try loading your default file again.');
         }
 
@@ -1460,6 +1557,330 @@
                 lastTouchDistance = distance;
             }
         });
+
+        // WebP Conversion Functions
+        function updateQualityDisplay() {
+            const quality = document.getElementById('webp-quality').value;
+            document.getElementById('quality-value').textContent = quality + '%';
+        }
+
+        async function handleImageConversion(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a valid image file');
+                return;
+            }
+
+            const quality = parseInt(document.getElementById('webp-quality').value) / 100;
+            
+            try {
+                showConversionStatus('Converting... Please wait.');
+                
+                const originalSize = file.size;
+                const webpBlob = await convertImageToWebP(file, quality);
+                const convertedSize = webpBlob.size;
+                
+                const originalFileName = file.name;
+                const webpFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.')) + '.webp';
+                
+                displayConversionResults({
+                    originalFile: originalFileName,
+                    convertedFile: webpFileName,
+                    originalSize: formatFileSize(originalSize),
+                    convertedSize: formatFileSize(convertedSize),
+                    originalSizeBytes: originalSize,
+                    convertedSizeBytes: convertedSize,
+                    savingsPercent: ((originalSize - convertedSize) / originalSize * 100).toFixed(2),
+                    blob: webpBlob
+                });
+                
+            } catch (error) {
+                showConversionStatus('Error: ' + error.message, true);
+                console.error('Conversion error:', error);
+            }
+        }
+
+        function convertImageToWebP(file, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Draw the image on canvas
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Convert to WebP
+                    canvas.toBlob(function(blob) {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error('WebP conversion failed'));
+                        }
+                    }, 'image/webp', quality);
+                };
+
+                img.onerror = function() {
+                    reject(new Error('Failed to load image'));
+                };
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                };
+                reader.onerror = function() {
+                    reject(new Error('Failed to read file'));
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function displayConversionResults(result) {
+            const resultsDiv = document.getElementById('conversion-results');
+            
+            const originalImg = document.createElement('img');
+            originalImg.style.maxWidth = '100px';
+            originalImg.style.maxHeight = '100px';
+            originalImg.style.objectFit = 'cover';
+            originalImg.style.marginRight = '10px';
+            originalImg.style.border = '1px solid #ccc';
+            originalImg.style.borderRadius = '4px';
+            
+            const convertedImg = document.createElement('img');
+            convertedImg.style.maxWidth = '100px';
+            convertedImg.style.maxHeight = '100px';
+            convertedImg.style.objectFit = 'cover';
+            convertedImg.style.border = '1px solid #ccc';
+            convertedImg.style.borderRadius = '4px';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                originalImg.src = e.target.result;
+                
+                const reader2 = new FileReader();
+                reader2.onload = function(e2) {
+                    convertedImg.src = e2.target.result;
+                };
+                reader2.readAsDataURL(result.blob);
+            };
+            
+            // Create a temporary file input to get the original image
+            const input = document.getElementById('convert-file-input');
+            if (input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+            
+            resultsDiv.innerHTML = `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div style="margin-right: 15px;">
+                            <label>Original:</label>
+                            <div id="original-preview"></div>
+                        </div>
+                        <div>
+                            <label>Converted:</label>
+                            <div id="converted-preview"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                        <div>Original Size: <strong>${result.originalSize}</strong></div>
+                        <div>Converted Size: <strong>${result.convertedSize}</strong></div>
+                        <div>Savings: <strong style="color: #28a745;">${result.savingsPercent}%</strong></div>
+                        <div>File: <strong>${result.convertedFile}</strong></div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="settings-button" onclick="downloadWebP('${result.convertedFile}', ${result.convertedSizeBytes})">
+                            &#8595; Download WebP
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('original-preview').appendChild(originalImg);
+            document.getElementById('converted-preview').appendChild(convertedImg);
+            
+            // Store blob globally for download
+            window.convertedWebP = result.blob;
+        }
+
+        function downloadWebP(filename, size) {
+            if (!window.convertedWebP) {
+                alert('No converted image available');
+                return;
+            }
+            
+            const url = URL.createObjectURL(window.convertedWebP);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearConvertedResults() {
+            document.getElementById('conversion-results').innerHTML = '';
+            window.convertedWebP = null;
+        }
+
+        function showConversionStatus(message, isError = false) {
+            const resultsDiv = document.getElementById('conversion-results');
+            resultsDiv.innerHTML = `
+                <div style="padding: 10px; border-radius: 4px; background: ${isError ? '#f8d7da' : '#d1ecf1'}; color: ${isError ? '#721c24' : '#0c5460'};">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // WebP Conversion Functions
+        function updateQualityDisplay() {
+            const qualitySlider = document.getElementById('webp-quality');
+            const qualityValue = document.getElementById('quality-value');
+            qualityValue.textContent = qualitySlider.value + '%';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function handleImageConversion(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const quality = parseInt(document.getElementById('webp-quality').value);
+            const resultsContainer = document.getElementById('conversion-results');
+            
+            // Show loading state
+            resultsContainer.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: var(--secondary-color);">
+                    <div style="font-size: 1.5rem; margin-bottom: 10px;">🔄</div>
+                    <h4>Converting ${file.name}...</h4>
+                    <p>Please wait while we process your image.</p>
+                </div>
+            `;
+
+            try {
+                const originalSize = file.size;
+                const convertedBlob = await convertImageToWebP(file, quality);
+                const convertedSize = convertedBlob.size;
+                const savingsPercent = ((originalSize - convertedSize) / originalSize * 100).toFixed(1);
+
+                // Create download URL
+                const downloadUrl = URL.createObjectURL(convertedBlob);
+                const filename = file.name.replace(/\.[^/.]+$/, '') + '.webp';
+
+                // Display results
+                resultsContainer.innerHTML = `
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <h4>Conversion Complete ✅</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
+                            <div>
+                                <strong>Original:</strong><br>
+                                ${formatFileSize(originalSize)}
+                            </div>
+                            <div>
+                                <strong>Converted:</strong><br>
+                                ${formatFileSize(convertedSize)}
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <strong>Savings:</strong> ${savingsPercent}% (${formatFileSize(originalSize - convertedSize)})
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <strong>Quality:</strong> ${quality}%
+                        </div>
+                        <button class="settings-button" onclick="downloadFile('${downloadUrl}', '${filename}')">
+                            📥 Download WebP
+                        </button>
+                        <button class="settings-button secondary" onclick="previewImage('${downloadUrl}')">
+                            👁️ Preview
+                        </button>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div style="padding: 20px; color: #e53e3e; background: #fed7d7; border-radius: 8px;">
+                        <h4>❌ Conversion Failed</h4>
+                        <p>${error.message}</p>
+                        <button class="settings-button" onclick="clearConvertedResults()">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+
+        function convertImageToWebP(file, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                resolve(blob);
+                            } else {
+                                reject(new Error('Failed to convert image to WebP'));
+                            }
+                        }, 'image/webp', quality / 100);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load image file'));
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function previewImage(url) {
+            const newWindow = window.open(url, '_blank');
+            if (newWindow) {
+                newWindow.focus();
+            }
+        }
+
+        function clearConvertedResults() {
+            document.getElementById('conversion-results').innerHTML = '';
+            document.getElementById('convert-file-input').value = '';
+        }
     </script>
 </body>
 </html>
