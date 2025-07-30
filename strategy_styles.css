@@ -1,0 +1,283 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    min-height: 100vh;
+    color: #333;
+}
+
+.game-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+header h1 {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.time-display {
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    height: calc(100vh - 140px);
+}
+
+.canvas-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#game-canvas {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: crosshair;
+    background: #f8f9fa;
+}
+
+.canvas-info {
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+.control-panel {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+.section h3 {
+    color: #2a5298;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#save-game {
+    background: #4CAF50;
+    color: white;
+}
+
+#save-game:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+#load-game {
+    background: #2196F3;
+    color: white;
+}
+
+#load-game:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+}
+
+#advance-time {
+    background: #FF9800;
+    color: white;
+}
+
+#advance-time:hover {
+    background: #F57C00;
+    transform: translateY(-2px);
+}
+
+.stats {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.stats div {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.stats span {
+    font-weight: bold;
+    color: #2a5298;
+}
+
+ul {
+    list-style: none;
+}
+
+ul li {
+    padding: 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+    color: #2a5298;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.form-group input[type="color"] {
+    height: 40px;
+    cursor: pointer;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-town {
+    background: #4CAF50;
+    color: white;
+    flex: 1;
+}
+
+.btn-unit {
+    background: #F44336;
+    color: white;
+    flex: 1;
+}
+
+.btn-cancel {
+    background: #9E9E9E;
+    color: white;
+    flex: 1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.form-actions button {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.form-actions button[type="submit"] {
+    background: #4CAF50;
+    color: white;
+}
+
+#delete-point {
+    background: #F44336;
+    color: white;
+}
+
+#cancel-edit, #cancel-time {
+    background: #9E9E9E;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+    }
+    
+    .control-panel {
+        order: -1;
+        height: auto;
+        max-height: 200px;
+    }
+    
+    #game-canvas {
+        width: 100%;
+        height: auto;
+    }
+}

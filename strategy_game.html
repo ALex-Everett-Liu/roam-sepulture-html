@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战略游戏 - Canvas版</title>
+    <link rel="stylesheet" href="strategy_styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>战略游戏</h1>
+            <div class="time-display">
+                <span>当前时间: </span>
+                <span id="current-time">1000-01-01 AD</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="canvas-container">
+                <canvas id="game-canvas" width="800" height="600"></canvas>
+                <div class="canvas-info">
+                    <span>点击画布创建新据点</span>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="section">
+                    <h3>游戏控制</h3>
+                    <button id="save-game">保存游戏</button>
+                    <button id="load-game">加载游戏</button>
+                    <button id="advance-time">推进时间</button>
+                    <input type="file" id="file-input" accept=".json" style="display: none;">
+                </div>
+
+                <div class="section">
+                    <h3>游戏状态</h3>
+                    <div class="stats">
+                        <div>据点总数: <span id="total-points">0</span></div>
+                        <div>城镇: <span id="town-count">0</span></div>
+                        <div>军事单位: <span id="unit-count">0</span></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>操作说明</h3>
+                    <ul>
+                        <li>点击空白处创建新据点</li>
+                        <li>点击据点编辑属性</li>
+                        <li>推进时间保存历史记录</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建据点弹窗 -->
+    <div id="create-modal" class="modal">
+        <div class="modal-content">
+            <h3>创建新据点</h3>
+            <p>位置: <span id="pos-display"></span></p>
+            <div class="button-group">
+                <button id="create-town" class="btn-town">创建城镇</button>
+                <button id="create-unit" class="btn-unit">创建军事单位</button>
+                <button id="cancel-create" class="btn-cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑据点弹窗 -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>编辑据点属性</h3>
+            <form id="edit-form">
+                <div class="form-group">
+                    <label>名称:</label>
+                    <input type="text" id="edit-name" required>
+                </div>
+                <div class="form-group">
+                    <label>类型:</label>
+                    <span id="edit-type"></span>
+                </div>
+                <div class="form-group">
+                    <label>位置:</label>
+                    <span id="edit-position"></span>
+                </div>
+                <div class="form-group">
+                    <label>阵营颜色:</label>
+                    <input type="color" id="edit-color" value="#ff0000">
+                </div>
+                <div class="form-group">
+                    <label>总人口:</label>
+                    <input type="number" id="edit-population" min="0" value="100">
+                </div>
+                <div class="form-group">
+                    <label>战兵人数:</label>
+                    <input type="number" id="edit-soldiers" min="0" value="20">
+                </div>
+                <div class="form-group">
+                    <label>粮草:</label>
+                    <input type="number" id="edit-food" min="0" value="1000">
+                </div>
+                <div class="form-group">
+                    <label>金钱:</label>
+                    <input type="number" id="edit-money" min="0" value="500">
+                </div>
+                <div class="form-actions">
+                    <button type="submit">保存</button>
+                    <button type="button" id="delete-point">删除</button>
+                    <button type="button" id="cancel-edit">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 时间推进弹窗 -->
+    <div id="time-modal" class="modal">
+        <div class="modal-content">
+            <h3>推进时间</h3>
+            <p>当前时间: <span id="current-time-display"></span></p>
+            <div class="form-group">
+                <label>新时间:</label>
+                <input type="date" id="new-date">
+            </div>
+            <div class="form-actions">
+                <button id="confirm-time">确认</button>
+                <button id="cancel-time">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="strategy_game.js"></script>
+</body>
+</html>
