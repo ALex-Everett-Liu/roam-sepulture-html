@@ -8,7 +8,7 @@ class StrategyGame {
         this.selectedPoint = null;
         this.tempPosition = null;
         
-        // 缩放和平移相关
+        // zoom and pan related
         this.scale = 1.0;
         this.offsetX = 0;
         this.offsetY = 0;
@@ -117,7 +117,7 @@ class StrategyGame {
         const worldX = (canvasX - this.offsetX) / this.scale;
         const worldY = (canvasY - this.offsetY) / this.scale;
         
-        document.getElementById('mouse-pos').textContent = `鼠标位置: (${Math.round(worldX)}, ${Math.round(worldY)})`;
+        document.getElementById('mouse-pos').textContent = `mouse position: (${Math.round(worldX)}, ${Math.round(worldY)})`;
         
         if (this.isDragging) {
             const dx = canvasX - this.lastMouseX;
@@ -256,7 +256,7 @@ class StrategyGame {
         const newDate = new Date(document.getElementById('new-date').value);
         
         if (newDate <= this.currentTime) {
-            alert('新时间必须晚于当前时间！');
+            alert('The new time must be later than the current time!');
             return;
         }
 
@@ -403,7 +403,7 @@ class StrategyGame {
                 this.updateStats();
                 this.render();
             } catch (error) {
-                alert('文件格式错误！');
+                alert('File format error!');
             }
         };
         reader.readAsText(file);
@@ -433,7 +433,7 @@ class StrategyGame {
                 this.updateStats();
                 this.render();
             } catch (error) {
-                console.error('加载存档失败:', error);
+                console.error('Failed to load save file:', error);
             }
         }
     }

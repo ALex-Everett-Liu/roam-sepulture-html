@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>战略游戏 - Canvas版</title>
+    <title>Strategy Game - Canvas Version</title>
     <link rel="stylesheet" href="strategy_styles.css">
 </head>
 <body>
     <div class="game-container">
         <header>
-            <h1>战略游戏</h1>
+            <h1>Strategy Game</h1>
             <div class="time-display">
-                <span>当前时间: </span>
+                <span>current time: </span>
                 <span id="current-time">1000-01-01 AD</span>
             </div>
         </header>
@@ -24,21 +24,21 @@
                         <button id="zoom-in">🔍+</button>
                         <span id="zoom-level">100%</span>
                         <button id="zoom-out">🔍-</button>
-                        <button id="reset-view">重置视图</button>
+                        <button id="reset-view">Reset View</button>
                     </div>
                 </div>
                 <div class="canvas-info">
-                    <span id="mouse-pos">鼠标位置: (0, 0)</span>
-                    <span>滚轮缩放 | 拖拽平移</span>
+                    <span id="mouse-pos">mouse position: (0, 0)</span>
+                    <span> scroll to zoom | drag to pan </span>
                 </div>
             </div>
 
             <div class="control-panel">
                 <div class="section">
-                    <h3>游戏控制</h3>
-                    <button id="save-game">保存游戏</button>
-                    <button id="load-game">加载游戏</button>
-                    <button id="advance-time">推进时间</button>
+                    <h3>Game Control</h3>
+                    <button id="save-game">save game</button>
+                    <button id="load-game">load game</button>
+                    <button id="advance-time">advance time</button>
                     <input type="file" id="file-input" accept=".json" style="display: none;">
                 </div>
 
@@ -66,12 +66,12 @@
     <!-- 创建据点弹窗 -->
     <div id="create-modal" class="modal">
         <div class="modal-content">
-            <h3>创建新据点</h3>
-            <p>位置: <span id="pos-display"></span></p>
+            <h3>create new base</h3>
+            <p>position: <span id="pos-display"></span></p>
             <div class="button-group">
-                <button id="create-town" class="btn-town">创建城镇</button>
-                <button id="create-unit" class="btn-unit">创建军事单位</button>
-                <button id="cancel-create" class="btn-cancel">取消</button>
+                <button id="create-town" class="btn-town">create town</button>
+                <button id="create-unit" class="btn-unit">create military unit</button>
+                <button id="cancel-create" class="btn-cancel">cancel</button>
             </div>
         </div>
     </div>
