@@ -67,7 +67,7 @@ class StrategyGame {
         const canvasY = e.clientY - rect.top;
         
         const worldX = (canvasX - this.offsetX) / this.scale;
-        const worldY = (canvasY - this.offsetY) / this.scale;
+        const worldY = (this.canvas.height - canvasY - this.offsetY) / this.scale;
         
         const clickedPoint = this.getPointAt(worldX, worldY);
         
@@ -88,13 +88,13 @@ class StrategyGame {
         const canvasY = e.clientY - rect.top;
         
         const worldX = (canvasX - this.offsetX) / this.scale;
-        const worldY = (canvasY - this.offsetY) / this.scale;
+        const worldY = (this.canvas.height - canvasY - this.offsetY) / this.scale;
         
         const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
         const newScale = Math.max(0.1, Math.min(5, this.scale * zoomFactor));
         
         this.offsetX = canvasX - worldX * newScale;
-        this.offsetY = canvasY - worldY * newScale;
+        this.offsetY = this.canvas.height - canvasY - worldY * newScale;
         this.scale = newScale;
         
         this.updateZoomDisplay();
@@ -115,7 +115,7 @@ class StrategyGame {
         const canvasY = e.clientY - rect.top;
         
         const worldX = (canvasX - this.offsetX) / this.scale;
-        const worldY = (canvasY - this.offsetY) / this.scale;
+        const worldY = (this.canvas.height - canvasY - this.offsetY) / this.scale;
         
         document.getElementById('mouse-pos').textContent = `mouse position: (${Math.round(worldX)}, ${Math.round(worldY)})`;
         
@@ -124,7 +124,7 @@ class StrategyGame {
             const dy = canvasY - this.lastMouseY;
             
             this.offsetX += dx;
-            this.offsetY += dy;
+            this.offsetY -= dy; // Invert dy for bottom-left origin
             
             this.lastMouseX = canvasX;
             this.lastMouseY = canvasY;
@@ -298,8 +298,9 @@ class StrategyGame {
         this.ctx.fillStyle = '#f8f9fa';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        this.ctx.translate(this.offsetX, this.offsetY);
-        this.ctx.scale(this.scale, this.scale);
+        // Transform to bottom-left origin coordinate system
+        this.ctx.translate(this.offsetX, this.canvas.height - this.offsetY);
+        this.ctx.scale(this.scale, -this.scale); // Flip Y-axis
         
         this.drawGrid();
         
@@ -310,10 +311,12 @@ class StrategyGame {
 
     drawGrid() {
         const gridSize = 50;
+        
+        // Calculate visible world coordinates for bottom-left origin
         const minX = -this.offsetX / this.scale;
         const maxX = (this.canvas.width - this.offsetX) / this.scale;
-        const minY = -this.offsetY / this.scale;
-        const maxY = (this.canvas.height - this.offsetY) / this.scale;
+        const minY = (-this.canvas.height + this.offsetY) / this.scale;
+        const maxY = this.offsetY / this.scale;
         
         this.ctx.strokeStyle = '#e0e0e0';
         this.ctx.lineWidth = 1 / this.scale;
@@ -334,6 +337,26 @@ class StrategyGame {
             this.ctx.beginPath();
             this.ctx.moveTo(minX, y);
             this.ctx.lineTo(maxX, y);
+            this.ctx.stroke();
+        }
+        
+        // Draw axes
+        this.ctx.strokeStyle = '#333';
+        this.ctx.lineWidth = 2 / this.scale;
+        
+        // X-axis
+        if (minY <= 0 && maxY >= 0) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(minX, 0);
+            this.ctx.lineTo(maxX, 0);
+            this.ctx.stroke();
+        }
+        
+        // Y-axis
+        if (minX <= 0 && maxX >= 0) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, minY);
+            this.ctx.lineTo(0, maxY);
             this.ctx.stroke();
         }
     }
@@ -359,10 +382,12 @@ class StrategyGame {
         this.ctx.fill();
         this.ctx.stroke();
         
+        // Flip text back to normal orientation
+        this.ctx.scale(1, -1);
         this.ctx.fillStyle = '#333';
         this.ctx.font = `${12 / this.scale}px Microsoft YaHei`;
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(point.name, point.x, point.y - radius - 8 / this.scale);
+        this.ctx.fillText(point.name, point.x, -(point.y + radius + 8 / this.scale));
         
         this.ctx.restore();
     }
