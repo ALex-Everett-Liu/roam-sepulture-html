@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Game - Architecture Documentation</title>
+    
+    <!-- TailwindCSS 3.0+ via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome 6.4.0+ -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #1e293b;
+            --secondary-color: #475569;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .modern-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            min-height: 100vh;
+        }
+
+        .modern-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .modern-nav {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 2rem;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .section h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Prism.js custom styling */
+        pre[class*="language-"] {
+            background: #2d3748;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        code[class*="language-"] {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            color: #e2e8f0;
+        }
+
+        .architecture-diagram {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            background: #f8fafc;
+        }
+
+        .function-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .function-table th,
+        .function-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .function-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .toc-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .toc-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .toc-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .toc-link:hover {
+            background-color: #f1f5f9;
+            color: var(--accent-color);
+            border-left-color: var(--accent-color);
+        }
+
+        .toc-link.level-2 {
+            margin-left: 1rem;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+            
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+            
+            .modern-header {
+                padding: 2rem 1rem;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div class="modern-container">
+        <!-- Header Section -->
+        <header class="modern-header">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl font-bold mb-3 flex items-center justify-center gap-4">
+                    <i class="fas fa-chess-king text-3xl"></i>
+                    Strategy Game - Architecture Documentation
+                </h1>
+                <p class="text-xl opacity-90">Canvas-based Strategy Game Design & Implementation Guide</p>
+                
+                <!-- Tags and Date -->
+                <div class="flex flex-col items-center mt-4 space-y-2">
+                    <div>
+                        <span class="inline-block bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium mr-2">Canvas Game</span>
+                        <span class="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium mr-2">Strategy Game</span>
+                        <span class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">Client-side</span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-sm opacity-80">
+                        <span><i class="fas fa-calendar mr-1"></i>Last Updated: 2025-07-30</span>
+                        <span><i class="fas fa-code-branch mr-1"></i>Version: 1.0.0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Breadcrumb Navigation -->
+        <nav class="modern-nav" aria-label="Breadcrumb">
+            <div class="max-w-6xl mx-auto">
+                <ol class="flex items-center space-x-2 text-sm">
+                    <li>
+                        <a href="index.html" class="text-blue-600 hover:text-blue-800 transition-colors">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                    </li>
+                    <li class="text-gray-400"><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li class="text-gray-700 font-medium">Strategy Game Architecture</li>
+                </ol>
+            </div>
+        </nav>
+
+        <!-- Main Content with Sidebar -->
+        <main class="main-content">
+            <!-- Sidebar with Table of Contents -->
+            <aside class="sidebar">
+                <div class="toc-container">
+                    <h3 class="toc-title">
+                        <i class="fas fa-list mr-2"></i>
+                        Table of Contents
+                    </h3>
+                    <nav class="toc-list" id="table-of-contents">
+                        <!-- Dynamic table of contents will be populated here -->
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Primary Content -->
+            <div class="content-area" id="main-content">
+                <!-- Overview Section -->
+                <section id="overview" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+                        Overview
+                    </h2>
+                    <p class="text-gray-700 mb-4">
+                        This is a browser-based strategy game built with HTML5 Canvas and vanilla JavaScript. The game allows users to create and manage strategic bases (towns and military units) on a scalable map, with time progression and historical state management.
+                    </p>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <strong>Core Design Philosophy:</strong> Client-side game engine with responsive design, unlimited canvas space, and comprehensive data persistence.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- System Architecture Section -->
+                <section id="system-architecture" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-sitemap text-purple-500 mr-3"></i>
+                        System Architecture
+                    </h2>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                        <div class="max-w-4xl mx-auto">
+                            <!-- Browser Runtime Layer -->
+                            <div class="mb-8">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-globe text-blue-500 mr-2"></i>
+                                    Browser Runtime
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-2">
+                                                <i class="fas fa-gamepad text-white text-sm"></i>
+                                            </div>
+                                            <h4 class="font-semibold text-red-900">StrategyGame Engine</h4>
+                                        </div>
+                                        <ul class="text-sm text-red-800 space-y-1">
+                                            <li>• Canvas rendering system</li>
+                                            <li>• Zoom & pan navigation</li>
+                                            <li>• Point management</li>
+                                            <li>• Time progression</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-2">
+                                                <i class="fas fa-desktop text-white text-sm"></i>
+                                            </div>
+                                            <h4 class="font-semibold text-green-900">HTML Interface</h4>
+                                        </div>
+                                        <ul class="text-sm text-green-800 space-y-1">
+                                            <li>• Modal dialogs</li>
+                                            <li>• Control panels</li>
+                                            <li>• Statistics display</li>
+                                            <li>• File operations</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data & Event Systems -->
+                            <div class="border-t border-gray-200 pt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-cogs text-orange-500 mr-2"></i>
+                                    Data & Event Systems
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-2">
+                                                <i class="fas fa-database text-white text-sm"></i>
+                                            </div>
+                                            <h4 class="font-semibold text-purple-900">JSON Storage</h4>
+                                        </div>
+                                        <ul class="text-sm text-purple-800 space-y-1">
+                                            <li>• Save/load game state</li>
+                                            <li>• History tracking</li>
+                                            <li>• Local storage persistence</li>
+                                            <li>• Human-readable format</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-2">
+                                                <i class="fas fa-mouse-pointer text-white text-sm"></i>
+                                            </div>
+                                            <h4 class="font-semibold text-blue-900">Event System</h4>
+                                        </div>
+                                        <ul class="text-sm text-blue-800 space-y-1">
+                                            <li>• Mouse events</li>
+                                            <li>• Keyboard events</li>
+                                            <li>• Canvas interactions</li>
+                                            <li>• Modal event handling</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Function Inventories Section -->
+                <section id="function-inventories" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-cogs text-green-500 mr-3"></i>
+                        Function Inventories
+                    </h2>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-gamepad text-red-500 mr-2"></i>
+                        StrategyGame Class - Core Game Engine
+                    </h3>
+                    <table class="function-table">
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Purpose</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>constructor()</code></td>
+                                <td>Initialize game state and canvas</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>init()</code></td>
+                                <td>Setup initial game state</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>setupEventListeners()</code></td>
+                                <td>Bind all UI events</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>handleCanvasClick(e)</code></td>
+                                <td>Process canvas clicks</td>
+                                <td>MouseEvent</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>getPointAt(x, y)</code></td>
+                                <td>Find point at coordinates</td>
+                                <td>number, number</td>
+                                <td>Point object</td>
+                            </tr>
+                            <tr>
+                                <td><code>render()</code></td>
+                                <td>Main render loop</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>drawGrid()</code></td>
+                                <td>Render coordinate grid</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>drawPoint(point)</code></td>
+                                <td>Render individual point</td>
+                                <td>Point object</td>
+                                <td>void</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-search-plus text-blue-500 mr-2"></i>
+                        Zoom & Pan System
+                    </h3>
+                    <table class="function-table">
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Purpose</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>handleWheel(e)</code></td>
+                                <td>Zoom in/out with mouse wheel</td>
+                                <td>WheelEvent</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>handleMouseDown(e)</code></td>
+                                <td>Start drag operation</td>
+                                <td>MouseEvent</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>handleMouseMove(e)</code></td>
+                                <td>Handle mouse movement</td>
+                                <td>MouseEvent</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>handleMouseUp(e)</code></td>
+                                <td>End drag operation</td>
+                                <td>MouseEvent</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>zoomIn()</code></td>
+                                <td>Zoom in via button</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>zoomOut()</code></td>
+                                <td>Zoom out via button</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>resetView()</code></td>
+                                <td>Reset zoom and pan</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>updateZoomDisplay()</code></td>
+                                <td>Update zoom percentage</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>
+                        Point Management
+                    </h3>
+                    <table class="function-table">
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Purpose</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>createPoint(type)</code></td>
+                                <td>Create new strategic point</td>
+                                <td>string type</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>savePointEdit(e)</code></td>
+                                <td>Save edited point properties</td>
+                                <td>Event</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>deletePoint()</code></td>
+                                <td>Remove selected point</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>showCreateModal(x, y)</code></td>
+                                <td>Display creation dialog</td>
+                                <td>number, number</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>showEditModal(point)</code></td>
+                                <td>Display edit dialog</td>
+                                <td>Point object</td>
+                                <td>void</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-clock text-orange-500 mr-2"></i>
+                        Time System
+                    </h3>
+                    <table class="function-table">
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Purpose</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>advanceTime()</code></td>
+                                <td>Progress game timeline</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>updateTimeDisplay()</code></td>
+                                <td>Update time display</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>formatDate(date)</code></td>
+                                <td>Format date for display</td>
+                                <td>Date</td>
+                                <td>string</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-save text-purple-500 mr-2"></i>
+                        Data Persistence
+                    </h3>
+                    <table class="function-table">
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Purpose</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>saveGame()</code></td>
+                                <td>Export game to JSON file</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>loadGame()</code></td>
+                                <td>Import game from JSON file</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>handleFileLoad(e)</code></td>
+                                <td>Process file upload</td>
+                                <td>Event</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>saveToHistory()</code></td>
+                                <td>Save to localStorage</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                            <tr>
+                                <td><code>loadFromStorage()</code></td>
+                                <td>Load from localStorage</td>
+                                <td>None</td>
+                                <td>void</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Tricky Solutions Section -->
+                <section id="tricky-solutions" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-3"></i>
+                        Tricky Solutions & Design Rationale
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-expand-arrows-alt text-blue-500 mr-2"></i>
+                                1. Infinite Canvas Space
+                            </h3>
+                            <p class="text-gray-700 mb-2"><strong>Problem:</strong> Fixed 800x600 canvas limits strategic placement</p>
+                            <p class="text-gray-700 mb-2"><strong>Solution:</strong> Implement world coordinate system with zoom/pan</p>
+                            <pre><code class="language-javascript">// Coordinate transformation
+const worldX = (canvasX - offsetX) / scale;
+const worldY = (canvasY - offsetY) / scale;</code></pre>
+                            <p class="text-gray-600 mt-2"><strong>Rationale:</strong> Enables unlimited strategic space while maintaining performance</p>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-th text-green-500 mr-2"></i>
+                                2. Dynamic Grid Rendering
+                            </h3>
+                            <p class="text-gray-700 mb-2"><strong>Problem:</strong> Static grid becomes dense at high zoom levels</p>
+                            <p class="text-gray-700 mb-2"><strong>Solution:</strong> Calculate visible grid based on view bounds</p>
+                            <pre><code class="language-javascript">const minX = -offsetX / scale;
+const maxX = (canvas.width - offsetX) / scale;
+// Render only visible grid lines</code></pre>
+                            <p class="text-gray-600 mt-2"><strong>Rationale:</strong> Maintains visual clarity regardless of zoom level</p>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-crosshairs text-red-500 mr-2"></i>
+                                3. Point Hit Detection
+                            </h3>
+                            <p class="text-gray-700 mb-2"><strong>Problem:</strong> Accurate clicking on scaled points</p>
+                            <p class="text-gray-700 mb-2"><strong>Solution:</strong> Convert coordinates to world space before distance calculation</p>
+                            <pre><code class="language-javascript">const distance = Math.sqrt((point.x - worldX) ** 2 + (point.y - worldY) ** 2);</code></pre>
+                            <p class="text-gray-600 mt-2"><strong>Rationale:</strong> Ensures consistent interaction regardless of scale</p>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-mobile-alt text-purple-500 mr-2"></i>
+                                4. Responsive Design
+                            </h3>
+                            <p class="text-gray-700 mb-2"><strong>Problem:</strong> Desktop and mobile usability</p>
+                            <p class="text-gray-700 mb-2"><strong>Solution:</strong> CSS Grid with media queries and touch event support</p>
+                            <pre><code class="language-css">@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+    }
+}</code></pre>
+                            <p class="text-gray-600 mt-2"><strong>Rationale:</strong> Single codebase works across all devices</p>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-database text-teal-500 mr-2"></i>
+                                5. Data Serialization
+                            </h3>
+                            <p class="text-gray-700 mb-2"><strong>Problem:</strong> Complex game state persistence</p>
+                            <p class="text-gray-700 mb-2"><strong>Solution:</strong> JSON with Date serialization and error handling</p>
+                            <pre><code class="language-javascript">JSON.stringify({
+    currentTime: this.currentTime.toISOString(),
+    points: this.points,
+    history: this.gameHistory
+})</code></pre>
+                            <p class="text-gray-600 mt-2"><strong>Rationale:</strong> Human-readable format with full state preservation</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Key Use Cases Section -->
+                <section id="key-use-cases" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-route text-indigo-500 mr-3"></i>
+                        Key Use Cases & Workflows
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-plus-circle text-green-500 mr-2"></i>
+                                1. Creating a New Base
+                            </h3>
+                            <pre><code class="language-text">User clicks on canvas
+    ↓
+handleCanvasClick() calculates world coordinates
+    ↓
+showCreateModal() displays creation dialog
+    ↓
+User selects town or military unit
+    ↓
+createPoint() adds to points array
+    ↓
+render() updates visual display
+    ↓
+updateStats() refreshes counters</code></pre>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-clock text-orange-500 mr-2"></i>
+                                2. Time Progression Workflow
+                            </h3>
+                            <pre><code class="language-text">User clicks "Advance Time"
+    ↓
+showTimeModal() displays date picker
+    ↓
+User selects new date
+    ↓
+advanceTime() validates and progresses
+    ↓
+Current state saved to gameHistory
+    ↓
+updateTimeDisplay() shows new date
+    ↓
+saveToHistory() persists to localStorage</code></pre>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-search-plus text-blue-500 mr-2"></i>
+                                3. Zoom and Pan Navigation
+                            </h3>
+                            <pre><code class="language-text">User scrolls mouse wheel
+    ↓
+handleWheel() calculates zoom factor
+    ↓
+Adjusts scale and offset for zoom center
+    ↓
+User drags mouse
+    ↓
+handleMouseDown/Up/Move() tracks movement
+    ↓
+Updates offset for panning
+    ↓
+render() redraws with new view</code></pre>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-save text-purple-500 mr-2"></i>
+                                4. Save/Restore Game
+                            </h3>
+                            <pre><code class="language-text">User clicks "Save Game"
+    ↓
+saveGame() creates JSON blob
+    ↓
+Triggers browser download
+    ↓
+User loads saved file
+    ↓
+handleFileLoad() parses JSON
+    ↓
+Validates and restores game state
+    ↓
+render() displays loaded game</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Conventions Section -->
+                <section id="code-conventions" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-code text-pink-500 mr-3"></i>
+                        Code Conventions
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fab fa-js-square text-yellow-500 mr-2"></i>
+                                JavaScript Style
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong>ES6+ features:</strong> Classes, const/let, arrow functions, template literals</li>
+                                <li><strong>Async/Await:</strong> Used for file operations</li>
+                                <li><strong>Error handling:</strong> Try/catch for file operations and JSON parsing</li>
+                                <li><strong>Naming:</strong> camelCase for variables, PascalCase for class names</li>
+                                <li><strong>Comments:</strong> JSDoc-style for complex algorithms</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-palette text-blue-500 mr-2"></i>
+                                Canvas Rendering
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong>Coordinate system:</strong> World coordinates for unlimited space</li>
+                                <li><strong>Scaling:</strong> Dynamic scaling based on zoom level</li>
+                                <li><strong>Performance:</strong> Only render visible grid lines</li>
+                                <li><strong>Visual consistency:</strong> Point sizes scale inversely with zoom</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mt-6">
+                        <h3 class="text-lg font-semibold mb-3">Data Structures</h3>
+                        <pre><code class="language-javascript">// Point object structure
+{
+    id: number,           // Unique identifier (timestamp)
+    name: string,         // Display name
+    type: 'town'|'unit',  // Point classification
+    x: number,            // World X coordinate
+    y: number,            // World Y coordinate
+    color: string,        // Hex color for faction
+    population: number,   // Total population
+    soldiers: number,     // Military units
+    food: number,         // Resource: food
+    money: number,        // Resource: money
+    createdAt: Date       // Creation timestamp
+}
+
+// Game state structure
+{
+    currentTime: Date,    // Game timeline
+    points: Point[],      // All strategic points
+    history: History[]    // Previous game states
+}</code></pre>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mt-6">
+                        <h3 class="text-lg font-semibold mb-3">File Organization</h3>
+                        <pre><code class="language-text">strategy-game/
+├── strategy_game.html        # Main game interface
+├── strategy_game.js         # Core game engine
+├── strategy_styles.css      # Styling and responsive design
+├── strategy-game-architecture.html  # This documentation
+└── saved-games/            # User save files (generated)</code></pre>
+                    </div>
+                </section>
+
+                <!-- Naming Conventions Section -->
+                <section id="naming-conventions" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-tag text-teal-500 mr-3"></i>
+                        Naming Conventions
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3">Variables and Functions</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong>Game state:</strong> <code>currentTime</code>, <code>points</code>, <code>gameHistory</code></li>
+                                <li><strong>Canvas properties:</strong> <code>canvas</code>, <code>ctx</code>, <code>scale</code>, <code>offsetX</code>, <code>offsetY</code></li>
+                                <li><strong>Event handlers:</strong> <code>handleCanvasClick</code>, <code>handleWheel</code>, <code>handleMouseDown</code></li>
+                                <li><strong>UI elements:</strong> <code>$game-canvas</code>, <code>$zoom-level</code>, <code>$mouse-pos</code></li>
+                                <li><strong>Point types:</strong> <code>'town'</code>, <code>'unit'</code> (lowercase strings)</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3">CSS Classes</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong>Layout:</strong> <code>.game-container</code>, <code>.main-content</code>, <code>.canvas-container</code></li>
+                                <li><strong>Controls:</strong> <code>.zoom-controls</code>, <code>.canvas-controls</code>, <code>.control-panel</code></li>
+                                <li><strong>Interactive:</strong> <code>.btn-town</code>, <code>.btn-unit</code>, <code>.btn-cancel</code></li>
+                                <li><strong>State:</strong> <code>.modal</code>, <code>.modal-content</code>, <code>.form-actions</code></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mt-6">
+                        <h3 class="text-lg font-semibold mb-3">Constants</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li><strong>Canvas size:</strong> 800x600 pixels (fixed)</li>
+                            <li><strong>Zoom range:</strong> 0.1x to 5x (10% to 500%)</li>
+                            <li><strong>Grid size:</strong> 50 pixels (world coordinates)</li>
+                            <li><strong>Point radius:</strong> 12 pixels (world coordinates)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Module Details Section -->
+                <section id="module-details" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-microchip text-red-500 mr-3"></i>
+                        Module Details
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-gamepad text-red-500 mr-2"></i>
+                                strategy_game.js - Core Engine
+                            </h3>
+                            
+                            <h4 class="font-semibold mb-2">Constructor & Initialization</h4>
+                            <pre><code class="language-javascript">// Initialize game state with zoom/pan support
+constructor() {
+    this.canvas = document.getElementById('game-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.scale = 1.0;  // Zoom level
+    this.offsetX = 0;   // Pan offset
+    this.offsetY = 0;
+}</code></pre>
+
+                            <h4 class="font-semibold mb-2 mt-4">Coordinate System</h4>
+                            <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
+                                <li><strong>Canvas coordinates:</strong> 0-800 x 0-600 (fixed)</li>
+                                <li><strong>World coordinates:</strong> Unlimited (-∞ to +∞)</li>
+                                <li><strong>Transformation:</strong> <code>world = (canvas - offset) / scale</code></li>
+                            </ul>
+
+                            <h4 class="font-semibold mb-2 mt-4">Rendering Pipeline</h4>
+                            <ol class="list-decimal list-inside text-gray-600 ml-4 space-y-1">
+                                <li><strong>Clear canvas:</strong> <code>ctx.clearRect()</code></li>
+                                <li><strong>Apply transforms:</strong> <code>ctx.translate()</code> + <code>ctx.scale()</code></li>
+                                <li><strong>Draw grid:</strong> Dynamic based on visible area</li>
+                                <li><strong>Draw points:</strong> Scale-invariant sizing</li>
+                                <li><strong>Restore context:</strong> <code>ctx.restore()</code></li>
+                            </ol>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-file-code text-blue-500 mr-2"></i>
+                                strategy_game.html - Interface Structure
+                            </h3>
+                            
+                            <h4 class="font-semibold mb-2">Layout Architecture</h4>
+                            <pre><code class="language-text">&lt;header&gt;          <!-- Game title and time display --&gt;
+&lt;main-content&gt;    <!-- Grid layout: canvas + controls --&gt;
+    &lt;canvas-container&gt;  <!-- Interactive game area --&gt;
+    &lt;control-panel&gt;     <!-- Game controls and stats --&gt;
+&lt;modals&gt;          <!-- Create/edit/time dialogs --&gt;</code></pre>
+
+                            <h4 class="font-semibold mb-2 mt-4">Responsive Design</h4>
+                            <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
+                                <li><strong>Desktop:</strong> 2-column grid (canvas + controls)</li>
+                                <li><strong>Mobile:</strong> 1-column stack with reordering</li>
+                                <li><strong>Touch support:</strong> Drag to pan, pinch to zoom</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-palette text-purple-500 mr-2"></i>
+                                strategy_styles.css - Visual System
+                            </h3>
+                            
+                            <h4 class="font-semibold mb-2">Color Scheme</h4>
+                            <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
+                                <li><strong>Primary:</strong> #1e3c72 → #2a5298 (blue gradient)</li>
+                                <li><strong>Secondary:</strong> #4CAF50 (save), #F44336 (delete)</li>
+                                <li><strong>Neutral:</strong> #9E9E9E (cancel), #f8f9fa (background)</li>
+                            </ul>
+
+                            <h4 class="font-semibold mb-2 mt-4">Typography</h4>
+                            <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
+                                <li><strong>Font:</strong> Microsoft YaHei for Chinese support</li>
+                                <li><strong>Sizes:</strong> 28px (title), 18px (time), 14px (controls)</li>
+                                <li><strong>Weights:</strong> Bold for titles, normal for content</li>
+                            </ul>
+
+                            <h4 class="font-semibold mb-2 mt-4">Interactive Elements</h4>
+                            <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
+                                <li><strong>Buttons:</strong> Hover effects with transform</li>
+                                <li><strong>Modals:</strong> Backdrop blur and shadow effects</li>
+                                <li><strong>Canvas:</strong> Cursor changes (crosshair → grabbing)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Performance & Security Section -->
+                <section id="performance-security" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-shield-alt text-green-500 mr-3"></i>
+                        Performance & Security
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>
+                                Performance Optimization
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong>Rendering:</strong> Grid culling, point scaling, efficient redraw</li>
+                                <li><strong>Memory:</strong> O(n) memory for n points, simple object storage</li>
+                                <li><strong>Serialization:</strong> JSON with ISO date strings, compressed files</li>
+                                <li><strong>Local storage:</strong> Automatic save every 2 seconds (debounced)</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-lock text-red-500 mr-2"></i>
+                                Security & Data Integrity
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong>Input validation:</strong> Coordinate bounds, resource validation</li>
+                                <li><strong>File validation:</strong> JSON schema checking, error handling</li>
+                                <li><strong>XSS prevention:</strong> Escaped user input, safe DOM manipulation</li>
+                                <li><strong>Error recovery:</strong> Graceful handling of corrupted saves</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Testing Checklist Section -->
+                <section id="testing-checklist" class="section">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-check-double text-teal-500 mr-3"></i>
+                        Testing Checklist
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                Core Functionality
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Point creation and editing</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Zoom and pan navigation</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Time progression</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Save/load operations</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Responsive design</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                Edge Cases
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Large coordinate values (&gt;10000)</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Many points (1000+)</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>File corruption handling</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Browser back/forward navigation</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Mobile touch interactions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 mt-6">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                            Performance Targets
+                        </h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li><strong>Smooth zoom/pan:</strong> 60fps target</li>
+                            <li><strong>Quick operations:</strong> Save/load under 1 second</li>
+                            <li><strong>Memory usage:</strong> Under 50MB for typical games</li>
+                            <li><strong>File size:</strong> Under 1MB for save files</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center text-sm">
+                <div class="text-gray-600">
+                    © 2025 Strategy Game Architecture Documentation
+                </div>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <button class="text-gray-600 hover:text-gray-800 transition-colors" onclick="window.print()">
+                        <i class="fas fa-print mr-1"></i>Print
+                    </button>
+                    <a href="strategy_game.html" class="text-gray-600 hover:text-gray-800 transition-colors">
+                        <i class="fas fa-gamepad mr-1"></i>Play Game
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Interactive Features -->
+    <script>
+        // Dynamic Table of Contents Generation
+        function generateTableOfContents() {
+            const toc = document.getElementById('table-of-contents');
+            const headings = document.querySelectorAll('.section h2[id], .section h3[id]');
+            
+            headings.forEach(heading => {
+                const link = document.createElement('a');
+                link.href = `#${heading.id}`;
+                link.className = `toc-link ${heading.tagName === 'H3' ? 'level-2' : ''}`;
+                link.textContent = heading.textContent.replace(/^[^\w\s]/, '').trim();
+                
+                const listItem = document.createElement('div');
+                listItem.className = 'toc-item';
+                listItem.appendChild(link);
+                toc.appendChild(listItem);
+            });
+        }
+
+        // Add IDs to sections for navigation
+        function addSectionIDs() {
+            const sections = document.querySelectorAll('.section');
+            const titles = [
+                'overview',
+                'system-architecture',
+                'function-inventories',
+                'tricky-solutions',
+                'key-use-cases',
+                'code-conventions',
+                'naming-conventions',
+                'module-details',
+                'performance-security',
+                'testing-checklist'
+            ];
+            
+            sections.forEach((section, index) => {
+                const heading = section.querySelector('h2');
+                if (heading && !heading.id) {
+                    heading.id = titles[index] || `section-${index + 1}`;
+                    section.id = titles[index] || `section-${index + 1}`;
+                }
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            addSectionIDs();
+            generateTableOfContents();
+        });
+    </script>
+</body>
+</html>

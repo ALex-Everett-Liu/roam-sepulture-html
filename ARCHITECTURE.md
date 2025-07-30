@@ -87,9 +87,9 @@ This personal wiki system is a static HTML-based knowledge base with client-side
 **Consideration**: Support for both local and deployed usage
 **Solution**: Flexible path handling with relative URLs
 ```javascript
-// Flexible path handling
-fetch('./search-index.json') // Works locally and deployed
-fetch('/search-index.json') // Works in production
+// Instead of absolute URLs
+fetch('/search-index.json') // ❌ CORS error
+fetch('./search-index.json') // ✅ Works with file://
 ```
 
 ### 3. Search Result Scoring
@@ -103,8 +103,8 @@ const score =
 ```
 
 ### 4. Responsive Search Results
-**Problem**: Search results overlay needs to work on mobile
-**Solution**: CSS positioning with viewport constraints
+**Problem**: Search results overlay needs to work on mobile 
+**Solution**: CSS positioning with viewport constraints 
 ```css
 .search-results {
   position: absolute;

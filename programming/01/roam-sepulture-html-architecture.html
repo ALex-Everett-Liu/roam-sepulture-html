@@ -429,12 +429,12 @@
                         Overview
                     </h2>
                     <p class="text-gray-700 mb-4">
-                        This personal wiki system is a static HTML-based knowledge base with client-side full-text search capabilities. It operates entirely in the browser using <code>file://</code> URLs (no server required), making it perfect for local use before optional Vercel deployment.
+                        This personal wiki system is a static HTML-based knowledge base with client-side full-text search capabilities. It operates entirely in the browser using <code>file://</code> URLs (no server required), making it perfect for local use before optional Vercel deployment. 
                     </p>
                     <div class="alert alert-info">
                         <i class="fas fa-lightbulb text-blue-500 mt-1"></i>
                         <div>
-                            <strong>Core Design Philosophy:</strong> Zero-dependency runtime, maximum functionality with minimal complexity.
+                            <strong>Core Design Philosophy:</strong> Modern web technologies with pragmatic dependency usage for enhanced functionality and developer experience. 核心设计理念：采用现代Web技术，务实运用依赖项以增强功能性和开发者体验。
                         </div>
                     </div>
                 </section>
@@ -700,15 +700,15 @@ fetch('./search-index.json') // ✅ Works with file://</code></pre>
                         <div class="bg-white border border-gray-200 rounded-lg p-6">
                             <h3 class="text-lg font-semibold mb-3 flex items-center">
                                 <i class="fas fa-mobile-alt text-red-500 mr-2"></i>
-                                4. Responsive Search Results
+                                4. Responsive Search Results 响应式搜索结果
                             </h3>
-                            <p class="text-gray-700 mb-2"><strong>Problem:</strong> Search results overlay needs to work on mobile</p>
-                            <p class="text-gray-700 mb-2"><strong>Solution:</strong> CSS positioning with viewport constraints</p>
+                            <p class="text-gray-700 mb-2"><strong>Problem:</strong> Search results overlay needs to work on mobile 搜索结果覆盖层需在移动端正常显示</p>
+                            <p class="text-gray-700 mb-2"><strong>Solution:</strong> CSS positioning with viewport constraints 采用视口约束的CSS定位</p>
                             <pre><code class="language-css">.search-results {
   position: absolute;
   max-height: 400px;
   overflow-y: auto;
-  /* Mobile-friendly with media queries */
+  /* Mobile-friendly with media queries 通过媒体查询实现移动端适配 */
 }</code></pre>
                         </div>
                     </div>

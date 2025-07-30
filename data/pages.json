@@ -38,5 +38,13 @@
         "tags": ["architecture", "static-site", "client-side-search", "zero-dependencies", "file-protocol", "documentation", "system-design"],
         "category": "architecture-design",
         "date": "2025-07-27"
+    },
+    {
+        "title": "Strategy Game 架构文档",
+        "description": "Canvas-based策略游戏的完整架构文档，涵盖游戏引擎设计、无限画布系统、数据持久化和性能优化。",
+        "url": "programming/01/strategy-game-architecture.html",
+        "tags": ["canvas-game", "strategy-game", "game-architecture", "javascript", "html5-canvas", "data-persistence", "infinite-canvas", "client-side", "architecture"],
+        "category": "game-development",
+        "date": "2025-07-30"
     }
 ]

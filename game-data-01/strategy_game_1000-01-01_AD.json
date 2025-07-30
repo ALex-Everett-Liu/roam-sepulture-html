@@ -1,0 +1,32 @@
+{
+  "currentTime": "1000-01-01T00:00:00.000Z",
+  "points": [
+    {
+      "id": 1753876075224,
+      "name": "Lowke",
+      "type": "town",
+      "x": 120,
+      "y": 413,
+      "color": "#d04e9a",
+      "population": 75000,
+      "soldiers": 6300,
+      "food": 60000,
+      "money": 50000,
+      "createdAt": "1000-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 1753910796046,
+      "name": "Lonbert",
+      "type": "town",
+      "x": 80,
+      "y": 405,
+      "color": "#d04e9a",
+      "population": 30000,
+      "soldiers": 3200,
+      "food": 32000,
+      "money": 14000,
+      "createdAt": "1000-01-01T00:00:00.000Z"
+    }
+  ],
+  "history": []
+}
