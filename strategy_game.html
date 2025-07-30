@@ -19,8 +19,17 @@
         <div class="main-content">
             <div class="canvas-container">
                 <canvas id="game-canvas" width="800" height="600"></canvas>
+                <div class="canvas-controls">
+                    <div class="zoom-controls">
+                        <button id="zoom-in">🔍+</button>
+                        <span id="zoom-level">100%</span>
+                        <button id="zoom-out">🔍-</button>
+                        <button id="reset-view">重置视图</button>
+                    </div>
+                </div>
                 <div class="canvas-info">
-                    <span>点击画布创建新据点</span>
+                    <span id="mouse-pos">鼠标位置: (0, 0)</span>
+                    <span>滚轮缩放 | 拖拽平移</span>
                 </div>
             </div>
 

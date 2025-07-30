@@ -65,7 +65,41 @@ header h1 {
     background: #f8f9fa;
 }
 
+.canvas-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.zoom-controls button {
+    width: auto;
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+#zoom-level {
+    font-size: 14px;
+    font-weight: bold;
+    color: #2a5298;
+    min-width: 50px;
+    text-align: center;
+}
+
 .canvas-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 10px;
     color: #666;
     font-size: 14px;

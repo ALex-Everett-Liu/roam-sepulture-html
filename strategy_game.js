@@ -8,6 +8,14 @@ class StrategyGame {
         this.selectedPoint = null;
         this.tempPosition = null;
         
+        // 缩放和平移相关
+        this.scale = 1.0;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.isDragging = false;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
+        
         this.gameHistory = [];
         
         this.init();
@@ -17,15 +25,25 @@ class StrategyGame {
         this.setupEventListeners();
         this.updateTimeDisplay();
         this.updateStats();
+        this.updateZoomDisplay();
         this.render();
     }
 
     setupEventListeners() {
         this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+        this.canvas.addEventListener('wheel', (e) => this.handleWheel(e));
+        this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+        this.canvas.addEventListener('mouseleave', (e) => this.handleMouseUp(e));
         
         document.getElementById('save-game').addEventListener('click', () => this.saveGame());
         document.getElementById('load-game').addEventListener('click', () => this.loadGame());
         document.getElementById('advance-time').addEventListener('click', () => this.showTimeModal());
+        
+        document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
+        document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
+        document.getElementById('reset-view').addEventListener('click', () => this.resetView());
         
         document.getElementById('create-town').addEventListener('click', () => this.createPoint('town'));
         document.getElementById('create-unit').addEventListener('click', () => this.createPoint('unit'));
@@ -42,19 +60,107 @@ class StrategyGame {
     }
 
     handleCanvasClick(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        if (this.isDragging) return;
         
-        const clickedPoint = this.getPointAt(x, y);
+        const rect = this.canvas.getBoundingClientRect();
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+        
+        const worldX = (canvasX - this.offsetX) / this.scale;
+        const worldY = (canvasY - this.offsetY) / this.scale;
+        
+        const clickedPoint = this.getPointAt(worldX, worldY);
         
         if (clickedPoint) {
             this.selectedPoint = clickedPoint;
             this.showEditModal(clickedPoint);
         } else {
-            this.tempPosition = { x, y };
-            this.showCreateModal(x, y);
+            this.tempPosition = { x: Math.round(worldX), y: Math.round(worldY) };
+            this.showCreateModal(Math.round(worldX), Math.round(worldY));
         }
+    }
+
+    handleWheel(e) {
+        e.preventDefault();
+        
+        const rect = this.canvas.getBoundingClientRect();
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+        
+        const worldX = (canvasX - this.offsetX) / this.scale;
+        const worldY = (canvasY - this.offsetY) / this.scale;
+        
+        const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+        const newScale = Math.max(0.1, Math.min(5, this.scale * zoomFactor));
+        
+        this.offsetX = canvasX - worldX * newScale;
+        this.offsetY = canvasY - worldY * newScale;
+        this.scale = newScale;
+        
+        this.updateZoomDisplay();
+        this.render();
+    }
+
+    handleMouseDown(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.lastMouseX = e.clientX - rect.left;
+        this.lastMouseY = e.clientY - rect.top;
+        this.isDragging = true;
+        this.canvas.style.cursor = 'grabbing';
+    }
+
+    handleMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+        
+        const worldX = (canvasX - this.offsetX) / this.scale;
+        const worldY = (canvasY - this.offsetY) / this.scale;
+        
+        document.getElementById('mouse-pos').textContent = `鼠标位置: (${Math.round(worldX)}, ${Math.round(worldY)})`;
+        
+        if (this.isDragging) {
+            const dx = canvasX - this.lastMouseX;
+            const dy = canvasY - this.lastMouseY;
+            
+            this.offsetX += dx;
+            this.offsetY += dy;
+            
+            this.lastMouseX = canvasX;
+            this.lastMouseY = canvasY;
+            
+            this.render();
+        }
+    }
+
+    handleMouseUp(e) {
+        this.isDragging = false;
+        this.canvas.style.cursor = this.isDragging ? 'grabbing' : 'crosshair';
+    }
+
+    zoomIn() {
+        this.scale = Math.min(5, this.scale * 1.2);
+        this.updateZoomDisplay();
+        this.render();
+    }
+
+    zoomOut() {
+        this.scale = Math.max(0.1, this.scale / 1.2);
+        this.updateZoomDisplay();
+        this.render();
+    }
+
+    resetView() {
+        this.scale = 1.0;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.updateZoomDisplay();
+        this.render();
+    }
+
+    updateZoomDisplay() {
+        const zoomPercent = Math.round(this.scale * 100);
+        document.getElementById('zoom-level').textContent = `${zoomPercent}%`;
     }
 
     getPointAt(x, y) {
@@ -187,29 +293,47 @@ class StrategyGame {
     render() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
+        this.ctx.save();
+        
         this.ctx.fillStyle = '#f8f9fa';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.translate(this.offsetX, this.offsetY);
+        this.ctx.scale(this.scale, this.scale);
         
         this.drawGrid();
         
         this.points.forEach(point => this.drawPoint(point));
+        
+        this.ctx.restore();
     }
 
     drawGrid() {
-        this.ctx.strokeStyle = '#e0e0e0';
-        this.ctx.lineWidth = 1;
+        const gridSize = 50;
+        const minX = -this.offsetX / this.scale;
+        const maxX = (this.canvas.width - this.offsetX) / this.scale;
+        const minY = -this.offsetY / this.scale;
+        const maxY = (this.canvas.height - this.offsetY) / this.scale;
         
-        for (let x = 0; x <= this.canvas.width; x += 50) {
+        this.ctx.strokeStyle = '#e0e0e0';
+        this.ctx.lineWidth = 1 / this.scale;
+        
+        const startX = Math.floor(minX / gridSize) * gridSize;
+        const endX = Math.ceil(maxX / gridSize) * gridSize;
+        const startY = Math.floor(minY / gridSize) * gridSize;
+        const endY = Math.ceil(maxY / gridSize) * gridSize;
+        
+        for (let x = startX; x <= endX; x += gridSize) {
             this.ctx.beginPath();
-            this.ctx.moveTo(x, 0);
-            this.ctx.lineTo(x, this.canvas.height);
+            this.ctx.moveTo(x, minY);
+            this.ctx.lineTo(x, maxY);
             this.ctx.stroke();
         }
         
-        for (let y = 0; y <= this.canvas.height; y += 50) {
+        for (let y = startY; y <= endY; y += gridSize) {
             this.ctx.beginPath();
-            this.ctx.moveTo(0, y);
-            this.ctx.lineTo(this.canvas.width, y);
+            this.ctx.moveTo(minX, y);
+            this.ctx.lineTo(maxX, y);
             this.ctx.stroke();
         }
     }
@@ -219,24 +343,26 @@ class StrategyGame {
         
         this.ctx.fillStyle = point.color;
         this.ctx.strokeStyle = '#333';
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = 2 / this.scale;
+        
+        const radius = 12 / this.scale;
         
         this.ctx.beginPath();
         if (point.type === 'town') {
-            this.ctx.arc(point.x, point.y, 12, 0, 2 * Math.PI);
+            this.ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI);
         } else {
-            this.ctx.moveTo(point.x, point.y - 12);
-            this.ctx.lineTo(point.x + 12, point.y + 12);
-            this.ctx.lineTo(point.x - 12, point.y + 12);
+            this.ctx.moveTo(point.x, point.y - radius);
+            this.ctx.lineTo(point.x + radius, point.y + radius);
+            this.ctx.lineTo(point.x - radius, point.y + radius);
             this.ctx.closePath();
         }
         this.ctx.fill();
         this.ctx.stroke();
         
         this.ctx.fillStyle = '#333';
-        this.ctx.font = '12px Microsoft YaHei';
+        this.ctx.font = `${12 / this.scale}px Microsoft YaHei`;
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(point.name, point.x, point.y - 20);
+        this.ctx.fillText(point.name, point.x, point.y - radius - 8 / this.scale);
         
         this.ctx.restore();
     }
