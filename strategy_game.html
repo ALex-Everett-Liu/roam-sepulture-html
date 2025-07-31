@@ -52,10 +52,20 @@
                 </div>
 
                 <div class="section">
+                    <h3>路径绘制</h3>
+                    <button id="start-path-mode">开始绘制路径</button>
+                    <button id="clear-all-paths">清除所有路径</button>
+                    <div class="path-mode-status" id="path-mode-status" style="display: none;">
+                        <span style="color: #666;">路径模式已激活 - 选择起点</span>
+                    </div>
+                </div>
+                
+                <div class="section">
                     <h3>操作说明</h3>
                     <ul>
                         <li>点击空白处创建新据点</li>
                         <li>点击据点编辑属性</li>
+                        <li>点击"开始绘制路径"后选择两个据点创建路径</li>
                         <li>推进时间保存历史记录</li>
                     </ul>
                 </div>
@@ -95,7 +105,16 @@
                 </div>
                 <div class="form-group">
                     <label>阵营颜色:</label>
-                    <input type="color" id="edit-color" value="#ff0000">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="color" id="edit-color" value="#ff0000">
+                        <button type="button" id="pick-color-btn" style="padding: 5px 10px; font-size: 12px;">
+                            🎨 取色
+                        </button>
+                    </div>
+                    <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                        <span>HEX: </span>
+                        <input type="text" id="edit-color-hex" value="#ff0000" style="width: 80px; font-family: monospace;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>总人口:</label>

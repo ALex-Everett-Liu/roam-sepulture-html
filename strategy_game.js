@@ -16,6 +16,12 @@ class StrategyGame {
         this.lastMouseX = 0;
         this.lastMouseY = 0;
         
+        // path drawing related
+        this.paths = [];
+        this.pathMode = false;
+        this.pathStartPoint = null;
+        this.tempPathEndPoint = null;
+        
         this.gameHistory = [];
         
         this.init();
@@ -53,10 +59,19 @@ class StrategyGame {
         document.getElementById('delete-point').addEventListener('click', () => this.deletePoint());
         document.getElementById('cancel-edit').addEventListener('click', () => this.hideModal('edit-modal'));
         
+        // Color picker controls
+        document.getElementById('pick-color-btn').addEventListener('click', () => this.startColorPicking());
+        document.getElementById('edit-color').addEventListener('input', (e) => this.syncColorFormats(e.target.value));
+        document.getElementById('edit-color-hex').addEventListener('input', (e) => this.handleHexInput(e.target.value));
+        
         document.getElementById('confirm-time').addEventListener('click', () => this.advanceTime());
         document.getElementById('cancel-time').addEventListener('click', () => this.hideModal('time-modal'));
         
         document.getElementById('file-input').addEventListener('change', (e) => this.handleFileLoad(e));
+        
+        // path drawing controls
+        document.getElementById('start-path-mode').addEventListener('click', () => this.togglePathMode());
+        document.getElementById('clear-all-paths').addEventListener('click', () => this.clearAllPaths());
     }
 
     handleCanvasClick(e) {
@@ -71,12 +86,41 @@ class StrategyGame {
         
         const clickedPoint = this.getPointAt(worldX, worldY);
         
+        if (this.pathMode) {
+            this.handlePathModeClick(clickedPoint, worldX, worldY);
+            return;
+        }
+        
         if (clickedPoint) {
             this.selectedPoint = clickedPoint;
             this.showEditModal(clickedPoint);
         } else {
             this.tempPosition = { x: Math.round(worldX), y: Math.round(worldY) };
             this.showCreateModal(Math.round(worldX), Math.round(worldY));
+        }
+    }
+    
+    handlePathModeClick(clickedPoint, worldX, worldY) {
+        if (!clickedPoint) return;
+        
+        if (!this.pathStartPoint) {
+            // First point selection
+            this.pathStartPoint = clickedPoint;
+            document.getElementById('path-mode-status').innerHTML = 
+                `<span style="color: #0066cc;">已选择起点: ${clickedPoint.name} - 现在选择终点</span>`;
+        } else {
+            // Second point selection
+            if (this.pathStartPoint.id === clickedPoint.id) {
+                // Same point clicked, reset
+                this.pathStartPoint = null;
+                document.getElementById('path-mode-status').innerHTML = 
+                    `<span style="color: #666;">路径模式已激活 - 选择起点</span>`;
+                return;
+            }
+            
+            // Create path between points
+            this.createPath(this.pathStartPoint, clickedPoint);
+            this.exitPathMode();
         }
     }
 
@@ -119,6 +163,11 @@ class StrategyGame {
         
         document.getElementById('mouse-pos').textContent = `mouse position: (${Math.round(worldX)}, ${Math.round(worldY)})`;
         
+        if (this.pathMode && this.pathStartPoint) {
+            this.tempPathEndPoint = { x: worldX, y: worldY };
+            this.render();
+        }
+        
         if (this.isDragging) {
             const dx = canvasX - this.lastMouseX;
             const dy = canvasY - this.lastMouseY;
@@ -157,6 +206,69 @@ class StrategyGame {
         this.updateZoomDisplay();
         this.render();
     }
+    
+    togglePathMode() {
+        this.pathMode = !this.pathMode;
+        const statusElement = document.getElementById('path-mode-status');
+        const button = document.getElementById('start-path-mode');
+        
+        if (this.pathMode) {
+            this.pathStartPoint = null;
+            statusElement.style.display = 'block';
+            statusElement.innerHTML = `<span style="color: #666;">路径模式已激活 - 选择起点</span>`;
+            button.textContent = '退出路径模式';
+            this.canvas.style.cursor = 'crosshair';
+        } else {
+            this.exitPathMode();
+        }
+    }
+    
+    exitPathMode() {
+        this.pathMode = false;
+        this.pathStartPoint = null;
+        document.getElementById('path-mode-status').style.display = 'none';
+        document.getElementById('start-path-mode').textContent = '开始绘制路径';
+        this.canvas.style.cursor = 'crosshair';
+    }
+    
+    createPath(point1, point2) {
+        const distance = this.calculateDistance(point1, point2);
+        
+        // Check if path already exists
+        const existingPath = this.paths.find(path => 
+            (path.from.id === point1.id && path.to.id === point2.id) ||
+            (path.from.id === point2.id && path.to.id === point1.id)
+        );
+        
+        if (existingPath) {
+            // Update existing path
+            existingPath.distance = distance;
+        } else {
+            // Create new path
+            const newPath = {
+                id: Date.now(),
+                from: point1,
+                to: point2,
+                distance: distance,
+                color: '#007bff',
+                createdAt: new Date(this.currentTime)
+            };
+            this.paths.push(newPath);
+        }
+        
+        this.render();
+    }
+    
+    calculateDistance(point1, point2) {
+        const dx = point2.x - point1.x;
+        const dy = point2.y - point1.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    clearAllPaths() {
+        this.paths = [];
+        this.render();
+    }
 
     updateZoomDisplay() {
         const zoomPercent = Math.round(this.scale * 100);
@@ -180,6 +292,7 @@ class StrategyGame {
         document.getElementById('edit-type').textContent = point.type === 'town' ? '城镇' : '军事单位';
         document.getElementById('edit-position').textContent = `(${point.x}, ${point.y})`;
         document.getElementById('edit-color').value = point.color;
+        document.getElementById('edit-color-hex').value = point.color;
         document.getElementById('edit-population').value = point.population;
         document.getElementById('edit-soldiers').value = point.soldiers;
         document.getElementById('edit-food').value = point.food;
@@ -240,6 +353,87 @@ class StrategyGame {
 
         this.hideModal('edit-modal');
         this.render();
+    }
+    
+    startColorPicking() {
+        if (this.points.length === 0) {
+            alert('没有可用的据点进行取色！');
+            return;
+        }
+
+        const colors = [...new Set(this.points.map(point => point.color))];
+        this.showColorPicker(colors);
+    }
+    
+    showColorPicker(colors) {
+        // Create color picker modal
+        const modal = document.createElement('div');
+        modal.id = 'color-picker-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <h3>选择颜色</h3>
+                <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin: 15px 0;">
+                    ${colors.map(color => `
+                        <div class="color-swatch" 
+                             style="width: 30px; height: 30px; background-color: ${color}; 
+                                    border-radius: 4px; cursor: pointer; border: 1px solid #ccc;"
+                             data-color="${color}"
+                             title="${color}">
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="text-align: center;">
+                    <button type="button" id="close-color-picker">关闭</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+        
+        // Add event listeners
+        modal.querySelectorAll('.color-swatch').forEach(swatch => {
+            swatch.addEventListener('click', (e) => {
+                const selectedColor = e.target.dataset.color;
+                this.setSelectedColor(selectedColor);
+                document.body.removeChild(modal);
+            });
+        });
+        
+        modal.querySelector('#close-color-picker').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+    }
+    
+    setSelectedColor(color) {
+        document.getElementById('edit-color').value = color;
+        document.getElementById('edit-color-hex').value = color;
+    }
+    
+    syncColorFormats(color) {
+        document.getElementById('edit-color-hex').value = color;
+    }
+    
+    handleHexInput(hexValue) {
+        // Validate and sync hex input
+        let cleanHex = hexValue.trim();
+        
+        // Add # if missing
+        if (!cleanHex.startsWith('#')) {
+            cleanHex = '#' + cleanHex;
+        }
+        
+        // Validate hex format
+        const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        if (hexRegex.test(cleanHex)) {
+            // Convert 3-digit hex to 6-digit
+            if (cleanHex.length === 4) {
+                cleanHex = '#' + cleanHex[1] + cleanHex[1] + cleanHex[2] + cleanHex[2] + cleanHex[3] + cleanHex[3];
+            }
+            document.getElementById('edit-color').value = cleanHex;
+            document.getElementById('edit-color-hex').value = cleanHex;
+        }
     }
 
     deletePoint() {
@@ -304,7 +498,13 @@ class StrategyGame {
         
         this.drawGrid();
         
+        this.paths.forEach(path => this.drawPath(path));
         this.points.forEach(point => this.drawPoint(point));
+        
+        // Draw temporary path during path mode
+        if (this.pathMode && this.pathStartPoint && this.tempPathEndPoint) {
+            this.drawTempPath();
+        }
         
         this.ctx.restore();
     }
@@ -391,11 +591,102 @@ class StrategyGame {
         
         this.ctx.restore();
     }
+    
+    drawPath(path) {
+        this.ctx.save();
+        
+        this.ctx.strokeStyle = path.color;
+        this.ctx.lineWidth = 3 / this.scale;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+        
+        // Draw the path line
+        this.ctx.beginPath();
+        this.ctx.moveTo(path.from.x, path.from.y);
+        this.ctx.lineTo(path.to.x, path.to.y);
+        this.ctx.stroke();
+        
+        // Draw distance label at midpoint
+        const midX = (path.from.x + path.to.x) / 2;
+        const midY = (path.from.y + path.to.y) / 2;
+        const distanceText = Math.round(path.distance) + ' units';
+        
+        // Draw background for text
+        this.ctx.font = `${14 / this.scale}px Arial`;
+        const textWidth = this.ctx.measureText(distanceText).width;
+        const padding = 4 / this.scale;
+        
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.fillRect(
+            midX - textWidth/2 - padding,
+            midY - (10 / this.scale) - padding,
+            textWidth + 2 * padding,
+            20 / this.scale + 2 * padding
+        );
+        
+        // Draw distance text
+        this.ctx.fillStyle = '#333';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        // Flip text back to normal orientation
+        this.ctx.scale(1, -1);
+        this.ctx.fillText(distanceText, midX, -midY);
+        
+        this.ctx.restore();
+    }
+    
+    drawTempPath() {
+        if (!this.pathStartPoint || !this.tempPathEndPoint) return;
+        
+        this.ctx.save();
+        
+        this.ctx.strokeStyle = '#007bff';
+        this.ctx.lineWidth = 3 / this.scale;
+        this.ctx.setLineDash([5 / this.scale, 5 / this.scale]);
+        this.ctx.lineCap = 'round';
+        
+        // Draw temporary path line
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.pathStartPoint.x, this.pathStartPoint.y);
+        this.ctx.lineTo(this.tempPathEndPoint.x, this.tempPathEndPoint.y);
+        this.ctx.stroke();
+        
+        // Draw distance label
+        const midX = (this.pathStartPoint.x + this.tempPathEndPoint.x) / 2;
+        const midY = (this.pathStartPoint.y + this.tempPathEndPoint.y) / 2;
+        const distance = this.calculateDistance(this.pathStartPoint, this.tempPathEndPoint);
+        const distanceText = Math.round(distance) + ' units';
+        
+        this.ctx.setLineDash([]);
+        this.ctx.font = `${14 / this.scale}px Arial`;
+        const textWidth = this.ctx.measureText(distanceText).width;
+        const padding = 4 / this.scale;
+        
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.fillRect(
+            midX - textWidth/2 - padding,
+            midY - (10 / this.scale) - padding,
+            textWidth + 2 * padding,
+            20 / this.scale + 2 * padding
+        );
+        
+        this.ctx.fillStyle = '#007bff';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        // Flip text back to normal orientation
+        this.ctx.scale(1, -1);
+        this.ctx.fillText(distanceText, midX, -midY);
+        
+        this.ctx.restore();
+    }
 
     saveGame() {
         const gameData = {
             currentTime: this.currentTime,
             points: this.points,
+            paths: this.paths,
             history: this.gameHistory
         };
         
@@ -422,6 +713,7 @@ class StrategyGame {
                 const gameData = JSON.parse(event.target.result);
                 this.currentTime = new Date(gameData.currentTime);
                 this.points = gameData.points || [];
+                this.paths = gameData.paths || [];
                 this.gameHistory = gameData.history || [];
                 
                 this.updateTimeDisplay();
@@ -439,6 +731,7 @@ class StrategyGame {
         const historyData = {
             currentTime: this.currentTime,
             points: this.points,
+            paths: this.paths,
             history: this.gameHistory
         };
         
@@ -452,6 +745,7 @@ class StrategyGame {
                 const gameData = JSON.parse(saved);
                 this.currentTime = new Date(gameData.currentTime);
                 this.points = gameData.points || [];
+                this.paths = gameData.paths || [];
                 this.gameHistory = gameData.history || [];
                 
                 this.updateTimeDisplay();
