@@ -26,6 +26,19 @@
       "food": 32000,
       "money": 14000,
       "createdAt": "1000-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 1753997489619,
+      "name": "Weys",
+      "type": "town",
+      "x": 20,
+      "y": 426,
+      "color": "#fff71a",
+      "population": 26000,
+      "soldiers": 3100,
+      "food": 27000,
+      "money": 11000,
+      "createdAt": "1000-01-01T00:00:00.000Z"
     }
   ],
   "history": []

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Mathematical Universe - Max Tegmark</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --cosmic-color: #8e44ad;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #e9ecef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--cosmic-color));
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="white" opacity="0.3"/><circle cx="80" cy="30" r="0.5" fill="white" opacity="0.2"/><circle cx="40" cy="70" r="1.5" fill="white" opacity="0.1"/><circle cx="90" cy="80" r="1" fill="white" opacity="0.2"/><circle cx="10" cy="90" r="0.8" fill="white" opacity="0.3"/></svg>');
+            animation: twinkle 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .author {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav {
+            background: var(--card-bg);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .book-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid var(--cosmic-color);
+        }
+
+        .book-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--secondary-color);
+        }
+
+        .meta-item i {
+            color: var(--cosmic-color);
+            width: 20px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .chapter-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--cosmic-color);
+        }
+
+        .chapter-number {
+            background: var(--cosmic-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .chapter-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .chapter-topics {
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .part-divider {
+            background: linear-gradient(135deg, var(--accent-color), var(--cosmic-color));
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 30px 0 20px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .key-concepts {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .concepts-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .concept-tag {
+            background: var(--accent-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .concept-tag:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 40px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .chapters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-atom"></i>
+                Our Mathematical Universe
+            </h1>
+            <div class="subtitle">My Quest for the Ultimate Nature of Reality</div>
+            <div class="author">by Max Tegmark</div>
+        </div>
+
+        <div class="nav">
+            <a href="../../index.html"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="../physics.html"><i class="fas fa-atom"></i> Physics</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Our Mathematical Universe</span>
+        </div>
+
+        <div class="content">
+            <div class="book-info">
+                <h2 style="color: var(--cosmic-color); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-info-circle"></i>
+                    Book Information
+                </h2>
+                <div class="book-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-user"></i>
+                        <strong>Author:</strong> Max Tegmark
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <strong>Published:</strong> 2013
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-hashtag"></i>
+                        <strong>ISBN:</strong> 978-0-307-59980-3
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-book"></i>
+                        <strong>Genre:</strong> Cosmology / Physics / Mathematics
+                    </div>
+                </div>
+                <p style="margin-top: 15px; color: var(--secondary-color); line-height: 1.7;">
+                    A groundbreaking exploration of the ultimate nature of reality, proposing that our physical world is not merely described by mathematics, but <em>is</em> mathematics itself. Tegmark takes readers on a journey from the smallest scales of quantum mechanics to the largest cosmic structures, revealing how mathematical patterns underlie everything in our universe.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>
+                    <i class="fas fa-list-ol"></i>
+                    Table of Contents
+                </h2>
+                
+                <div class="chapter-card">
+                    <div class="chapter-number">Chapter 1</div>
+                    <div class="chapter-title">What Is Reality?</div>
+                    <div class="chapter-topics">
+                        Not What It Seems • What's the Ultimate Question? • The Journey Begins
+                    </div>
+                </div>
+
+                <div class="part-divider">
+                    <i class="fas fa-search"></i>
+                    Part One: Zooming Out
+                </div>
+
+                <div class="chapters-grid">
+                    <div class="chapter-card">
+                        <div class="chapter-number">Chapter 2</div>
+                        <div class="chapter-title">Our Place in Space</div>
+                        <div class="chapter-topics">
+                            Cosmic Questions • How Big Is Space? • The Size of Earth • Distance to the Moon • Distance to the Sun and the Planets • Distance to the Stars • Distance to the Galaxies • What Is Space?
+                        </div>
+                    </div>
+
+                    <div class="chapter-card">
+                        <div class="chapter-number">Chapter 3</div>
+                        <div class="chapter-title">Our Place in Time</div>
+                        <div class="chapter-topics">
+                            Where Did Our Solar System Come From? • Where Did the Galaxies Come From? • Where Did the Mysterious Microwaves Come From? • Where Did the Atoms Come From?
+                        </div>
+                    </div>
+
+                    <div class="chapter-card">
+                        <div class="chapter-number">Chapter 4</div>
+                        <div class="chapter-title">Our Universe by Numbers</div>
+                        <div class="chapter-topics">
+                            Wanted: Precision Cosmology • Precision Microwave-Background Fluctuations • Precision Galaxy Clustering • The Ultimate Map of Our Universe • Where Did Our Big Bang Come From?
+                        </div>
+                    </div>
+
+                    <div class="chapter-card">
+                        <div class="chapter-number">Chapter 5</div>
+                        <div class="chapter-title">Our Cosmic Origins</div>
+                        <div class="chapter-topics">
+                            What's Wrong with Our Big Bang? • How Inflation Works • The Gift That Keeps on Giving • Eternal Inflation
+                        </div>
+                    </div>
+
+                    <div class="chapter-card">
+                        <div class="chapter-number">Chapter 6</div>
+                        <div class="chapter-title">Welcome to the Multiverse</div>
+                        <div class="chapter-topics">
+                            The Level I Multiverse • The Level II Multiverse • Multiverse Halftime Roundup
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="key-concepts">
+                <h3 style="color: var(--primary-color); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-lightbulb"></i>
+                    Key Concepts Explored
+                </h3>
+                <div class="concepts-list">
+                    <div class="concept-tag">Mathematical Universe</div>
+                    <div class="concept-tag">Cosmological Inflation</div>
+                    <div class="concept-tag">Multiverse Theory</div>
+                    <div class="concept-tag">Quantum Mechanics</div>
+                    <div class="concept-tag">Cosmic Microwave Background</div>
+                    <div class="concept-tag">Dark Matter & Energy</div>
+                    <div class="concept-tag">Space-Time Geometry</div>
+                    <div class="concept-tag">Parallel Universes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
