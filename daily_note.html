@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Note - My Personal Wiki</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            background: var(--card-bg);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .note-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .note-editor {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+        }
+
+        .editor-toolbar {
+            background: var(--bg-color);
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .toolbar-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .toolbar-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        #note-content {
+            width: 100%;
+            min-height: 400px;
+            padding: 20px;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            background: var(--card-bg);
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: 12px;
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-btn {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #229954;
+            transform: translateY(-1px);
+        }
+
+        .clear-btn {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #e67e22;
+            transform: translateY(-1px);
+        }
+
+        .export-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .export-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #a8e6cf;
+        }
+
+        .status-error {
+            background: #ffe5e5;
+            color: #e74c3c;
+            border: 1px solid #ffb3b3;
+        }
+
+        .quick-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .quick-tag {
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-tag:hover {
+            background: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .recent-notes {
+            margin-top: 30px;
+        }
+
+        .note-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .note-item:hover {
+            background: var(--bg-color);
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        .note-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .note-preview {
+            font-size: 14px;
+            color: var(--secondary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .editor-toolbar {
+                padding: 10px;
+            }
+
+            .note-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-sticky-note"></i>
+                Daily Note
+            </h1>
+            <div class="date-display" id="current-date">Loading...</div>
+        </div>
+
+        <div class="nav">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Daily Note</span>
+        </div>
+
+        <div class="content">
+            <div class="note-section">
+                <div class="status-message" id="status-message"></div>
+                
+                <div class="section-title">
+                    <i class="fas fa-edit"></i>
+                    Today's Note
+                </div>
+
+                <div class="note-editor">
+                    <div class="editor-toolbar">
+                        <button class="toolbar-btn" onclick="insertMarkdown('**', '**')">
+                            <i class="fas fa-bold"></i> Bold
+                        </button>
+                        <button class="toolbar-btn" onclick="insertMarkdown('*', '*')">
+                            <i class="fas fa-italic"></i> Italic
+                        </button>
+                        <button class="toolbar-btn" onclick="insertMarkdown('### ', '')">
+                            <i class="fas fa-heading"></i> H3
+                        </button>
+                        <button class="toolbar-btn" onclick="insertMarkdown('- ', '')">
+                            <i class="fas fa-list"></i> List
+                        </button>
+                        <button class="toolbar-btn" onclick="insertMarkdown('> ', '')">
+                            <i class="fas fa-quote-right"></i> Quote
+                        </button>
+                        <button class="toolbar-btn" onclick="insertMarkdown('`', '`')">
+                            <i class="fas fa-code"></i> Code
+                        </button>
+                        <button class="toolbar-btn" onclick="insertDate()">
+                            <i class="fas fa-calendar"></i> Date
+                        </button>
+                    </div>
+                    
+                    <textarea id="note-content" placeholder="Start typing your daily notes here...
+
+## 📝 Tasks
+- [ ] 
+
+## 💡 Ideas
+- 
+
+## 🔗 Links
+- 
+
+## 🎯 Progress
+- "></textarea>
+                </div>
+
+                <div class="quick-tags">
+                    <span class="quick-tag" onclick="insertTag('#daily')">#daily</span>
+                    <span class="quick-tag" onclick="insertTag('#task')">#task</span>
+                    <span class="quick-tag" onclick="insertTag('#idea')">#idea</span>
+                    <span class="quick-tag" onclick="insertTag('#meeting')">#meeting</span>
+                    <span class="quick-tag" onclick="insertTag('#progress')">#progress</span>
+                </div>
+
+                <div class="note-actions">
+                    <div>
+                        <button class="action-btn save-btn" onclick="saveNote()">
+                            <i class="fas fa-save"></i>
+                            Save Note
+                        </button>
+                        <button class="action-btn clear-btn" onclick="clearNote()">
+                            <i class="fas fa-trash"></i>
+                            Clear
+                        </button>
+                    </div>
+                    <div>
+                        <button class="action-btn export-btn" onclick="exportNote()">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-notes">
+                <div class="section-title">
+                    <i class="fas fa-history"></i>
+                    Recent Notes
+                </div>
+                <div id="recent-notes-list">
+                    <div class="note-item" onclick="loadNote('today')">
+                        <div class="note-date">Today</div>
+                        <div class="note-preview">Click to view today's note</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize daily note
+        function initializeDailyNote() {
+            updateDate();
+            loadTodaysNote();
+            loadRecentNotes();
+            
+            // Auto-save every 30 seconds
+            setInterval(autoSave, 30000);
+            
+            // Save on page unload
+            window.addEventListener('beforeunload', saveNote);
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function getTodayKey() {
+            const today = new Date();
+            return `daily_note_${today.toISOString().split('T')[0]}`;
+        }
+
+        function loadTodaysNote() {
+            const key = getTodayKey();
+            const savedNote = localStorage.getItem(key);
+            if (savedNote) {
+                document.getElementById('note-content').value = savedNote;
+            }
+        }
+
+        function saveNote() {
+            const key = getTodayKey();
+            const content = document.getElementById('note-content').value.trim();
+            
+            if (content) {
+                localStorage.setItem(key, content);
+                showStatus('Note saved successfully!', 'success');
+                loadRecentNotes();
+            } else {
+                localStorage.removeItem(key);
+                showStatus('Note cleared', 'success');
+                loadRecentNotes();
+            }
+        }
+
+        function autoSave() {
+            const key = getTodayKey();
+            const content = document.getElementById('note-content').value.trim();
+            if (content) {
+                localStorage.setItem(key, content);
+            }
+        }
+
+        function clearNote() {
+            if (confirm('Are you sure you want to clear today\'s note?')) {
+                document.getElementById('note-content').value = '';
+                saveNote();
+            }
+        }
+
+        function loadNote(dateKey) {
+            if (dateKey === 'today') {
+                loadTodaysNote();
+                return;
+            }
+            
+            const savedNote = localStorage.getItem(dateKey);
+            if (savedNote) {
+                document.getElementById('note-content').value = savedNote;
+                showStatus('Note loaded', 'success');
+            }
+        }
+
+        function loadRecentNotes() {
+            const notesList = document.getElementById('recent-notes-list');
+            notesList.innerHTML = '';
+            
+            const keys = Object.keys(localStorage)
+                .filter(key => key.startsWith('daily_note_'))
+                .sort()
+                .reverse()
+                .slice(0, 7);
+            
+            if (keys.length === 0) {
+                notesList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No saved notes yet</div>';
+                return;
+            }
+            
+            keys.forEach(key => {
+                const dateStr = key.replace('daily_note_', '');
+                const date = new Date(dateStr);
+                const displayDate = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                const content = localStorage.getItem(key);
+                const preview = content ? content.substring(0, 50) + (content.length > 50 ? '...' : '') : 'Empty note';
+                
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                noteItem.innerHTML = `
+                    <div class="note-date">${displayDate}</div>
+                    <div class="note-preview">${preview}</div>
+                `;
+                noteItem.onclick = () => loadNote(key);
+                
+                notesList.appendChild(noteItem);
+            });
+        }
+
+        function exportNote() {
+            const key = getTodayKey();
+            const content = document.getElementById('note-content').value.trim();
+            
+            if (!content) {
+                showStatus('No content to export', 'error');
+                return;
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `daily-note-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function insertMarkdown(prefix, suffix) {
+            const textarea = document.getElementById('note-content');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            const replacement = prefix + selectedText + suffix;
+            
+            textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
+        }
+
+        function insertDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            insertMarkdown(`**${dateStr}**\n`, '');
+        }
+
+        function insertTag(tag) {
+            insertMarkdown(`${tag} `, '');
+        }
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.className = `status-message status-${type}`;
+            statusEl.style.display = 'flex';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeDailyNote);
+    </script>
+</body>
+</html>
