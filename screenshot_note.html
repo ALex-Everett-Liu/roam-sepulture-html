@@ -251,6 +251,12 @@
             border: 1px solid #ffb3b3;
         }
 
+        .status-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
         .controls {
             display: flex;
             gap: 15px;
@@ -438,6 +444,9 @@
                     <button class="control-btn export-btn" onclick="exportAll()">
                         <i class="fas fa-download"></i> Export
                     </button>
+                    <button class="control-btn" onclick="importAll()" style="background: #9b59b6; color: white;">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
                     <button class="control-btn clear-btn" onclick="clearAll()">
                         <i class="fas fa-trash"></i> Clear All
                     </button>
@@ -529,27 +538,24 @@
             }
 
             imageFiles.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    addScreenshot(e.target.result, file.name);
-                };
-                reader.readAsDataURL(file);
+                const filename = generateFilename(file);
+                addScreenshot(filename, file.name);
             });
         }
 
-        function addScreenshot(dataUrl, filename) {
+        function addScreenshot(filename, originalFilename) {
             const screenshot = {
                 id: Date.now() + Math.random(),
-                dataUrl: dataUrl,
                 filename: filename,
                 description: '',
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                path: `assets/02/${filename}`
             };
 
             screenshots.unshift(screenshot);
             renderGallery();
             saveScreenshots();
-            showStatus(`Added ${filename}`, 'success');
+            showStatus(`Added ${originalFilename}`, 'success');
         }
 
         function renderGallery() {
@@ -570,7 +576,7 @@
             gallery.innerHTML = imagesToShow.map(screenshot => `
                 <div class="image-card" data-id="${screenshot.id}">
                     <div class="image-wrapper">
-                        <img class="screenshot-image" src="${screenshot.dataUrl}" alt="${screenshot.filename}" onclick="openModal('${screenshot.dataUrl}')">
+                        <img class="screenshot-image" src="${screenshot.path}" alt="${screenshot.filename}" onclick="openModal('${screenshot.path}')">
                         <div class="image-overlay">
                             <button class="overlay-btn" onclick="removeScreenshot(${screenshot.id})" title="Remove">
                                 <i class="fas fa-trash"></i>
@@ -691,7 +697,7 @@
                 filename: screenshot.filename,
                 description: screenshot.description,
                 date: screenshot.date,
-                dataUrl: screenshot.dataUrl
+                path: screenshot.path
             }));
 
             const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
@@ -705,6 +711,79 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        function importAll() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        if (!Array.isArray(importedData)) {
+                            throw new Error('Invalid JSON format - expected an array');
+                        }
+                        
+                        if (importedData.length === 0) {
+                            showStatus('No screenshots found in file', 'error');
+                            return;
+                        }
+                        
+                        // Validate required fields
+                        const validScreenshots = importedData.filter(item => 
+                            item.filename && item.path && item.date
+                        );
+                        
+                        if (validScreenshots.length === 0) {
+                            showStatus('No valid screenshot entries found', 'error');
+                            return;
+                        }
+                        
+                        if (validScreenshots.length !== importedData.length) {
+                            showStatus(`${importedData.length - validScreenshots.length} invalid entries skipped`, 'error');
+                        }
+                        
+                        // Add new screenshots, avoiding duplicates
+                        let addedCount = 0;
+                        validScreenshots.forEach(item => {
+                            // Check if screenshot already exists by filename
+                            const exists = screenshots.some(s => s.filename === item.filename);
+                            if (!exists) {
+                                const newScreenshot = {
+                                    id: Date.now() + Math.random() + addedCount,
+                                    filename: item.filename,
+                                    description: item.description || '',
+                                    date: item.date,
+                                    path: item.path
+                                };
+                                screenshots.unshift(newScreenshot);
+                                addedCount++;
+                            }
+                        });
+                        
+                        if (addedCount > 0) {
+                            renderGallery();
+                            saveScreenshots();
+                            showStatus(`Successfully imported ${addedCount} screenshot${addedCount > 1 ? 's' : ''}`, 'success');
+                        } else {
+                            showStatus('All screenshots already exist', 'info');
+                        }
+                        
+                    } catch (error) {
+                        showStatus(`Error importing file: ${error.message}`, 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
         }
 
         function showStatus(message, type) {
