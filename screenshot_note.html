@@ -529,12 +529,6 @@
             processFiles(files);
         }
 
-        function generateFilename(file) {
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-            const extension = file.name.split('.').pop().toLowerCase();
-            return `screenshot-${timestamp}.${extension}`;
-        }
-
         function processFiles(files) {
             const imageFiles = files.filter(file => file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024);
             
@@ -544,7 +538,7 @@
             }
 
             imageFiles.forEach(file => {
-                const filename = generateFilename(file);
+                const filename = file.name;
                 addScreenshot(filename, file.name);
             });
         }
