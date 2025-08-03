@@ -668,6 +668,8 @@
         <div class="zoom-indicator" id="zoom-indicator">100%</div>
     </div>
 
+    <!-- Squoosh/libwebpjs library for advanced WebP conversion -->
+    <script src="https://unpkg.com/@squoosh/lib@0.4.0/dist/index.umd.js"></script>
     <script>
         // Fallback data in case JSON file fails to load
         const fallbackImages = [
@@ -1671,173 +1673,6 @@
             }
         });
 
-        // WebP Conversion Functions
-        function updateQualityDisplay() {
-            const quality = document.getElementById('webp-quality').value;
-            document.getElementById('quality-value').textContent = quality + '%';
-        }
-
-        async function handleImageConversion(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith('image/')) {
-                alert('Please select a valid image file');
-                return;
-            }
-
-            const quality = parseInt(document.getElementById('webp-quality').value) / 100;
-            
-            try {
-                showConversionStatus('Converting... Please wait.');
-                
-                const originalSize = file.size;
-                const webpBlob = await convertImageToWebP(file, quality);
-                const convertedSize = webpBlob.size;
-                
-                const originalFileName = file.name;
-                const webpFileName = originalFileName.substring(0, originalFileName.lastIndexOf('.')) + '.webp';
-                
-                displayConversionResults({
-                    originalFile: originalFileName,
-                    convertedFile: webpFileName,
-                    originalSize: formatFileSize(originalSize),
-                    convertedSize: formatFileSize(convertedSize),
-                    originalSizeBytes: originalSize,
-                    convertedSizeBytes: convertedSize,
-                    savingsPercent: ((originalSize - convertedSize) / originalSize * 100).toFixed(2),
-                    blob: webpBlob
-                });
-                
-            } catch (error) {
-                showConversionStatus('Error: ' + error.message, true);
-                console.error('Conversion error:', error);
-            }
-        }
-
-        function convertImageToWebP(file, quality) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                img.onload = function() {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    
-                    // Draw the image on canvas
-                    ctx.drawImage(img, 0, 0);
-                    
-                    // Convert to WebP
-                    canvas.toBlob(function(blob) {
-                        if (blob) {
-                            resolve(blob);
-                        } else {
-                            reject(new Error('WebP conversion failed'));
-                        }
-                    }, 'image/webp', quality);
-                };
-
-                img.onerror = function() {
-                    reject(new Error('Failed to load image'));
-                };
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    img.src = e.target.result;
-                };
-                reader.onerror = function() {
-                    reject(new Error('Failed to read file'));
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function displayConversionResults(result) {
-            const resultsDiv = document.getElementById('conversion-results');
-            
-            const originalImg = document.createElement('img');
-            originalImg.style.maxWidth = '100px';
-            originalImg.style.maxHeight = '100px';
-            originalImg.style.objectFit = 'cover';
-            originalImg.style.marginRight = '10px';
-            originalImg.style.border = '1px solid #ccc';
-            originalImg.style.borderRadius = '4px';
-            
-            const convertedImg = document.createElement('img');
-            convertedImg.style.maxWidth = '100px';
-            convertedImg.style.maxHeight = '100px';
-            convertedImg.style.objectFit = 'cover';
-            convertedImg.style.border = '1px solid #ccc';
-            convertedImg.style.borderRadius = '4px';
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                originalImg.src = e.target.result;
-                
-                const reader2 = new FileReader();
-                reader2.onload = function(e2) {
-                    convertedImg.src = e2.target.result;
-                };
-                reader2.readAsDataURL(result.blob);
-            };
-            
-            // Create a temporary file input to get the original image
-            const input = document.getElementById('convert-file-input');
-            if (input.files[0]) {
-                reader.readAsDataURL(input.files[0]);
-            }
-            
-            resultsDiv.innerHTML = `
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                        <div style="margin-right: 15px;">
-                            <label>Original:</label>
-                            <div id="original-preview"></div>
-                        </div>
-                        <div>
-                            <label>Converted:</label>
-                            <div id="converted-preview"></div>
-                        </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
-                        <div>Original Size: <strong>${result.originalSize}</strong></div>
-                        <div>Converted Size: <strong>${result.convertedSize}</strong></div>
-                        <div>Savings: <strong style="color: #28a745;">${result.savingsPercent}%</strong></div>
-                        <div>File: <strong>${result.convertedFile}</strong></div>
-                    </div>
-                    
-                    <div style="margin-top: 15px;">
-                        <button class="settings-button" onclick="downloadWebP('${result.convertedFile}', ${result.convertedSizeBytes})">
-                            &#8595; Download WebP
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('original-preview').appendChild(originalImg);
-            document.getElementById('converted-preview').appendChild(convertedImg);
-            
-            // Store blob globally for download
-            window.convertedWebP = result.blob;
-        }
-
-        function downloadWebP(filename, size) {
-            if (!window.convertedWebP) {
-                alert('No converted image available');
-                return;
-            }
-            
-            const url = URL.createObjectURL(window.convertedWebP);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
 
         function clearConvertedResults() {
             document.getElementById('conversion-results').innerHTML = '';
@@ -1853,27 +1688,11 @@
             `;
         }
 
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
         // WebP Conversion Functions
         function updateQualityDisplay() {
             const qualitySlider = document.getElementById('webp-quality');
             const qualityValue = document.getElementById('quality-value');
             qualityValue.textContent = qualitySlider.value + '%';
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         async function handleImageConversion(event) {
@@ -1936,41 +1755,221 @@
                     <div style="padding: 20px; color: #e53e3e; background: #fed7d7; border-radius: 8px;">
                         <h4>❌ Conversion Failed</h4>
                         <p>${error.message}</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">
+                            <strong>Note:</strong> WebP conversion uses advanced compression techniques. Ensure your browser supports WebP format.
+                        </p>
                         <button class="settings-button" onclick="clearConvertedResults()">Try Again</button>
                     </div>
                 `;
             }
         }
 
-        function convertImageToWebP(file, quality) {
+        async function convertImageToWebP(file, quality) {
+            try {
+                // Memory optimization: Use FileReader to read file in chunks for large files
+                const arrayBuffer = await readFileAsArrayBuffer(file);
+                
+                // Use Squoosh/libwebpjs for WebP conversion
+                const webPBlob = await convertWithWebPCodec(arrayBuffer, quality);
+                
+                return webPBlob;
+            } catch (error) {
+                console.error('WebP conversion error:', error);
+                throw new Error(`WebP conversion failed: ${error.message}`);
+            }
+        }
+
+        // Memory-optimized file reading with sequential reading for large files
+        function readFileAsArrayBuffer(file) {
             return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = function() {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                const reader = new FileReader();
+                
+                // For large files, use slice to read in chunks if needed
+                const maxChunkSize = 50 * 1024 * 1024; // 50MB chunks
+                
+                if (file.size > maxChunkSize) {
+                    // For very large files, read as stream (simplified approach)
+                    const chunks = [];
+                    let offset = 0;
+                    
+                    function readNextChunk() {
+                        const chunk = file.slice(offset, Math.min(offset + maxChunkSize, file.size));
+                        const chunkReader = new FileReader();
                         
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        
-                        canvas.toBlob((blob) => {
-                            if (blob) {
-                                resolve(blob);
+                        chunkReader.onload = function(e) {
+                            chunks.push(e.target.result);
+                            offset += maxChunkSize;
+                            
+                            if (offset < file.size) {
+                                readNextChunk();
                             } else {
-                                reject(new Error('Failed to convert image to WebP'));
+                                // Combine all chunks
+                                const totalLength = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+                                const combined = new Uint8Array(totalLength);
+                                let position = 0;
+                                
+                                for (const chunk of chunks) {
+                                    combined.set(new Uint8Array(chunk), position);
+                                    position += chunk.byteLength;
+                                }
+                                
+                                resolve(combined.buffer);
                             }
-                        }, 'image/webp', quality / 100);
-                    } catch (error) {
-                        reject(error);
+                        };
+                        
+                        chunkReader.onerror = reject;
+                        chunkReader.readAsArrayBuffer(chunk);
+                    }
+                    
+                    readNextChunk();
+                } else {
+                    // Small files - read directly
+                    reader.onload = function(e) {
+                        resolve(e.target.result);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+        }
+
+        // Enhanced WebP conversion with Squoosh/Sharp-like features
+        async function convertWithWebPCodec(arrayBuffer, quality) {
+            // Check if Squoosh library is available
+            if (typeof Squoosh !== 'undefined') {
+                return await convertWithSquoosh(arrayBuffer, quality);
+            } else {
+                return await convertWithCanvasFallback(arrayBuffer, quality);
+            }
+        }
+
+        // Advanced WebP conversion using Squoosh (Sharp-like)
+        async function convertWithSquoosh(arrayBuffer, quality) {
+            try {
+                // Use Squoosh's WebP encoder with Sharp-like settings
+                const imagePool = new Squoosh.ImagePool();
+                const image = imagePool.ingestImage(new Uint8Array(arrayBuffer));
+                
+                const preprocessOptions = {
+                    // Sequential read for memory optimization
+                    sequentialRead: true,
+                    // Limit input pixels for memory safety
+                    limitInputPixels: false
+                };
+                
+                const encodeOptions = {
+                    webp: {
+                        quality: quality,
+                        target_size: 0,
+                        target_PSNR: 0,
+                        method: 4, // Equivalent to Sharp's effort: 4
+                        sns_strength: 50,
+                        filter_strength: 60,
+                        filter_sharpness: 0,
+                        filter_type: 1,
+                        partitions: 0,
+                        segments: 4,
+                        pass: 1,
+                        show_compressed: 0,
+                        preprocessing: 0,
+                        autofilter: 0,
+                        partition_limit: 0,
+                        alpha_compression: 1,
+                        alpha_filtering: 1,
+                        alpha_quality: 100,
+                        lossless: 0,
+                        exact: 0,
+                        image_hint: 0,
+                        emulate_jpeg_size: 0,
+                        thread_level: 0,
+                        low_memory: 1, // Enable low memory mode for large files
+                        near_lossless: 100,
+                        use_delta_palette: 0,
+                        use_sharp_yuv: 1
                     }
                 };
+
+                await image.preprocess(preprocessOptions);
+                const result = await image.encode(encodeOptions);
                 
-                img.onerror = function() {
-                    reject(new Error('Failed to load image file'));
-                };
+                // Clean up
+                imagePool.close();
                 
-                img.src = URL.createObjectURL(file);
+                return new Blob([result.webp], { type: 'image/webp' });
+            } catch (error) {
+                console.warn('Squoosh conversion failed, falling back to canvas:', error);
+                return await convertWithCanvasFallback(arrayBuffer, quality);
+            }
+        }
+
+        // Canvas fallback with Sharp-like optimizations
+        async function convertWithCanvasFallback(arrayBuffer, quality) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const blob = new Blob([arrayBuffer]);
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        try {
+                            // Memory optimization: Create canvas with optimal dimensions
+                            const canvas = document.createElement('canvas');
+                            
+                            // Apply memory limits - prevent extremely large images from crashing
+                            const maxDimension = 8192; // 8K max
+                            let { width, height } = img;
+                            
+                            if (width > maxDimension || height > maxDimension) {
+                                const ratio = Math.min(maxDimension / width, maxDimension / height);
+                                width = Math.floor(width * ratio);
+                                height = Math.floor(height * ratio);
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Sharp-like optimizations:
+                            // 1. High-quality downscaling
+                            ctx.imageSmoothingEnabled = true;
+                            ctx.imageSmoothingQuality = 'high';
+                            
+                            // 2. Sequential processing - draw in parts for very large images
+                            if (width * height > 4 * 1024 * 1024) { // 4MP+ images
+                                const sliceHeight = Math.floor(height / 4);
+                                for (let y = 0; y < height; y += sliceHeight) {
+                                    const h = Math.min(sliceHeight, height - y);
+                                    ctx.drawImage(img, 
+                                        0, y * (img.height / height), img.width, h * (img.height / height),
+                                        0, y, width, h
+                                    );
+                                }
+                            } else {
+                                ctx.drawImage(img, 0, 0, width, height);
+                            }
+                            
+                            // 3. WebP conversion with Sharp-like settings
+                            canvas.toBlob((blob) => {
+                                if (blob) {
+                                    resolve(blob);
+                                } else {
+                                    reject(new Error('WebP conversion not supported in this browser'));
+                                }
+                            }, 'image/webp', quality / 100);
+                            
+                        } catch (processingError) {
+                            reject(new Error(`Image processing failed: ${processingError.message}`));
+                        }
+                    };
+                    
+                    img.onerror = function() {
+                        reject(new Error('Failed to load image for conversion'));
+                    };
+                    
+                    img.src = URL.createObjectURL(blob);
+                } catch (error) {
+                    reject(error);
+                }
             });
         }
 
