@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Converter - WebP Conversion</title>
+    <style>
+        :root {
+            --primary-color: #2a4b8d;
+            --secondary-color: #4a5568;
+            --accent-color: #3182ce;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
+            --success-color: #38a169;
+            --error-color: #e53e3e;
+            --warning-color: #d69e2e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .nav {
+            background: var(--card-bg);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .conversion-section {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .conversion-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .settings-row label {
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .settings-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .settings-button {
+            padding: 12px 24px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-button:hover {
+            background: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .settings-button.secondary {
+            background: var(--secondary-color);
+        }
+
+        .settings-button.secondary:hover {
+            background: var(--primary-color);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .quality-slider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quality-value {
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .conversion-results {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .savings-positive {
+            color: var(--success-color);
+        }
+
+        .savings-negative {
+            color: var(--error-color);
+        }
+
+        .preview-section {
+            margin-top: 20px;
+        }
+
+        .preview-images {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .preview-item {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .preview-item img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-success {
+            background: #d5f4e6;
+            color: var(--success-color);
+            border: 1px solid #a8e6cf;
+        }
+
+        .status-error {
+            background: #ffe5e5;
+            color: var(--error-color);
+            border: 1px solid #ffb3b3;
+        }
+
+        .status-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary-color);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .settings-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .settings-button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .result-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-images {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-magic"></i>
+                Image Converter
+            </h1>
+            <p>Advanced WebP conversion with Sharp-like quality optimization</p>
+        </div>
+
+        <div class="nav">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Image Converter</span>
+        </div>
+
+        <div class="content">
+            <div class="conversion-section">
+                <h2>
+                    <i class="fas fa-upload"></i>
+                    Upload & Convert
+                </h2>
+                
+                <div class="settings-row">
+                    <label>Select Image:</label>
+                    <input type="file" id="file-input" accept="image/*" class="file-input" onchange="handleImageConversion(event)">
+                    <button class="settings-button" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-folder-open"></i> Choose File
+                    </button>
+                    <button class="settings-button secondary" onclick="clearResults()">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+
+                <div class="settings-row">
+                    <label>Quality:</label>
+                    <div class="quality-slider">
+                        <input type="range" id="quality-slider" min="1" max="100" value="80" class="settings-input" oninput="updateQualityDisplay()">
+                        <span class="quality-value" id="quality-display">80%</span>
+                    </div>
+                </div>
+
+                <div class="settings-row">
+                    <label>Max Dimension:</label>
+                    <select id="max-dimension" class="settings-input">
+                        <option value="original">Keep Original</option>
+                        <option value="1920">1920px (Full HD)</option>
+                        <option value="1280">1280px (HD)</option>
+                        <option value="800">800px</option>
+                        <option value="400">400px</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="conversion-results" id="conversion-results">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebP conversion functionality
+        let currentFile = null;
+        let convertedBlob = null;
+
+        function updateQualityDisplay() {
+            const slider = document.getElementById('quality-slider');
+            const display = document.getElementById('quality-display');
+            display.textContent = slider.value + '%';
+        }
+
+        function showStatus(message, type = 'info') {
+            const resultsContainer = document.getElementById('conversion-results');
+            resultsContainer.innerHTML = `
+                <div class="status-message status-${type}">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showLoading(filename) {
+            const resultsContainer = document.getElementById('conversion-results');
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <h3>Converting ${filename}...</h3>
+                    <p>Please wait while we process your image with Advanced WebP compression.</p>
+                </div>
+            `;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function handleImageConversion(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            currentFile = file;
+            showLoading(file.name);
+
+            try {
+                const quality = parseInt(document.getElementById('quality-slider').value);
+                const maxDimension = document.getElementById('max-dimension').value;
+                
+                convertedBlob = await convertImageToWebP(file, quality, maxDimension);
+                
+                const originalSize = file.size;
+                const convertedSize = convertedBlob.size;
+                const savingsPercent = ((originalSize - convertedSize) / originalSize * 100).toFixed(1);
+                
+                displayResults(file, convertedBlob, originalSize, convertedSize, savingsPercent, quality);
+            } catch (error) {
+                showStatus(`Conversion failed: ${error.message}`, 'error');
+            }
+        }
+
+        function displayResults(originalFile, webpBlob, originalSize, convertedSize, savingsPercent, quality) {
+            const resultsContainer = document.getElementById('conversion-results');
+            const originalUrl = URL.createObjectURL(originalFile);
+            const webpUrl = URL.createObjectURL(webpBlob);
+            const filename = originalFile.name.replace(/\.[^/.]+$/, '') + '.webp';
+
+            resultsContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3>Conversion Results</h3>
+                        <span class="status-message status-success">
+                            <i class="fas fa-check-circle"></i> Success
+                        </span>
+                    </div>
+                    
+                    <div class="result-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Original Size</div>
+                            <div class="stat-value">${formatFileSize(originalSize)}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">WebP Size</div>
+                            <div class="stat-value">${formatFileSize(convertedSize)}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Savings</div>
+                            <div class="stat-value ${parseFloat(savingsPercent) > 0 ? 'savings-positive' : 'savings-negative'}">${savingsPercent}%</div>
+                        </div>
+                    </div>
+
+                    <div class="preview-section">
+                        <h4>Preview</h4>
+                        <div class="preview-images">
+                            <div class="preview-item">
+                                <h5>Original</h5>
+                                <img src="${originalUrl}" alt="Original" onclick="previewImage('${originalUrl}')">
+                                <p>${originalFile.type}</p>
+                            </div>
+                            <div class="preview-item">
+                                <h5>WebP</h5>
+                                <img src="${webpUrl}" alt="WebP" onclick="previewImage('${webpUrl}')">
+                                <p>image/webp</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="settings-button" onclick="downloadFile('${webpUrl}', '${filename}')">
+                            <i class="fas fa-download"></i> Download WebP
+                        </button>
+                        <button class="settings-button secondary" onclick="clearResults()">
+                            <i class="fas fa-redo"></i> Convert Another
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function convertImageToWebP(file, quality, maxDimension) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let { width, height } = img;
+                        
+                        // Resize if max dimension specified
+                        if (maxDimension !== 'original') {
+                            const maxDim = parseInt(maxDimension);
+                            if (width > maxDim || height > maxDim) {
+                                const ratio = Math.min(maxDim / width, maxDim / height);
+                                width = Math.floor(width * ratio);
+                                height = Math.floor(height * ratio);
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                resolve(blob);
+                            } else {
+                                reject(new Error('WebP conversion not supported'));
+                            }
+                        }, 'image/webp', quality / 100);
+                    };
+                    
+                    img.onerror = function() {
+                        reject(new Error('Failed to load image'));
+                    };
+                    
+                    img.src = e.target.result;
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Failed to read file'));
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function previewImage(url) {
+            const newWindow = window.open(url, '_blank');
+            if (newWindow) {
+                newWindow.focus();
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('conversion-results').innerHTML = '';
+            document.getElementById('file-input').value = '';
+            currentFile = null;
+            convertedBlob = null;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateQualityDisplay();
+        });
+    </script>
+</body>
+</html>
