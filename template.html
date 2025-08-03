@@ -57,6 +57,14 @@
     <!-- Google Fonts (Inter for body, JetBrains Mono for code) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    
     <style>
         /* Design Principles Documentation (Hidden from view but in source) */
         /* 
@@ -128,6 +136,52 @@
             color: #d4d4d4;
         }
         
+        /* Prism.js styling */
+        pre[class*="language-"] {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        code[class*="language-"] {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            color: #e2e8f0;
+        }
+        
+        .code-block-container {
+            position: relative;
+            margin: 1rem 0;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .copy-btn.copied {
+            background: #10b981;
+        }
+        
         /* Animation utilities */
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
@@ -155,8 +209,8 @@
                         <i class="fas fa-file-alt text-white text-lg"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-linear-gray-900">Document Title</h1>
-                        <p class="text-sm text-linear-gray-500">Content description or subtitle</p>
+                        <h1 class="text-2xl font-bold text-linear-gray-900">Document Title: Python Data Structures Guide</h1>
+                        <p class="text-sm text-linear-gray-500">Content description or subtitle: Comprehensive overview of Python's built-in data structures</p>
                     </div>
                 </div>
                 <nav class="hidden md:flex items-center space-x-4">
@@ -181,8 +235,8 @@
                 </li>
                 <li class="text-linear-gray-400">/</li>
                 <li>
-                    <a href="category.html" class="text-linear-gray-500 hover:text-linear-gray-700 transition-colors font-medium">
-                        Category Name
+                    <a href="computer_science.html" class="text-linear-gray-500 hover:text-linear-gray-700 transition-colors font-medium">
+                        Category Name: Computer Science
                     </a>
                 </li>
                 <li class="text-linear-gray-400">/</li>
@@ -222,8 +276,8 @@
                             </div>
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-linear-gray-900 mb-2">Main Content Title</h1>
-                            <p class="text-lg text-linear-gray-600">Brief description of the content or problem being addressed</p>
+                            <h1 class="text-3xl font-bold text-linear-gray-900 mb-2">Main Content Title: Python Data Structures: Lists, Dictionaries & Sets</h1>
+                            <p class="text-lg text-linear-gray-600">Brief description of the content or problem being addressed: Master Python's fundamental data structures with practical examples and performance insights</p>
                         </div>
                     </div>
                 </div>
@@ -234,8 +288,8 @@
                     <!-- Section Template -->
                     <section id="section-1" class="mb-12">
                         <h2 class="text-2xl font-bold text-linear-gray-900 mb-4 flex items-center">
-                            <i class="fas fa-section-icon mr-3 text-linear-blue-500"></i>
-                            Section Title
+                            <i class="fas fa-list mr-3 text-linear-blue-500"></i>
+                            Section Title: Python Lists: Ordered Collections
                         </h2>
                         
                         <!-- Visual Element: Diagram or Chart -->
@@ -246,27 +300,35 @@
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
                             </div>
-                            <p class="text-sm text-linear-gray-500 text-center mt-2">Visual representation of concept</p>
+                            <p class="text-sm text-linear-gray-500 text-center mt-2">Python list indexing visualization</p>
                         </div>
 
                         <!-- Content Block -->
                         <div class="bg-white rounded-lg shadow-sm border border-linear-gray-200 p-6">
-                            <h3 class="text-lg font-semibold text-linear-gray-900 mb-3">Subsection Title</h3>
+                            <h3 class="text-lg font-semibold text-linear-gray-900 mb-3">Creating and Manipulating Lists</h3>
                             <p class="text-linear-gray-700 mb-4">
-                                Original content from source document goes here. Preserve the original meaning while enhancing presentation.
+                                Python lists are ordered, mutable collections that can store items of different types. They support fast O(1) indexing and provide numerous built-in methods for manipulation.
                             </p>
                             
                             <!-- Code Block -->
-                            <div class="bg-linear-gray-900 rounded-lg p-4 mb-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-xs text-linear-gray-400 font-mono">code.example</span>
-                                    <button class="text-xs text-linear-gray-400 hover:text-white transition-colors copy-btn">
-                                        <i class="fas fa-copy mr-1"></i>Copy
-                                    </button>
+                            <div class="code-block-container">
+                                <div class="bg-linear-gray-900 rounded-lg p-4 mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs text-linear-gray-400 font-mono">list_operations.py</span>
+                                        <button class="text-xs text-linear-gray-400 hover:text-white transition-colors copy-btn" onclick="copyCode(this)">
+                                            <i class="fas fa-copy mr-1"></i>Copy
+                                        </button>
+                                    </div>
+                                    <pre><code class="language-python"># Creating and manipulating lists
+fruits = ['apple', 'banana', 'orange']
+fruits.append('grape')        # Add to end
+fruits.insert(1, 'kiwi')      # Insert at index
+first_item = fruits[0]        # Access by index
+fruits.remove('banana')       # Remove by value
+popped = fruits.pop()         # Remove and return last
+print(f"List: {fruits}")
+print(f"Length: {len(fruits)}")</code></pre>
                                 </div>
-                                <pre class="text-sm text-linear-gray-300 font-mono overflow-x-auto"><code>// Example code block
-const example = "This is how you preserve original content";
-console.log(example);</code></pre>
                             </div>
 
                             <!-- Info Box -->
@@ -277,7 +339,7 @@ console.log(example);</code></pre>
                                     </div>
                                     <div class="ml-3">
                                         <p class="text-sm text-blue-700">
-                                            <strong>Note:</strong> Important information or tip related to the content.
+                                            <strong>Performance Tip:</strong> List comprehensions are generally faster than equivalent for loops for creating new lists.
                                         </p>
                                     </div>
                                 </div>
@@ -289,7 +351,7 @@ console.log(example);</code></pre>
                     <section id="section-2" class="mb-12">
                         <h2 class="text-2xl font-bold text-linear-gray-900 mb-4 flex items-center">
                             <i class="fas fa-list-ol mr-3 text-linear-blue-500"></i>
-                            Step-by-Step Guide
+                            Step-by-Step Guide - Dictionaries: Key-Value Storage
                         </h2>
                         
                         <div class="space-y-4">
@@ -301,9 +363,9 @@ console.log(example);</code></pre>
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="text-lg font-semibold text-linear-gray-900 mb-2">Step Title</h3>
+                                    <h3 class="text-lg font-semibold text-linear-gray-900 mb-2">Creating Dictionaries</h3>
                                     <p class="text-linear-gray-700">
-                                        Detailed step description with clear instructions.
+                                        Dictionaries store key-value pairs with O(1) average lookup time. Keys must be immutable, while values can be any type.
                                     </p>
                                     
                                     <!-- Visual element for step -->
@@ -323,9 +385,9 @@ console.log(example);</code></pre>
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="text-lg font-semibold text-linear-gray-900 mb-2">Next Step</h3>
+                                    <h3 class="text-lg font-semibold text-linear-gray-900 mb-2">Working with Sets</h3>
                                     <p class="text-linear-gray-700">
-                                        Continue with the next logical step in the process.
+                                        Sets provide unordered storage of unique elements with O(1) average time complexity for add, remove, and lookup operations.
                                     </p>
                                 </div>
                             </div>
@@ -359,23 +421,49 @@ console.log(example);</code></pre>
     <!-- JavaScript for Interactive Features -->
     <script>
         // Copy code functionality
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', async (e) => {
-                const codeBlock = e.target.closest('.bg-linear-gray-900').querySelector('code');
-                const text = codeBlock.textContent;
-                
-                try {
-                    await navigator.clipboard.writeText(text);
-                    const originalText = e.target.innerHTML;
-                    e.target.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
-                    setTimeout(() => {
-                        e.target.innerHTML = originalText;
-                    }, 2000);
-                } catch (err) {
-                    console.error('Failed to copy text: ', err);
-                }
+        function copyCode(button) {
+            const codeBlock = button.closest('.bg-linear-gray-900').querySelector('code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
             });
-        });
+        }
+        
+        // Enhanced copy functionality with Prism.js support
+        function addCopyButtons() {
+            document.querySelectorAll('pre[class*="language-"]').forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.className = 'absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors';
+                
+                copyBtn.onclick = async () => {
+                    const code = block.querySelector('code').textContent.trim();
+                    try {
+                        await navigator.clipboard.writeText(code);
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                        copyBtn.classList.add('bg-green-600');
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                            copyBtn.classList.remove('bg-green-600');
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy: ', err);
+                    }
+                };
+                
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+            });
+        }
 
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -415,6 +503,8 @@ console.log(example);</code></pre>
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', function() {
             generateTableOfContents();
+            addCopyButtons();
+            Prism.highlightAll();
         });
 
         // Progressive enhancement for images
