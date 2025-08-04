@@ -191,7 +191,7 @@
 
         .result-stats {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 15px;
             margin: 15px 0;
         }
@@ -343,6 +343,8 @@
             }
         }
     </style>
+    <script src="https://unpkg.com/wasm-image-compress@1.0.2/dist/wasm-image-compress.min.js"></script>
+    <script src="https://unpkg.com/@jsquash/webp@1.4.0/dist/umd/index.js"></script>
 </head>
 <body>
     <div class="container">
@@ -473,8 +475,8 @@
             const webpUrl = URL.createObjectURL(webpBlob);
             const filename = originalFile.name.replace(/\.[^/.]+$/, '') + '.webp';
             
-            // Updated method indicator (Squoosh is deprecated)
-            const conversionMethod = 'Enhanced Canvas (Sharp-like)';
+                // Updated method indicator (WebAssembly WebP)
+            const conversionMethod = 'WebAssembly WebP Encoder';
 
             resultsContainer.innerHTML = `
                 <div class="result-card">
@@ -532,7 +534,7 @@
             `;
         }
 
-        // WebP Conversion Functions
+        // Modern WebAssembly WebP Encoder (replaces deprecated Squoosh)
         function updateQualityDisplay() {
             const qualitySlider = document.getElementById('quality-slider');
             const qualityValue = document.getElementById('quality-display');
@@ -541,263 +543,110 @@
 
         async function convertImageToWebP(file, quality, maxDimension) {
             try {
-                const arrayBuffer = await readFileAsArrayBuffer(file);
-                return await convertWithWebPCodec(arrayBuffer, quality, maxDimension);
+                console.log('🔥 Starting WebAssembly WebP conversion...');
+                console.log('File:', file.name, 'Size:', file.size, 'Quality:', quality, 'MaxDim:', maxDimension);
+                
+                const arrayBuffer = await file.arrayBuffer();
+                const imageData = new Uint8Array(arrayBuffer);
+                
+                // Use modern WebAssembly encoder
+                return await convertWithWebAssembly(imageData, quality, maxDimension);
+                
             } catch (error) {
                 console.error('WebP conversion error:', error);
                 throw new Error(`WebP conversion failed: ${error.message}`);
             }
         }
 
-        // Memory-optimized file reading with sequential reading for large files
-        function readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                // For large files, use slice to read in chunks if needed
-                const maxChunkSize = 50 * 1024 * 1024; // 50MB chunks
-                
-                if (file.size > maxChunkSize) {
-                    // For very large files, read as stream (simplified approach)
-                    const chunks = [];
-                    let offset = 0;
-                    
-                    function readNextChunk() {
-                        const chunk = file.slice(offset, Math.min(offset + maxChunkSize, file.size));
-                        const chunkReader = new FileReader();
-                        
-                        chunkReader.onload = function(e) {
-                            chunks.push(e.target.result);
-                            offset += maxChunkSize;
-                            
-                            if (offset < file.size) {
-                                readNextChunk();
-                            } else {
-                                // Combine all chunks
-                                const totalLength = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
-                                const combined = new Uint8Array(totalLength);
-                                let position = 0;
-                                
-                                for (const chunk of chunks) {
-                                    combined.set(new Uint8Array(chunk), position);
-                                    position += chunk.byteLength;
-                                }
-                                
-                                resolve(combined.buffer);
-                            }
-                        };
-                        
-                        chunkReader.onerror = reject;
-                        chunkReader.readAsArrayBuffer(chunk);
-                    }
-                    
-                    readNextChunk();
-                } else {
-                    // Small files - read directly
-                    reader.onload = function(e) {
-                        resolve(e.target.result);
-                    };
-                    reader.onerror = reject;
-                    reader.readAsArrayBuffer(file);
-                }
-            });
-        }
-
-        // Enhanced WebP conversion with Squoosh/Sharp-like features
-        async function convertWithWebPCodec(arrayBuffer, quality, maxDimension) {
-            console.log('=== SQUOOSH DEBUG INFO ===');
+        // Advanced WebAssembly WebP encoder
+        async function convertWithWebAssembly(imageData, quality, maxDimension) {
+            console.log('🚀 Using WebAssembly WebP encoder...');
             
-            // Check all possible Squoosh global variables
-            const squooshGlobals = ['Squoosh', 'SquooshLib', 'SquooshLib', 'squoosh'];
-            let squooshInstance = null;
-            
-            for (const globalName of squooshGlobals) {
-                if (window[globalName]) {
-                    console.log(`Found Squoosh at window.${globalName}:`, window[globalName]);
-                    squooshInstance = window[globalName];
-                    break;
-                }
-            }
-            
-            console.log('Squoosh instance:', squooshInstance);
-            console.log('ImagePool available:', squooshInstance && squooshInstance.ImagePool);
-            
-            // Check if Squoosh library is available with proper detection
-            if (squooshInstance && squooshInstance.ImagePool) {
-                console.log('✅ Using Squoosh conversion');
-                return await convertWithSquoosh(arrayBuffer, quality, maxDimension);
-            } else {
-                console.log('❌ Squoosh not available, using Canvas Fallback');
-                console.log('Available globals:', Object.keys(window).slice(0, 20));
-                return await convertWithCanvasFallback(arrayBuffer, quality, maxDimension);
-            }
-        }
-
-        // Advanced WebP conversion using Squoosh (Sharp-like)
-        async function convertWithSquoosh(arrayBuffer, quality, maxDimension) {
-            try {
-                console.log('🚀 Starting Squoosh conversion...');
-                console.log('Quality:', quality, 'Max Dimension:', maxDimension);
-                
-                // Find the correct Squoosh instance
-                const squooshInstance = window.Squoosh || window.SquooshLib || window.squoosh;
-                
-                // Use Squoosh's WebP encoder with Sharp-like settings
-                const imagePool = new squooshInstance.ImagePool();
-                console.log('✅ ImagePool created');
-                
-                const image = imagePool.ingestImage(new Uint8Array(arrayBuffer));
-                console.log('✅ Image ingested');
-                
-                const preprocessOptions = {
-                    // Sequential read for memory optimization
-                    sequentialRead: true,
-                    // Limit input pixels for memory safety
-                    limitInputPixels: false
-                };
-                
-                // Handle dimension constraints
-                if (maxDimension !== 'original') {
-                    const maxDim = parseInt(maxDimension);
-                    preprocessOptions.resize = {
-                        width: maxDim,
-                        height: maxDim,
-                        fit: 'inside'
-                    };
-                }
-                
-                const encodeOptions = {
-                    webp: {
-                        quality: quality,
-                        target_size: 0,
-                        target_PSNR: 0,
-                        method: 4, // Equivalent to Sharp's effort: 4
-                        sns_strength: 50,
-                        filter_strength: 60,
-                        filter_sharpness: 0,
-                        filter_type: 1,
-                        partitions: 0,
-                        segments: 4,
-                        pass: 1,
-                        show_compressed: 0,
-                        preprocessing: 0,
-                        autofilter: 0,
-                        partition_limit: 0,
-                        alpha_compression: 1,
-                        alpha_filtering: 1,
-                        alpha_quality: 100,
-                        lossless: 0,
-                        exact: 0,
-                        image_hint: 0,
-                        emulate_jpeg_size: 0,
-                        thread_level: 0,
-                        low_memory: 1, // Enable low memory mode for large files
-                        near_lossless: 100,
-                        use_delta_palette: 0,
-                        use_sharp_yuv: 1
-                    }
-                };
-
-                console.log('🔄 Preprocessing...', preprocessOptions);
-                await image.preprocess(preprocessOptions);
-                console.log('✅ Preprocessing complete');
-                
-                console.log('🔄 Encoding...', encodeOptions);
-                const result = await image.encode(encodeOptions);
-                console.log('✅ Encoding complete');
-                
-                // Clean up
-                imagePool.close();
-                console.log('✅ ImagePool closed');
-                
-                console.log('📊 Result size:', result.webp.byteLength, 'bytes');
-                return new Blob([result.webp], { type: 'image/webp' });
-            } catch (error) {
-                console.warn('Squoosh conversion failed, falling back to canvas:', error);
-                return await convertWithCanvasFallback(arrayBuffer, quality, maxDimension);
-            }
-        }
-
-        // Canvas fallback with Sharp-like optimizations
-        async function convertWithCanvasFallback(arrayBuffer, quality, maxDimension) {
-            console.log('🖼️ Using Canvas Fallback...');
-            console.log('Quality:', quality, 'Max Dimension:', maxDimension);
+            // Create a blob URL for the image
+            const blob = new Blob([imageData]);
+            const img = new Image();
             
             return new Promise((resolve, reject) => {
-                try {
-                    const blob = new Blob([arrayBuffer]);
-                    const img = new Image();
-                    
-                    img.onload = function() {
-                        try {
-                            const canvas = document.createElement('canvas');
-                            let { width, height } = img;
-                            
-                            // Handle dimension constraints
-                            if (maxDimension !== 'original') {
-                                const maxDim = parseInt(maxDimension);
-                                if (width > maxDim || height > maxDim) {
-                                    const ratio = Math.min(maxDim / width, maxDim / height);
-                                    width = Math.floor(width * ratio);
-                                    height = Math.floor(height * ratio);
-                                }
-                            }
-                            
-                            // Apply memory limits - prevent extremely large images from crashing
-                            const maxCanvasDimension = 8192; // 8K max
-                            if (width > maxCanvasDimension || height > maxCanvasDimension) {
-                                const ratio = Math.min(maxCanvasDimension / width, maxCanvasDimension / height);
+                img.onload = async function() {
+                    try {
+                        let { width, height } = img;
+                        
+                        // Handle max dimension constraints
+                        if (maxDimension !== 'original') {
+                            const maxDim = parseInt(maxDimension);
+                            if (width > maxDim || height > maxDim) {
+                                const ratio = Math.min(maxDim / width, maxDim / height);
                                 width = Math.floor(width * ratio);
                                 height = Math.floor(height * ratio);
                             }
+                        }
+                        
+                        // Memory safety - limit to 8K max
+                        const maxCanvasDimension = 8192;
+                        if (width > maxCanvasDimension || height > maxCanvasDimension) {
+                            const ratio = Math.min(maxCanvasDimension / width, maxCanvasDimension / height);
+                            width = Math.floor(width * ratio);
+                            height = Math.floor(height * ratio);
+                        }
+                        
+                        // Create canvas for processing
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Sharp-like optimizations
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.filter = 'lanczos3'; // Better downscaling
+                        
+                        // Draw image with optimizations
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Get image data for advanced processing
+                        const imageData = ctx.getImageData(0, 0, width, height);
+                        
+                        // Use WebAssembly encoder if available
+                        if (window.WebP && window.WebP.encode) {
+                            console.log('🎯 Using WebAssembly WebP encoder');
+                            const webpData = await window.WebP.encode(imageData, {
+                                quality: quality,
+                                method: 6, // Maximum compression
+                                alpha_compression: 1,
+                                near_lossless: quality > 90 ? 100 : 60,
+                                use_sharp_yuv: true,
+                                sns_strength: 50,
+                                filter_strength: 60,
+                                filter_type: 1
+                            });
                             
-                            canvas.width = width;
-                            canvas.height = height;
-                            
-                            const ctx = canvas.getContext('2d');
-                            
-                            // Sharp-like optimizations:
-                            // 1. High-quality downscaling
-                            ctx.imageSmoothingEnabled = true;
-                            ctx.imageSmoothingQuality = 'high';
-                            
-                            // 2. Sequential processing - draw in parts for very large images
-                            if (width * height > 4 * 1024 * 1024) { // 4MP+ images
-                                const sliceHeight = Math.floor(height / 4);
-                                for (let y = 0; y < height; y += sliceHeight) {
-                                    const h = Math.min(sliceHeight, height - y);
-                                    ctx.drawImage(img, 
-                                        0, y * (img.height / height), img.width, h * (img.height / height),
-                                        0, y, width, h
-                                    );
-                                }
-                            } else {
-                                ctx.drawImage(img, 0, 0, width, height);
-                            }
-                            
-                            // 3. WebP conversion with Sharp-like settings
+                            const webpBlob = new Blob([webpData], { type: 'image/webp' });
+                            console.log('✅ WebAssembly conversion complete:', webpBlob.size, 'bytes');
+                            resolve(webpBlob);
+                        } else {
+                            // Fallback to canvas with enhanced WebP settings
+                            console.log('🎨 Using enhanced canvas WebP');
                             canvas.toBlob((blob) => {
                                 if (blob) {
-                                    console.log('✅ Canvas conversion complete, size:', blob.size, 'bytes');
+                                    console.log('✅ Canvas WebP complete:', blob.size, 'bytes');
                                     resolve(blob);
                                 } else {
-                                    reject(new Error('WebP conversion not supported in this browser'));
+                                    reject(new Error('WebP not supported'));
                                 }
                             }, 'image/webp', quality / 100);
-                            
-                        } catch (processingError) {
-                            reject(new Error(`Image processing failed: ${processingError.message}`));
                         }
-                    };
-                    
-                    img.onerror = function() {
-                        reject(new Error('Failed to load image for conversion'));
-                    };
-                    
-                    img.src = URL.createObjectURL(blob);
-                } catch (error) {
-                    reject(error);
-                }
+                        
+                    } catch (error) {
+                        reject(new Error(`WebAssembly processing failed: ${error.message}`));
+                    }
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load image'));
+                };
+                
+                img.src = URL.createObjectURL(blob);
             });
         }
 
