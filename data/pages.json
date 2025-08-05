@@ -46,5 +46,13 @@
         "tags": ["canvas-game", "strategy-game", "game-architecture", "javascript", "html5-canvas", "data-persistence", "infinite-canvas", "client-side", "architecture"],
         "category": "game-development",
         "date": "2025-07-30"
+    },
+    {
+        "title": "浏览器缓存问题解决方案",
+        "description": "前端开发缓存问题终极解决指南，涵盖立即修复、预防方法和终极根治方案。",
+        "url": "programming/01/浏览器缓存问题解决方案-browser-cache-issue.html",
+        "tags": ["browser-cache", "frontend-development", "performance", "web-development", "cache-control", "meta-tags", "dev-tools", "vite", "webpack", "python-server"],
+        "category": "frontend-development",
+        "date": "2025-08-05"
     }
 ]
